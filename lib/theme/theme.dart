@@ -10,10 +10,10 @@ class FontFamily {
   FontFamily._();
 
   /// Serif placeholder (EB Garamond) — display, headlines, titles
-  static const String serif = '[SerifFont]';
+  static const String serif = 'EnglishLiterature';
 
   /// Sans-serif placeholder — body copy, labels, UI elements
-  static const String sans = '[SansFont]';
+  static const String sans = 'GoogleSans';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -401,12 +401,15 @@ TextTheme _buildTextTheme(ColorScheme cs) {
     displayLarge: _TypographyTokens.displayLarge.copyWith(color: cs.onSurface),
 
     // ── Headlines ───────────────────────────────────────────────────────
-    headlineLarge:
-        _TypographyTokens.headlineLarge.copyWith(color: cs.onSurface),
-    headlineMedium:
-        _TypographyTokens.headlineMedium.copyWith(color: cs.onSurface),
-    headlineSmall:
-        _TypographyTokens.headlineSmall.copyWith(color: cs.onSurface),
+    headlineLarge: _TypographyTokens.headlineLarge.copyWith(
+      color: cs.onSurface,
+    ),
+    headlineMedium: _TypographyTokens.headlineMedium.copyWith(
+      color: cs.onSurface,
+    ),
+    headlineSmall: _TypographyTokens.headlineSmall.copyWith(
+      color: cs.onSurface,
+    ),
 
     // ── Titles ──────────────────────────────────────────────────────────
     titleMedium: _TypographyTokens.titleMedium.copyWith(color: cs.onSurface),
@@ -470,9 +473,7 @@ OutlinedButtonThemeData _buildOutlinedButtonTheme(
         horizontal: AppSpacing.containerPadding,
         vertical: AppSpacing.base * 2, // 16px
       ),
-      textStyle: _TypographyTokens.labelLarge.copyWith(
-        color: cs.onSurface,
-      ),
+      textStyle: _TypographyTokens.labelLarge.copyWith(color: cs.onSurface),
     ),
   );
 }
@@ -528,28 +529,23 @@ InputDecorationTheme _buildInputDecorationTheme(
         vertical: AppSpacing.base * 1.5, // 12px
       ),
       border: OutlineInputBorder(
-        borderRadius:
-            const BorderRadius.all(Radius.circular(AppRadius.full)),
+        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.full)),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius:
-            const BorderRadius.all(Radius.circular(AppRadius.full)),
+        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.full)),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius:
-            const BorderRadius.all(Radius.circular(AppRadius.full)),
+        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.full)),
         borderSide: BorderSide(color: cs.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius:
-            const BorderRadius.all(Radius.circular(AppRadius.full)),
+        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.full)),
         borderSide: BorderSide(color: cs.error, width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius:
-            const BorderRadius.all(Radius.circular(AppRadius.full)),
+        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.full)),
         borderSide: BorderSide(color: cs.error, width: 2),
       ),
       hintStyle: _TypographyTokens.bodyMedium.copyWith(
@@ -574,10 +570,7 @@ CardThemeData _buildCardTheme(ColorScheme cs, Brightness brightness) {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(AppRadius.xl), // 48px
       side: isDark
-          ? BorderSide(
-              color: cs.onSurface.withValues(alpha: 0.10),
-              width: 1,
-            )
+          ? BorderSide(color: cs.onSurface.withValues(alpha: 0.10), width: 1)
           : BorderSide.none,
     ),
     margin: const EdgeInsets.symmetric(
@@ -591,9 +584,7 @@ ChipThemeData _buildChipThemeData(ColorScheme cs) {
   return ChipThemeData(
     backgroundColor: cs.surfaceContainerHigh,
     selectedColor: cs.primaryContainer,
-    labelStyle: _TypographyTokens.labelSmall.copyWith(
-      color: cs.onSurface,
-    ),
+    labelStyle: _TypographyTokens.labelSmall.copyWith(color: cs.onSurface),
     secondaryLabelStyle: _TypographyTokens.labelSmall.copyWith(
       color: cs.onPrimaryContainer,
     ),
