@@ -48,8 +48,9 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   Future<void> setGlassIntensity(GlassIntensity intensity) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings())
-          .copyWith(glassIntensity: intensity),
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        glassIntensity: intensity,
+      ),
     );
   }
 
@@ -61,8 +62,37 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   Future<void> setTabNamingStyle(TabNamingStyle style) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings())
-          .copyWith(tabNamingStyle: style),
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        tabNamingStyle: style,
+      ),
+    );
+  }
+
+  // ── Notification setters ─────────────────────────────────────────────
+
+  Future<void> setNotificationEnabled(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        isNotificationEnabled: enabled,
+      ),
+    );
+  }
+
+  Future<void> setUrgentNotificationStyle(UrgentNotificationStyle style) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        urgentNotificationStyle: style,
+      ),
+    );
+  }
+
+  Future<void> setApproachingNotificationStyle(
+    ApproachingNotificationStyle style,
+  ) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        approachingNotificationStyle: style,
+      ),
     );
   }
 }

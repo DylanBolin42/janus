@@ -129,6 +129,62 @@ extension TabNamingStyleLabel on TabNamingStyle {
   }
 }
 
+// 紧迫项的提醒方式
+enum UrgentNotificationStyle {
+  @JsonValue('notifier')
+  notifier,
+  @JsonValue('notifierAndShake')
+  notifierAndShake,
+  @JsonValue('notifierAndRing')
+  notifierAndRing,
+  @JsonValue('FullScreenNotifier')
+  fullScreenNotifier,
+}
+
+// Display label for [UrgentNotificationStyle] in the settings UI.
+extension UrgentNotificationStyleLabel on UrgentNotificationStyle {
+  String get label {
+    switch (this) {
+      case UrgentNotificationStyle.notifier:
+        return '仅通知';
+      case UrgentNotificationStyle.notifierAndShake:
+        return '通知+震动';
+      case UrgentNotificationStyle.notifierAndRing:
+        return '通知+响铃';
+      case UrgentNotificationStyle.fullScreenNotifier:
+        return '全屏通知';
+    }
+  }
+}
+
+// 迫近项的提醒方式
+enum ApproachingNotificationStyle {
+  @JsonValue('notifier')
+  notifier,
+  @JsonValue('notifierAndShake')
+  notifierAndShake,
+  @JsonValue('notifierAndRing')
+  notifierAndRing,
+  @JsonValue('FullScreenNotifier')
+  fullScreenNotifier,
+}
+
+// Display label for [ApproachingNotificationStyle] in the settings UI.
+extension ApproachingNotificationStyleLabel on ApproachingNotificationStyle {
+  String get label {
+    switch (this) {
+      case ApproachingNotificationStyle.notifier:
+        return '仅通知';
+      case ApproachingNotificationStyle.notifierAndShake:
+        return '通知+震动';
+      case ApproachingNotificationStyle.notifierAndRing:
+        return '通知+响铃';
+      case ApproachingNotificationStyle.fullScreenNotifier:
+        return '全屏通知';
+    }
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Freezed model — AppSettings
 // ─────────────────────────────────────────────────────────────────────────────
@@ -140,10 +196,18 @@ extension TabNamingStyleLabel on TabNamingStyle {
 @freezed
 class AppSettings with _$AppSettings {
   const factory AppSettings({
+    // Gereral settings
     @Default(AppThemeMode.system) AppThemeMode themeMode,
     @Default(GlassIntensity.moderate) GlassIntensity glassIntensity,
     @Default(AppLanguage.chinese) AppLanguage language,
     @Default(TabNamingStyle.classic) TabNamingStyle tabNamingStyle,
+
+    // Notification settings
+    @Default(false) bool isNotificationEnabled,
+    @Default(UrgentNotificationStyle.notifier)
+    UrgentNotificationStyle urgentNotificationStyle,
+    @Default(ApproachingNotificationStyle.notifier)
+    ApproachingNotificationStyle approachingNotificationStyle,
   }) = _AppSettings;
 
   const AppSettings._();
