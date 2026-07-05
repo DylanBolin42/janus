@@ -11,13 +11,28 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String? routeName = GoRouterState.of(context).name;
+    final String title = routeName != null
+        ? (RouteDisplayName.names[routeName] ?? routeName)
+        : 'Janus';
+
     return GlassScaffold(
-      appBar: GlassAppBar(title: Text('Janus'),actions: [GlassIconButton(icon: Icon(Icons.settings_rounded), onPressed: (){})],), //TODO: 使用分页面名称
+      appBar: GlassAppBar(
+        title: Text(title),
+        actions: [
+          GlassIconButton(
+            icon: Icon(Icons.settings_rounded),
+            onPressed: () {
+              context.go(RoutePath.setting);
+            },
+          ),
+        ],
+      ),
       body: child,
       bottomBar: GlassTabBar.bottom(
         extraButton: GlassTabBarExtraButton(
           icon: Icon(Icons.add_rounded),
-          onTap: () {},
+          onTap: () {}, //TODO: 添加功能
           label: 'Add',
         ),
         selectedIconColor: Theme.of(context).colorScheme.primary,

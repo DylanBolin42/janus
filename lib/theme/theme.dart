@@ -12,6 +12,9 @@ class FontFamily {
   /// Serif placeholder (EB Garamond) — display, headlines, titles
   static const String serif = 'EnglishLiterature';
 
+  /// Chinese serif (Noto Serif SC) — fallback for CJK glyphs in serif styles
+  static const String chineseSerif = 'ChineseLiterature';
+
   /// Sans-serif placeholder — body copy, labels, UI elements
   static const String sans = 'GoogleSans';
 }
@@ -39,6 +42,10 @@ class AppSpacing {
 
   /// Page-level horizontal margin on mobile
   static const double marginMobile = 16.0;
+
+  /// Top and bottom safe areas
+  static const double topSafeArea = 120.0;
+  static const double bottomSafeArea = 60.0;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -205,6 +212,7 @@ abstract class _TypographyTokens {
   /// display-lg — 64px serif, editorial hero moments (from dark theme)
   static const TextStyle displayLarge = TextStyle(
     fontFamily: FontFamily.serif,
+    fontFamilyFallback: [FontFamily.chineseSerif],
     fontSize: 64,
     fontWeight: FontWeight.w500,
     height: 72 / 64, // 72px line-height
@@ -216,6 +224,7 @@ abstract class _TypographyTokens {
   /// headline-xl — 48px serif (from light theme)
   static const TextStyle headlineLarge = TextStyle(
     fontFamily: FontFamily.serif,
+    fontFamilyFallback: [FontFamily.chineseSerif],
     fontSize: 48,
     fontWeight: FontWeight.w500,
     height: 56 / 48, // 56px line-height
@@ -225,6 +234,7 @@ abstract class _TypographyTokens {
   /// headline-lg — 40px serif (dark theme value, elected)
   static const TextStyle headlineMedium = TextStyle(
     fontFamily: FontFamily.serif,
+    fontFamilyFallback: [FontFamily.chineseSerif],
     fontSize: 40,
     fontWeight: FontWeight.w500,
     height: 48 / 40, // 48px line-height
@@ -233,6 +243,7 @@ abstract class _TypographyTokens {
   /// headline-lg-mobile — 32px serif (dark theme value, elected)
   static const TextStyle headlineSmall = TextStyle(
     fontFamily: FontFamily.serif,
+    fontFamilyFallback: [FontFamily.chineseSerif],
     fontSize: 32,
     fontWeight: FontWeight.w500,
     height: 40 / 32, // 40px line-height
@@ -243,6 +254,7 @@ abstract class _TypographyTokens {
   /// title-md — 24px serif, editorial subheads (from dark theme)
   static const TextStyle titleMedium = TextStyle(
     fontFamily: FontFamily.serif,
+    fontFamilyFallback: [FontFamily.chineseSerif],
     fontSize: 24,
     fontWeight: FontWeight.w400,
     height: 32 / 24, // 32px line-height
@@ -398,21 +410,30 @@ ColorScheme _lightColorScheme() {
 TextTheme _buildTextTheme(ColorScheme cs) {
   return TextTheme(
     // ── Display ─────────────────────────────────────────────────────────
-    displayLarge: _TypographyTokens.displayLarge.copyWith(color: cs.onSurface),
+    displayLarge: _TypographyTokens.displayLarge.copyWith(
+      color: cs.onSurface,
+      fontFamily: FontFamily.serif,
+    ),
 
     // ── Headlines ───────────────────────────────────────────────────────
     headlineLarge: _TypographyTokens.headlineLarge.copyWith(
+      fontFamily: FontFamily.serif,
       color: cs.onSurface,
     ),
     headlineMedium: _TypographyTokens.headlineMedium.copyWith(
+      fontFamily: FontFamily.serif,
       color: cs.onSurface,
     ),
     headlineSmall: _TypographyTokens.headlineSmall.copyWith(
+      fontFamily: FontFamily.serif,
       color: cs.onSurface,
     ),
 
     // ── Titles ──────────────────────────────────────────────────────────
-    titleMedium: _TypographyTokens.titleMedium.copyWith(color: cs.onSurface),
+    titleMedium: _TypographyTokens.titleMedium.copyWith(
+      color: cs.onSurface,
+      fontFamily: FontFamily.serif,
+    ),
 
     // ── Body ────────────────────────────────────────────────────────────
     bodyLarge: _TypographyTokens.bodyLarge.copyWith(color: cs.onSurface),
