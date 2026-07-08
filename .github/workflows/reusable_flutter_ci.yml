@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository # 检出代码
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Install Flutter SDK # 安装 Flutter SDK
         uses: subosito/flutter-action@v2.12.0
@@ -70,7 +70,7 @@ jobs:
           genhtml coverage/lcov.info --output-directory coverage/html
 
       - name: Upload Coverage Artifact # 上传覆盖率报告作为 Artifact
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage/html

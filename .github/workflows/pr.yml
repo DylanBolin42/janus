@@ -22,7 +22,7 @@ jobs:
       security-events: write # 允许上传 SARIF 结果
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Gitleaks 需要完整 Git 历史以扫描所有提交
 
@@ -41,7 +41,7 @@ jobs:
           severity: CRITICAL,HIGH
 
       - name: Upload Trivy Scan Results to GitHub Security # 上传 Trivy 扫描结果
-        uses: github/codeql-action/upload-sarif@v3.25.10
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif
 
@@ -53,7 +53,7 @@ jobs:
           output: osv-results.sarif
 
       - name: Upload OSV Scan Results to GitHub Security # 上传 OSV 扫描结果
-        uses: github/codeql-action/upload-sarif@v3.25.10
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: osv-results.sarif
 
@@ -65,7 +65,7 @@ jobs:
           generateSarif: true
 
       - name: Upload Semgrep SARIF to GitHub Security # 上传 Semgrep 扫描结果
-        uses: github/codeql-action/upload-sarif@v3.25.10
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: semgrep.sarif
 
@@ -76,25 +76,25 @@ jobs:
       security-events: write # 允许写入安全事件
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL # 初始化 CodeQL
-        uses: github/codeql-action/init@v3.25.10
+        uses: github/codeql-action/init@v3
         with:
           languages: dart # 指定 Dart 语言
 
       - name: Autobuild # 自动构建 (对于 Dart 项目通常不需要，但保留以防万一)
-        uses: github/codeql-action/autobuild@v3.25.10
+        uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL Analysis # 执行 CodeQL 分析
-        uses: github/codeql-action/analyze@v3.25.10
+        uses: github/codeql-action/analyze@v3
 
   additional_checks:
     needs: call-flutter-ci
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Set up Flutter # 设置 Flutter 环境
         uses: subosito/flutter-action@v2.12.0
