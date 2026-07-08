@@ -11,19 +11,19 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassScaffold(
-      appBar: GlassAppBar(title: Text('Janus')), //TODO: 使用分页面名称
+      appBar: const GlassAppBar(title: Text('Janus')), //TODO: 使用分页面名称
       body: child,
       bottomBar: GlassTabBar.bottom(
         extraButton: GlassBottomBarExtraButton(
-          icon: Icon(Icons.add_rounded),
+          icon: const Icon(Icons.add_rounded),
           onTap: () {},
           label: 'Add',
         ),
         tabs: [
-          GlassTab(icon: Icon(Icons.home_outlined), label: 'Inbox'),
-          GlassTab(icon: Icon(Icons.task_rounded), label: 'Tasks'),
-          GlassTab(icon: Icon(Icons.lock_clock_rounded), label: 'Focus'),
-          GlassTab(icon: Icon(Icons.insights_rounded), label: 'Insights'),
+          GlassTab(icon: const Icon(Icons.home_outlined), label: 'Inbox'),
+          GlassTab(icon: const Icon(Icons.task_rounded), label: 'Tasks'),
+          GlassTab(icon: const Icon(Icons.lock_clock_rounded), label: 'Focus'),
+          GlassTab(icon: const Icon(Icons.insights_rounded), label: 'Insights'),
         ],
         selectedIndex: _calculateSelectedIndex(context),
         onTabSelected: (int index) => _onItemTapped(index, context),
