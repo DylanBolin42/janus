@@ -40,7 +40,7 @@ jobs:
           cache-key: 'flutter-cache-${{ runner.os }}-${{ inputs.flutter_channel }}-${{ inputs.flutter_version }}-${{ inputs.cache_key_suffix }}'
 
       - name: Restore Pub Cache # 恢复 Pub 缓存
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4
         with:
           path: | # 缓存路径
             ${{ env.FLUTTER_ROOT }}/.pub-cache
