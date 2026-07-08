@@ -25,7 +25,7 @@ jobs:
       security-events: write # 允许上传 SARIF 结果
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
         with:
           fetch-depth: 0
 
@@ -44,7 +44,7 @@ jobs:
           severity: CRITICAL,HIGH
 
       - name: Upload Trivy Scan Results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v3.25.10
         with:
           sarif_file: trivy-results.sarif
 
@@ -56,7 +56,7 @@ jobs:
           output: osv-results.sarif
 
       - name: Upload OSV Scan Results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v3.25.10
         with:
           sarif_file: osv-results.sarif
 
@@ -68,7 +68,7 @@ jobs:
           generateSarif: true
 
       - name: Upload Semgrep SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v3.25.10
         with:
           sarif_file: semgrep.sarif
 
@@ -80,18 +80,18 @@ jobs:
       security-events: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v3.25.10
         with:
           languages: dart
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v3.25.10
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v3.25.10
 
   # 额外检查
   additional_checks:
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2.12.0
@@ -179,7 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Install Flutter SDK
         uses: subosito/flutter-action@v2.12.0
@@ -193,7 +193,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.FLUTTER_ROOT }}/.pub-cache
+            /home/runner/.pub-cache
             /home/runner/.gradle/caches
           key: ${{ runner.os }}-pub-gradle-${{ hashFiles('**/pubspec.lock') }}-main-build
           restore-keys: |
@@ -206,7 +206,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Upload Android APK Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: android-apk
           path: build/app/outputs/flutter-apk/*.apk
@@ -216,7 +216,7 @@ jobs:
         run: flutter build appbundle --release
 
       - name: Upload Android AppBundle Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: android-appbundle
           path: build/app/outputs/bundle/release/*.aab
@@ -226,7 +226,7 @@ jobs:
         run: flutter build linux --release
 
       - name: Upload Linux Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: linux-build
           path: build/linux/x64/release/bundle
@@ -236,7 +236,7 @@ jobs:
         run: flutter build web --release
 
       - name: Upload Web Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: web-build
           path: build/web
@@ -250,7 +250,7 @@ jobs:
       actions: write # 允许删除 workflow runs
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Install GitHub CLI
         run: |

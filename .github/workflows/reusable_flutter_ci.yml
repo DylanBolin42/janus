@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository # 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Install Flutter SDK # 安装 Flutter SDK
         uses: subosito/flutter-action@v2.12.0
@@ -43,7 +43,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: | # 缓存路径
-            ${{ env.FLUTTER_ROOT }}/.pub-cache
+            /home/runner/.pub-cache
             /home/runner/.gradle/caches
           key: ${{ runner.os }}-pub-gradle-${{ hashFiles('**/pubspec.lock') }}-${{ inputs.cache_key_suffix }}
           restore-keys: | # 恢复键
@@ -70,7 +70,7 @@ jobs:
           genhtml coverage/lcov.info --output-directory coverage/html
 
       - name: Upload Coverage Artifact # 上传覆盖率报告作为 Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: coverage-report
           path: coverage/html

@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Install Flutter SDK
         uses: subosito/flutter-action@v2.12.0
@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.FLUTTER_ROOT }}/.pub-cache
+            /home/runner/.pub-cache
             /home/runner/.gradle/caches
           key: ${{ runner.os }}-pub-gradle-${{ hashFiles('**/pubspec.lock') }}-release
           restore-keys: |
@@ -53,7 +53,7 @@ jobs:
           find build/web -type f -exec sha256sum {} + >> SHA256SUMS.txt
 
       - name: Upload All Release Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: release-artifacts
           path: |
@@ -71,10 +71,10 @@ jobs:
       contents: write # 允许写入 Release
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Download All Release Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.1.7
         with:
           name: release-artifacts
           path: release-artifacts

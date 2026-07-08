@@ -2,8 +2,15 @@
 #!/bin/bash
 
 # 配置
-REPO_OWNER="${{ github.repository_owner }}"
-REPO_NAME="${{ github.event.repository.name }}"
+# 在 GitHub Actions 运行时使用环境变量 GITHUB_REPOSITORY (owner/repo)
+if [ -n "${GITHUB_REPOSITORY:-}" ]; then
+  REPO_FULL="$GITHUB_REPOSITORY"
+else
+  echo "Error: GITHUB_REPOSITORY not set. This script is intended to run inside GitHub Actions."
+  exit 1
+fi
+REPO_OWNER="${REPO_FULL%/*}"
+REPO_NAME="${REPO_FULL#*/}"
 WORKFLOW_NAME="Main Branch Checks & Builds" # 对应 main.yml 的 name
 KEEP_LAST_N_RUNS=3 # 保留最近 N 次构建
 
