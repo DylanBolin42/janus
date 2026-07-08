@@ -97,10 +97,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Flutter # 设置 Flutter 环境
-        uses: subosito/flutter-action@v2.12.0
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: latest
 
       - name: Get Flutter Dependencies
         run: flutter pub get

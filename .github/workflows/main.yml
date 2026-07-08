@@ -25,7 +25,7 @@ jobs:
       security-events: write # 允许上传 SARIF 结果
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -80,7 +80,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3.25.10
@@ -99,13 +99,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v2.12.0
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: latest
 
       - name: Get Flutter Dependencies
         run: flutter pub get
@@ -179,13 +178,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Install Flutter SDK
-        uses: subosito/flutter-action@v2.12.0
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: latest
           cache: true
           cache-key: 'flutter-cache-${{ runner.os }}-stable-latest-main-build'
 
@@ -250,7 +248,7 @@ jobs:
       actions: write # 允许删除 workflow runs
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Install GitHub CLI
         run: |

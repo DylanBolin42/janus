@@ -11,13 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Install Flutter SDK
-        uses: subosito/flutter-action@v2.12.0
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: latest
           cache: true
           cache-key: 'flutter-cache-${{ runner.os }}-stable-latest-release'
 
@@ -71,7 +70,7 @@ jobs:
       contents: write # 允许写入 Release
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Download All Release Artifacts
         uses: actions/download-artifact@v4.1.7
