@@ -1,0 +1,35 @@
+name: "Stale Issue & PR Management"
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # 每天 UTC 0:00 运行
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 30
+          days-before-close: 7
+          stale-pr-message: >
+            This pull request is stale because it has been open for 30 days with no activity.
+            Remove stale label or comment, or this PR will be closed in 7 days.
+          stale-issue-message: >
+            This issue is stale because it has been open for 30 days with no activity.
+            Remove stale label or comment, or this issue will be closed in 7 days.
+          close-issue-message: >
+            This issue was closed because it has been stalled for 7 days with no activity.
+          close-pr-message: >
+            This pull request was closed because it has been stalled for 7 days with no activity.
+          exempt-issue-labels: pinned,security
+          exempt-pr-labels: pinned,security,in progress
+          exempt-all-pr-activity: false
+          exempt-all-issue-activity: false
+          any-of-labels: needs-attention
+          operations-per-run: 30

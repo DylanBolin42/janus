@@ -1,0 +1,6 @@
+# 默认所有代码都由项目维护者拥有
+*	@DylanBolin42 # 替换为你的 GitHub 用户名或团队名
+
+# 可以为特定目录或文件指定不同的 Code Owners
+# /lib/src/core/	@your-team/core-devs
+# /docs/	@your-team/docs-maintainers

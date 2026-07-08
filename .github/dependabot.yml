@@ -1,0 +1,26 @@
+
+version: 2
+updates:
+  - package-ecosystem: "pub" # Flutter/Dart dependencies
+    directory: "/" # Look for pubspec.yaml in the root directory
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10 # 限制打开的 PR 数量
+    labels:
+      - "dependencies"
+      - "pub"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  - package-ecosystem: "github-actions" # GitHub Actions dependencies
+    directory: "/" # Look for workflow files in the .github/workflows directory
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"

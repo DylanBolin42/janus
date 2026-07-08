@@ -1,0 +1,39 @@
+
+# release-drafter 配置
+# 工作流定义见 .github/workflows/release-drafter.yml
+# 更多配置请参考：https://github.com/release-drafter/release-drafter#configuration
+
+# 分类 PR 到不同的部分
+# categories:
+#   - title: "🚀 Features"
+#     labels:
+#       - "feature"
+#       - "enhancement"
+#   - title: "🐛 Bug Fixes"
+#     labels:
+#       - "bug"
+#       - "fix"
+#   - title: "📚 Documentation"
+#     labels:
+#       - "documentation"
+#   - title: "🧹 Chore"
+#     labels:
+#       - "chore"
+#       - "dependencies"
+
+# 自动生成版本号
+# version-template: $MAJOR.$MINOR.$PATCH
+
+# 排除某些标签的 PR
+# exclude-labels:
+#   - "skip-changelog"
+
+# 包含未分类的 PR
+# include-unlabeled-prs: true
+
+# 模板示例
+# template: |
+#   ## What's Changed
+#   $CHANGES
+#
+#   **Full Changelog**: https://github.com/$OWNER/$REPO/compare/$PREVIOUS_TAG...$LATEST_TAG
