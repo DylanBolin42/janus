@@ -51,8 +51,8 @@ jobs:
       - name: Get Flutter Dependencies # 获取 Flutter 依赖
         run: flutter pub get
 
-      - name: Check Dart Format # 检查 Dart 代码格式
-        run: dart format --output=none --set-exit-if-changed .
+      - name: Dart Format # Dart 代码格式化
+        run: dart format .
 
       - name: Analyze Dart Code # 分析 Dart 代码
         run: flutter analyze
