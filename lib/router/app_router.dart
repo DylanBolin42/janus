@@ -29,7 +29,7 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: RoutePath.inbox,
           name: 'atrium',
-          builder: (context, state) => const InboxPage(),
+          builder: (context, state) => const AtriumPage(),
         ),
         GoRoute(
           path: RoutePath.task,
