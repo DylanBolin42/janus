@@ -97,6 +97,13 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 }
 
+Future<void> setTempLeaveDuration(TempLeaveDuration duration) async {
+  await _persist(
+    (state.valueOrNull ?? const AppSettings()).copyWith(
+      tempLeaveDuration: duration,
+    ),
+  );
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)
 // ─────────────────────────────────────────────────────────────────────────────

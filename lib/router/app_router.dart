@@ -9,6 +9,8 @@ import 'package:janus/pages/InsightPage/insight_page.dart';
 
 // subsetting pages
 import 'package:janus/pages/SettingPage/subSettingPage/generalSetting/general_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/notificationSetting/notification_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/focusSetting/focus_setting_page.dart';
 
 /// Centralized route path constants.
 ///
@@ -18,12 +20,14 @@ class RoutePath {
   // 一级目录
   static const String inbox = '/inbox';
   static const String task = '/task';
-  static const String setting = '/setting'; //TODO: 应当为独立页面结构，权宜之计
+  static const String setting = '/setting'; // full-screen, no shell
   static const String focus = '/focus';
   static const String insights = '/insights';
 
-  //二级目录
-  static const String generalSetting = '/setting/general';
+  // 二级目录 (relative — nested under /setting)
+  static const String generalSetting = 'general';
+  static const String notificationSetting = 'notification';
+  static const String focusSetting = 'focus';
 }
 
 /// Display names for each route, used in AppBars.
@@ -79,11 +83,23 @@ final GoRouter appRouter = GoRouter(
       path: RoutePath.setting,
       name: 'setting',
       builder: (context, state) => const Settingpage(),
-    ),
-    GoRoute(
-      path: RoutePath.generalSetting,
-      name: 'generalSetting',
-      builder: (context, state) => const GeneralSettingPage(),
+      routes: [
+        GoRoute(
+          path: RoutePath.generalSetting,
+          name: 'generalSetting',
+          builder: (context, state) => const GeneralSettingPage(),
+        ),
+        GoRoute(
+          path: RoutePath.notificationSetting,
+          name: 'notificationSetting',
+          builder: (context, state) => const NotificationSettingPage(),
+        ),
+        GoRoute(
+          path: RoutePath.focusSetting,
+          name: 'focusSetting',
+          builder: (context, state) => const FocusSettingPage(),
+        ),
+      ],
     ),
   ],
 );

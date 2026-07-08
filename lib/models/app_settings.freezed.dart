@@ -21,10 +21,18 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AppSettings {
+  // Gereral settings
   AppThemeMode get themeMode => throw _privateConstructorUsedError;
   GlassIntensity get glassIntensity => throw _privateConstructorUsedError;
   AppLanguage get language => throw _privateConstructorUsedError;
-  TabNamingStyle get tabNamingStyle => throw _privateConstructorUsedError;
+  TabNamingStyle get tabNamingStyle =>
+      throw _privateConstructorUsedError; // Notification settings
+  bool get isNotificationEnabled => throw _privateConstructorUsedError;
+  UrgentNotificationStyle get urgentNotificationStyle =>
+      throw _privateConstructorUsedError;
+  ApproachingNotificationStyle get approachingNotificationStyle =>
+      throw _privateConstructorUsedError; // Focus settings
+  TempLeaveDuration get tempLeaveDuration => throw _privateConstructorUsedError;
 
   /// Serializes this AppSettings to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -48,6 +56,10 @@ abstract class $AppSettingsCopyWith<$Res> {
     GlassIntensity glassIntensity,
     AppLanguage language,
     TabNamingStyle tabNamingStyle,
+    bool isNotificationEnabled,
+    UrgentNotificationStyle urgentNotificationStyle,
+    ApproachingNotificationStyle approachingNotificationStyle,
+    TempLeaveDuration tempLeaveDuration,
   });
 }
 
@@ -70,6 +82,10 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
     Object? glassIntensity = null,
     Object? language = null,
     Object? tabNamingStyle = null,
+    Object? isNotificationEnabled = null,
+    Object? urgentNotificationStyle = null,
+    Object? approachingNotificationStyle = null,
+    Object? tempLeaveDuration = null,
   }) {
     return _then(
       _value.copyWith(
@@ -89,6 +105,22 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
                 ? _value.tabNamingStyle
                 : tabNamingStyle // ignore: cast_nullable_to_non_nullable
                       as TabNamingStyle,
+            isNotificationEnabled: null == isNotificationEnabled
+                ? _value.isNotificationEnabled
+                : isNotificationEnabled // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            urgentNotificationStyle: null == urgentNotificationStyle
+                ? _value.urgentNotificationStyle
+                : urgentNotificationStyle // ignore: cast_nullable_to_non_nullable
+                      as UrgentNotificationStyle,
+            approachingNotificationStyle: null == approachingNotificationStyle
+                ? _value.approachingNotificationStyle
+                : approachingNotificationStyle // ignore: cast_nullable_to_non_nullable
+                      as ApproachingNotificationStyle,
+            tempLeaveDuration: null == tempLeaveDuration
+                ? _value.tempLeaveDuration
+                : tempLeaveDuration // ignore: cast_nullable_to_non_nullable
+                      as TempLeaveDuration,
           )
           as $Val,
     );
@@ -109,6 +141,10 @@ abstract class _$$AppSettingsImplCopyWith<$Res>
     GlassIntensity glassIntensity,
     AppLanguage language,
     TabNamingStyle tabNamingStyle,
+    bool isNotificationEnabled,
+    UrgentNotificationStyle urgentNotificationStyle,
+    ApproachingNotificationStyle approachingNotificationStyle,
+    TempLeaveDuration tempLeaveDuration,
   });
 }
 
@@ -130,6 +166,10 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
     Object? glassIntensity = null,
     Object? language = null,
     Object? tabNamingStyle = null,
+    Object? isNotificationEnabled = null,
+    Object? urgentNotificationStyle = null,
+    Object? approachingNotificationStyle = null,
+    Object? tempLeaveDuration = null,
   }) {
     return _then(
       _$AppSettingsImpl(
@@ -149,6 +189,22 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
             ? _value.tabNamingStyle
             : tabNamingStyle // ignore: cast_nullable_to_non_nullable
                   as TabNamingStyle,
+        isNotificationEnabled: null == isNotificationEnabled
+            ? _value.isNotificationEnabled
+            : isNotificationEnabled // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        urgentNotificationStyle: null == urgentNotificationStyle
+            ? _value.urgentNotificationStyle
+            : urgentNotificationStyle // ignore: cast_nullable_to_non_nullable
+                  as UrgentNotificationStyle,
+        approachingNotificationStyle: null == approachingNotificationStyle
+            ? _value.approachingNotificationStyle
+            : approachingNotificationStyle // ignore: cast_nullable_to_non_nullable
+                  as ApproachingNotificationStyle,
+        tempLeaveDuration: null == tempLeaveDuration
+            ? _value.tempLeaveDuration
+            : tempLeaveDuration // ignore: cast_nullable_to_non_nullable
+                  as TempLeaveDuration,
       ),
     );
   }
@@ -162,11 +218,16 @@ class _$AppSettingsImpl extends _AppSettings {
     this.glassIntensity = GlassIntensity.moderate,
     this.language = AppLanguage.chinese,
     this.tabNamingStyle = TabNamingStyle.classic,
+    this.isNotificationEnabled = false,
+    this.urgentNotificationStyle = UrgentNotificationStyle.notifier,
+    this.approachingNotificationStyle = ApproachingNotificationStyle.notifier,
+    this.tempLeaveDuration = TempLeaveDuration.tenM,
   }) : super._();
 
   factory _$AppSettingsImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppSettingsImplFromJson(json);
 
+  // Gereral settings
   @override
   @JsonKey()
   final AppThemeMode themeMode;
@@ -179,10 +240,24 @@ class _$AppSettingsImpl extends _AppSettings {
   @override
   @JsonKey()
   final TabNamingStyle tabNamingStyle;
+  // Notification settings
+  @override
+  @JsonKey()
+  final bool isNotificationEnabled;
+  @override
+  @JsonKey()
+  final UrgentNotificationStyle urgentNotificationStyle;
+  @override
+  @JsonKey()
+  final ApproachingNotificationStyle approachingNotificationStyle;
+  // Focus settings
+  @override
+  @JsonKey()
+  final TempLeaveDuration tempLeaveDuration;
 
   @override
   String toString() {
-    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle)';
+    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration)';
   }
 
   @override
@@ -197,7 +272,22 @@ class _$AppSettingsImpl extends _AppSettings {
             (identical(other.language, language) ||
                 other.language == language) &&
             (identical(other.tabNamingStyle, tabNamingStyle) ||
-                other.tabNamingStyle == tabNamingStyle));
+                other.tabNamingStyle == tabNamingStyle) &&
+            (identical(other.isNotificationEnabled, isNotificationEnabled) ||
+                other.isNotificationEnabled == isNotificationEnabled) &&
+            (identical(
+                  other.urgentNotificationStyle,
+                  urgentNotificationStyle,
+                ) ||
+                other.urgentNotificationStyle == urgentNotificationStyle) &&
+            (identical(
+                  other.approachingNotificationStyle,
+                  approachingNotificationStyle,
+                ) ||
+                other.approachingNotificationStyle ==
+                    approachingNotificationStyle) &&
+            (identical(other.tempLeaveDuration, tempLeaveDuration) ||
+                other.tempLeaveDuration == tempLeaveDuration));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -208,6 +298,10 @@ class _$AppSettingsImpl extends _AppSettings {
     glassIntensity,
     language,
     tabNamingStyle,
+    isNotificationEnabled,
+    urgentNotificationStyle,
+    approachingNotificationStyle,
+    tempLeaveDuration,
   );
 
   /// Create a copy of AppSettings
@@ -230,12 +324,17 @@ abstract class _AppSettings extends AppSettings {
     final GlassIntensity glassIntensity,
     final AppLanguage language,
     final TabNamingStyle tabNamingStyle,
+    final bool isNotificationEnabled,
+    final UrgentNotificationStyle urgentNotificationStyle,
+    final ApproachingNotificationStyle approachingNotificationStyle,
+    final TempLeaveDuration tempLeaveDuration,
   }) = _$AppSettingsImpl;
   const _AppSettings._() : super._();
 
   factory _AppSettings.fromJson(Map<String, dynamic> json) =
       _$AppSettingsImpl.fromJson;
 
+  // Gereral settings
   @override
   AppThemeMode get themeMode;
   @override
@@ -243,7 +342,15 @@ abstract class _AppSettings extends AppSettings {
   @override
   AppLanguage get language;
   @override
-  TabNamingStyle get tabNamingStyle;
+  TabNamingStyle get tabNamingStyle; // Notification settings
+  @override
+  bool get isNotificationEnabled;
+  @override
+  UrgentNotificationStyle get urgentNotificationStyle;
+  @override
+  ApproachingNotificationStyle get approachingNotificationStyle; // Focus settings
+  @override
+  TempLeaveDuration get tempLeaveDuration;
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.

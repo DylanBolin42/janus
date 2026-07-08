@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/router/app_router.dart';
-import 'package:janus/theme/theme.dart';
+import 'package:janus/shared/custom_appbar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class AppShell extends StatelessWidget {
@@ -17,18 +17,17 @@ class AppShell extends StatelessWidget {
         : 'Janus';
 
     return GlassScaffold(
-      appBar: GlassAppBar(
-        title: Text(title),
+      topEdgeFade: false,
+      appBar: CustomAppbar(
+        title: title,
         actions: [
           GlassIconButton(
-            icon: Icon(Icons.settings_rounded),
-            onPressed: () {
-              context.go(RoutePath.setting);
-            },
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () => context.pushNamed('setting'),
           ),
         ],
       ),
-      body: child,
+      body: CustomAppbar.wrapBody(context, child),
       bottomBar: GlassTabBar.bottom(
         extraButton: GlassTabBarExtraButton(
           icon: Icon(Icons.add_rounded),
@@ -44,7 +43,7 @@ class AppShell extends StatelessWidget {
           GlassTab(icon: Icon(Icons.task_rounded), label: 'Tasks'),
           GlassTab(icon: Icon(Icons.lock_clock_rounded), label: 'Focus'),
           GlassTab(icon: Icon(Icons.insights_rounded), label: 'Insights'),
-        ],ssss
+        ],
         selectedIndex: _calculateSelectedIndex(context),
         onTabSelected: (int index) => _onItemTapped(index, context),
       ),
