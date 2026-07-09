@@ -1,0 +1,191 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  actions: read
+  pull-requests: read
+
+jobs:
+  # ================== Extract Version ==================
+  version:
+    name: "Extract Version"
+    runs-on: ubuntu-latest
+    outputs:
+      version-name: ${{ steps.version.outputs.version_name }}
+      build-number: ${{ steps.version.outputs.build_number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Parse Version from Tag
+        id: version
+        uses: ./.github/actions/version-from-tag
+
+  # ================== Build All ==================
+  build-android:
+    name: "Build Android"
+    needs: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: release
+
+      - name: Build Android
+        uses: ./.github/actions/build-android
+        with:
+          build-name: ${{ needs.version.outputs.version-name }}
+          build-number: ${{ needs.version.outputs.build-number }}
+          target: both
+
+  build-linux:
+    name: "Build Linux"
+    needs: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: release
+
+      - name: Enable Linux Desktop
+        run: flutter config --enable-linux-desktop
+
+      - name: Build Linux
+        uses: ./.github/actions/build-desktop
+        with:
+          platform: linux
+          build-name: ${{ needs.version.outputs.version-name }}
+          build-number: ${{ needs.version.outputs.build-number }}
+
+  build-windows:
+    name: "Build Windows"
+    needs: version
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: release
+
+      - name: Enable Windows Desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Build Windows
+        uses: ./.github/actions/build-desktop
+        with:
+          platform: windows
+          build-name: ${{ needs.version.outputs.version-name }}
+          build-number: ${{ needs.version.outputs.build-number }}
+
+  build-web:
+    name: "Build Web"
+    needs: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: release
+
+      - name: Build Web
+        uses: ./.github/actions/build-web
+        with:
+          build-name: ${{ needs.version.outputs.version-name }}
+
+  # ================== Generate Changelog & Release ==================
+  create-release:
+    name: "Create GitHub Release"
+    needs: [version, build-android, build-linux, build-windows, build-web]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ---- Download all artifacts ----
+      - name: Download Android
+        uses: actions/download-artifact@v4
+        with:
+          name: android-build-${{ needs.version.outputs.version-name }}
+          path: release/
+
+      - name: Download Linux
+        uses: actions/download-artifact@v4
+        with:
+          name: desktop-linux-${{ needs.version.outputs.version-name }}
+          path: release/
+
+      - name: Download Windows
+        uses: actions/download-artifact@v4
+        with:
+          name: desktop-windows-${{ needs.version.outputs.version-name }}
+          path: release/
+
+      - name: Download Web
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build-${{ needs.version.outputs.version-name }}
+          path: release/
+
+      # ---- Generate Changelog ----
+      - name: Generate Changelog
+        id: changelog
+        uses: ardalanamini/auto-changelog@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          commit-types: |
+            feat: ✨ Features
+            fix: 🐛 Fixes
+            perf: ⚡ Performance
+            refactor: 🔧 Refactors
+            docs: 📝 Documentation
+            style: 💄 Style
+            test: ✅ Tests
+            ci: 🔨 CI/CD
+            build: 📦 Build
+            chore: 🧹 Chores
+          default-commit-type: 🧹 Chores
+          release-name: ${{ needs.version.outputs.version-name }}
+          mention-authors: true
+          mention-new-contributors: true
+          include-pr-links: true
+          include-commit-links: true
+
+      # ---- Create Release ----
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Release ${{ needs.version.outputs.version-name }}"
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: true
+          prerelease: false
+          files: release/**
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

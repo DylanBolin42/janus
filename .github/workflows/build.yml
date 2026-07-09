@@ -1,0 +1,99 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  # ======================= Android =======================
+  build-android:
+    name: "Build Android"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: build-android
+
+      - name: Build Android
+        uses: ./.github/actions/build-android
+        with:
+          build-name: "${{ github.ref_name }}-${{ github.run_number }}"
+          build-number: "${{ github.run_number }}"
+          target: both
+
+  # ======================= Linux =======================
+  build-linux:
+    name: "Build Linux"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: build-linux
+
+      - name: Enable Linux Desktop
+        run: flutter config --enable-linux-desktop
+
+      - name: Build Linux
+        uses: ./.github/actions/build-desktop
+        with:
+          platform: linux
+          build-name: "${{ github.ref_name }}-${{ github.run_number }}"
+          build-number: "${{ github.run_number }}"
+
+  # ======================= Windows =======================
+  build-windows:
+    name: "Build Windows"
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: build-windows
+
+      - name: Enable Windows Desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Build Windows
+        uses: ./.github/actions/build-desktop
+        with:
+          platform: windows
+          build-name: "${{ github.ref_name }}-${{ github.run_number }}"
+          build-number: "${{ github.run_number }}"
+
+  # ======================= Web =======================
+  build-web:
+    name: "Build Web"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: build-web
+
+      - name: Build Web
+        uses: ./.github/actions/build-web
+        with:
+          build-name: "${{ github.ref_name }}-${{ github.run_number }}"

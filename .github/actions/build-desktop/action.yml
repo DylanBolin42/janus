@@ -1,0 +1,63 @@
+name: "Build Desktop"
+description: "Builds Flutter desktop app (Linux/Windows/macOS) and packages as zip"
+inputs:
+  platform:
+    description: "Target platform: linux, windows, or macos"
+    required: true
+  build-name:
+    description: "Version name (e.g. 1.2.3)"
+    required: true
+  build-number:
+    description: "Build number (e.g. 42)"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Linux Dependencies
+      if: ${{ inputs.platform == 'linux' }}
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+    - name: Build Desktop
+      shell: bash
+      run: |
+        flutter build ${{ inputs.platform }} --release \
+          --build-name=${{ inputs.build-name }} \
+          --build-number=${{ inputs.build-number }}
+
+    - name: Package (Linux)
+      if: ${{ inputs.platform == 'linux' }}
+      shell: bash
+      run: |
+        cd build/linux/x64/release/bundle
+        tar -czf ../../../../../janus-linux-${{ inputs.build-name }}.tar.gz .
+        cd ../../../../..
+        echo "Artifact: janus-linux-${{ inputs.build-name }}.tar.gz"
+
+    - name: Package (Windows)
+      if: ${{ inputs.platform == 'windows' }}
+      shell: bash
+      run: |
+        cd build/windows/x64/runner/Release
+        7z a -tzip ../../../../../janus-windows-${{ inputs.build-name }}.zip .
+        cd ../../../../..
+
+    - name: Package (macOS)
+      if: ${{ inputs.platform == 'macos' }}
+      shell: bash
+      run: |
+        cd build/macos/Build/Products/Release
+        zip -r ../../../../../janus-macos-${{ inputs.build-name }}.zip *.app
+        cd ../../../../..
+
+    - name: Upload Desktop Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: desktop-${{ inputs.platform }}-${{ inputs.build-name }}
+        path: |
+          janus-*.tar.gz
+          janus-*.zip
+        retention-days: 30

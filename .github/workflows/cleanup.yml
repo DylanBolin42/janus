@@ -1,0 +1,54 @@
+name: Cleanup Artifacts
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"  # Every Sunday at midnight UTC
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    name: "Cleanup Old Artifacts"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Delete Old Artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const daysToKeep = 7;
+            const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() - daysToKeep);
+
+            let page = 1;
+            let deleted = 0;
+
+            while (true) {
+              const { data: artifacts } = await github.rest.actions.listArtifactsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+                page: page,
+              });
+
+              if (artifacts.length === 0) break;
+
+              for (const artifact of artifacts) {
+                const created = new Date(artifact.created_at);
+                if (created < cutoff) {
+                  await github.rest.actions.deleteArtifact({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    artifact_id: artifact.id,
+                  });
+                  deleted++;
+                  console.log(`🗑️ Deleted: ${artifact.name} (${artifact.id}) — created ${artifact.created_at}`);
+                }
+              }
+
+              page++;
+            }
+
+            console.log(`✅ Cleanup complete. Deleted ${deleted} artifacts older than ${daysToKeep} days.`);

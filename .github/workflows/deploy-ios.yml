@@ -1,0 +1,52 @@
+name: Deploy to App Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      version-name:
+        description: "Version name (e.g. 1.2.3)"
+        required: true
+      build-number:
+        description: "Build number (e.g. 42)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: "Build & Deploy to App Store"
+    runs-on: macos-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: deploy-ios
+
+      - name: Build iOS
+        run: |
+          flutter build ios --release --no-codesign
+
+      # ---- App Store deployment requires Apple secrets ----
+      # Uncomment the steps below after adding these secrets:
+      # Settings → Secrets and variables → Actions
+      #   APPLE_P12, APPLE_P12_PASSWORD, APPLE_ISSUER,
+      #   APPLE_KEY_ID, APPLE_PRIVATE_KEY
+      #
+      # - name: Import Code Signing Certs
+      #   uses: apple-actions/import-codesign-certs@v3
+      #   with:
+      #     p12-file-base64: ${{ secrets.APPLE_P12 }}
+      #     p12-password: ${{ secrets.APPLE_P12_PASSWORD }}
+      #
+      # - name: Upload to TestFlight
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app-path: build/ios/iphoneos/Runner.app
+      #     issuer-id: ${{ secrets.APPLE_ISSUER }}
+      #     api-key-id: ${{ secrets.APPLE_KEY_ID }}
+      #     api-private-key: ${{ secrets.APPLE_PRIVATE_KEY }}
