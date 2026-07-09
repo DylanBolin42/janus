@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:janus/pages/AppShell/AppShell.dart';
-import 'package:janus/pages/Inbox/InboxPage.dart';
+import 'package:janus/pages/AppShell/app_shell.dart';
+import 'package:janus/pages/Inbox/inbox_page.dart';
 import 'package:janus/pages/TaskPage/task_page.dart';
-import 'package:janus/pages/SettingPage/settingPage.dart';
-import 'package:janus/pages/FocusPage/focusPage.dart';
+import 'package:janus/pages/SettingPage/setting_page.dart';
+import 'package:janus/pages/FocusPage/focus_page.dart';
 import 'package:janus/pages/InsightPage/insight_page.dart';
 
 // subsetting pages
@@ -72,6 +72,18 @@ final GoRouter appRouter = GoRouter(
 
         // --- Add new ShellRoute child pages here ---
       ],
+    ),
+
+    // Setting pages (not inside AppShell – covers the full screen)
+    GoRoute(
+      path: RoutePath.setting,
+      name: 'setting',
+      builder: (context, state) => const Settingpage(),
+    ),
+    GoRoute(
+      path: RoutePath.generalSetting,
+      name: 'generalSetting',
+      builder: (context, state) => const GeneralSettingPage(),
     ),
 
     // Setting pages (not inside AppShell – covers the full screen)

@@ -1,0 +1,16 @@
+
+# [DEPRECATED] Main Branch Checks & Builds
+# This workflow has been replaced by build.yml.
+# Kept for git history reference only — will not run automatically.
+
+name: "[DEPRECATED] Main Branch Checks & Builds"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "⚠️ Deprecated. See build.yml."
+

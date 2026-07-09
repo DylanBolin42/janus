@@ -1,0 +1,27 @@
+name: "Build Web"
+description: "Builds Flutter web app and packages as zip"
+inputs:
+  build-name:
+    description: "Version name (e.g. 1.2.3)"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build Web
+      shell: bash
+      run: flutter build web --release
+
+    - name: Package Web
+      shell: bash
+      run: |
+        cd build/web
+        zip -r ../../janus-web-${{ inputs.build-name }}.zip .
+        cd ../..
+
+    - name: Upload Web Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-build-${{ inputs.build-name }}
+        path: janus-web-*.zip
+        retention-days: 30

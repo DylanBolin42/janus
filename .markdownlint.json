@@ -1,0 +1,10 @@
+{
+    "MD013": false,
+    "MD025": false,
+    "MD041": false,
+    "default": true,
+    "ignores": [
+        "CODEOWNERS",
+        ".github/CODEOWNERS"
+    ]
+}

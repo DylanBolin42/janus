@@ -1,0 +1,41 @@
+name: "Setup Flutter"
+description: "Installs Flutter SDK and restores caches for fast CI"
+inputs:
+  channel:
+    description: "Flutter channel (stable, beta, master)"
+    required: false
+    default: "stable"
+  version:
+    description: "Flutter version (e.g. 3.x.x, or 'latest')"
+    required: false
+    default: "latest"
+  cache-key-suffix:
+    description: "Suffix to bust cache when needed"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Flutter SDK
+      uses: subosito/flutter-action@v2
+      with:
+        channel: ${{ inputs.channel }}
+        cache: true
+        cache-key: |
+          flutter-sdk-${{ runner.os }}-${{ runner.arch }}-${{ inputs.channel }}-${{ inputs.version }}-${{ inputs.cache-key-suffix }}
+
+    - name: Restore Pub & Gradle Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.pub-cache
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-pub-gradle-${{ hashFiles('**/pubspec.lock') }}-${{ inputs.cache-key-suffix }}
+        restore-keys: |
+          ${{ runner.os }}-pub-gradle-
+
+    - name: Get Flutter Dependencies
+      shell: bash
+      run: flutter pub get
