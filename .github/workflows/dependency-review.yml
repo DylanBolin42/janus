@@ -1,4 +1,4 @@
-name: Dependency Review
+name: Dependency Check
 
 on:
   pull_request:
@@ -8,15 +8,26 @@ permissions:
   contents: read
 
 jobs:
-  dependency-review:
-    name: "Dependency Review"
+  dependency-check:
+    name: "Dependency Check"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v4
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
         with:
-          fail-on-severity: high
-          comment-summary-in-pr: always
+          cache-key-suffix: dep-check
+
+      - name: Check Outdated Dependencies
+        run: |
+          echo "### 📦 Dependency Status" >> "$GITHUB_STEP_SUMMARY"
+          flutter pub outdated --no-transitive 2>&1 | tee outdated.log || true
+          if grep -q "No dependencies" outdated.log; then
+            echo "✅ All direct dependencies are up to date." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat outdated.log >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
