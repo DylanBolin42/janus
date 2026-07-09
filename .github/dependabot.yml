@@ -1,41 +1,69 @@
 version: 2
+
 updates:
-  # ---- Dart / Flutter dependencies ----
+  # Flutter / Dart packages
   - package-ecosystem: "pub"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "09:00"
-      timezone: "Asia/Shanghai"
+      time: "00:00"
+      timezone: "Asia/Singapore"
+
+    target-branch: "main"
+
+    open-pull-requests-limit: 5
+
+    rebase-strategy: "auto"
+
+    commit-message:
+      prefix: "deps(pub)"
+
     labels:
       - "dependencies"
-      - "dart"
-    open-pull-requests-limit: 5
-    versioning-strategy: increase
+      - "flutter"
 
-  # ---- GitHub Actions ----
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "09:00"
-      timezone: "Asia/Shanghai"
+      time: "00:10"
+      timezone: "Asia/Singapore"
+
+    target-branch: "main"
+
+    open-pull-requests-limit: 5
+
+    rebase-strategy: "auto"
+
+    commit-message:
+      prefix: "deps(ci)"
+
     labels:
       - "dependencies"
-      - "ci"
-    open-pull-requests-limit: 3
+      - "github-actions"
 
-  # ---- Gradle (Android) ----
+  # Android Gradle
   - package-ecosystem: "gradle"
     directory: "/android"
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "09:00"
-      timezone: "Asia/Shanghai"
+      time: "00:20"
+      timezone: "Asia/Singapore"
+
+    target-branch: "main"
+
+    open-pull-requests-limit: 5
+
+    rebase-strategy: "auto"
+
+    commit-message:
+      prefix: "deps(android)"
+
     labels:
       - "dependencies"
       - "android"
-    open-pull-requests-limit: 3
+
