@@ -29,7 +29,7 @@ class AppShell extends StatelessWidget {
       ),
       body: child,
       bottomBar: GlassTabBar.bottom(
-        extraButton: GlassTabBarExtraButton(
+        extraButton: GlassBottomBarExtraButton(
           icon: Icon(Icons.add_rounded),
           onTap: () {}, //TODO: 添加功能
           label: 'Add',
