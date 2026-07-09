@@ -21,31 +21,19 @@ void main() {
     });
 
     test('light color scheme primary color', () {
-      expect(
-        AppTheme.light.colorScheme.primary,
-        const Color(0xFFB72301),
-      );
+      expect(AppTheme.light.colorScheme.primary, const Color(0xFFB72301));
     });
 
     test('dark color scheme primary color', () {
-      expect(
-        AppTheme.dark.colorScheme.primary,
-        const Color(0xFFFFB68E),
-      );
+      expect(AppTheme.dark.colorScheme.primary, const Color(0xFFFFB68E));
     });
 
     test('forBrightness returns light theme for light', () {
-      expect(
-        AppTheme.forBrightness(Brightness.light),
-        same(AppTheme.light),
-      );
+      expect(AppTheme.forBrightness(Brightness.light), same(AppTheme.light));
     });
 
     test('forBrightness returns dark theme for dark', () {
-      expect(
-        AppTheme.forBrightness(Brightness.dark),
-        same(AppTheme.dark),
-      );
+      expect(AppTheme.forBrightness(Brightness.dark), same(AppTheme.dark));
     });
 
     test('light theme uses Material3', () {

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:janus/router/route_constants.dart';
 import 'package:janus/router/app_router.dart';
 
 void main() {
@@ -26,8 +27,10 @@ void main() {
 
   group('RouteDisplayName', () {
     test('contains all expected route names', () {
-      expect(RouteDisplayName.names.keys,
-          containsAll(['inbox', 'task', 'focus', 'insights', 'setting']));
+      expect(
+        RouteDisplayName.names.keys,
+        containsAll(['inbox', 'task', 'focus', 'insights', 'setting']),
+      );
     });
 
     test('inbox display name', () {

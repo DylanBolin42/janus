@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:janus/router/route_constants.dart';
 import 'package:janus/pages/AppShell/app_shell.dart';
 import 'package:janus/pages/Inbox/inbox_page.dart';
 import 'package:janus/pages/TaskPage/task_page.dart';
@@ -9,36 +10,6 @@ import 'package:janus/pages/InsightPage/insight_page.dart';
 
 // subsetting pages
 import 'package:janus/pages/SettingPage/subSettingPage/generalSetting/general_setting_page.dart';
-
-/// Centralized route path constants.
-///
-/// Add a new static const for each new route.
-class RoutePath {
-  RoutePath._();
-  // 一级目录
-  static const String inbox = '/inbox';
-  static const String task = '/task';
-  static const String setting = '/setting'; //TODO: 应当为独立页面结构，权宜之计
-  static const String focus = '/focus';
-  static const String insights = '/insights';
-
-  //二级目录
-  static const String generalSetting = '/setting/general';
-}
-
-/// Display names for each route, used in AppBars.
-///
-/// Keyed by [GoRoute.name]. Add a new entry for each new top-level route.
-class RouteDisplayName {
-  RouteDisplayName._();
-  static const Map<String, String> names = {
-    'inbox': 'Inbox',
-    'task': '任务',
-    'setting': '设置',
-    'focus': '专注',
-    'insights': '洞察',
-  };
-}
 
 /// The single [GoRouter] instance for the application.
 final GoRouter appRouter = GoRouter(
@@ -72,18 +43,6 @@ final GoRouter appRouter = GoRouter(
 
         // --- Add new ShellRoute child pages here ---
       ],
-    ),
-
-    // Setting pages (not inside AppShell – covers the full screen)
-    GoRoute(
-      path: RoutePath.setting,
-      name: 'setting',
-      builder: (context, state) => const Settingpage(),
-    ),
-    GoRoute(
-      path: RoutePath.generalSetting,
-      name: 'generalSetting',
-      builder: (context, state) => const GeneralSettingPage(),
     ),
 
     // Setting pages (not inside AppShell – covers the full screen)

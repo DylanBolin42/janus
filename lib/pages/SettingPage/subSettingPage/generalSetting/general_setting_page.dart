@@ -55,7 +55,9 @@ class GeneralSettingPage extends ConsumerWidget {
                       trailing: GlassPullDownButton(
                         label: settings.themeMode.label,
                         buttonWidth: 120,
-                        buttonShape: const LiquidRoundedRectangle(borderRadius: 12),
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 12,
+                        ),
                         items: AppThemeMode.values.map((mode) {
                           return GlassMenuItem(
                             title: mode.label,
@@ -78,7 +80,9 @@ class GeneralSettingPage extends ConsumerWidget {
                       trailing: GlassPullDownButton(
                         label: settings.glassIntensity.label,
                         buttonWidth: 120,
-                        buttonShape: const LiquidRoundedRectangle(borderRadius: 12),
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 12,
+                        ),
                         items: GlassIntensity.values.map((intensity) {
                           return GlassMenuItem(
                             title: intensity.label,
@@ -106,7 +110,9 @@ class GeneralSettingPage extends ConsumerWidget {
                       trailing: GlassPullDownButton(
                         label: settings.language.label,
                         buttonWidth: 120,
-                        buttonShape: const LiquidRoundedRectangle(borderRadius: 12),
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 12,
+                        ),
                         items: AppLanguage.values.map((lang) {
                           return GlassMenuItem(
                             title: lang.label,
@@ -133,7 +139,9 @@ class GeneralSettingPage extends ConsumerWidget {
                       trailing: GlassPullDownButton(
                         label: settings.tabNamingStyle.label,
                         buttonWidth: 120,
-                        buttonShape: const LiquidRoundedRectangle(borderRadius: 12),
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 12,
+                        ),
                         items: TabNamingStyle.values.map((style) {
                           return GlassMenuItem(
                             title: style.label,

@@ -21,10 +21,7 @@ void main() {
 
     test('fromFlutter round-trips correctly', () {
       for (final mode in ThemeMode.values) {
-        expect(
-          AppThemeModeX.fromFlutter(mode).toFlutter(),
-          mode,
-        );
+        expect(AppThemeModeX.fromFlutter(mode).toFlutter(), mode);
       }
     });
   });
@@ -122,9 +119,7 @@ void main() {
     });
 
     test('partial JSON uses defaults for missing keys', () {
-      final restored = AppSettings.fromJson({
-        'themeMode': 'light',
-      });
+      final restored = AppSettings.fromJson({'themeMode': 'light'});
 
       expect(restored.themeMode, AppThemeMode.light);
       expect(restored.glassIntensity, GlassIntensity.moderate); // default
