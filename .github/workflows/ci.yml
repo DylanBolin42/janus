@@ -45,12 +45,8 @@ jobs:
       # ---- Tests with Coverage ----
       - name: Run Tests
         run: |
+          set -o pipefail
           flutter test --coverage 2>&1 | tee test.log
-          if ! grep -q "All tests passed" test.log && ! grep -q "No tests found" test.log; then
-            echo "::error::Tests failed. Check the log above."
-            exit 1
-          fi
-        continue-on-error: false
 
       # ---- Coverage Report ----
       - name: Generate Coverage Report
