@@ -10,8 +10,41 @@ permissions:
   pull-requests: write
 
 jobs:
-  flutter-ci:
-    name: "Flutter CI"
+  # ======================== Format + Analyze (parallel with tests) ========================
+  check:
+    name: "Format & Analyze"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache-key-suffix: ci-check
+
+      # ---- Format ----
+      - name: Dart Format Check
+        run: dart format --set-exit-if-changed .
+
+      # ---- Analyze (errors only) ----
+      - name: Dart Analyze
+        run: |
+          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.log
+          if grep -q "^  error" analyze.log; then
+            echo "::error::Static analysis found errors. Check the log above."
+            exit 1
+          fi
+          echo "### 📊 Static Analysis" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat analyze.log >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+  # ======================== Tests + Coverage (parallel with check) ========================
+  test:
+    name: "Tests & Coverage"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -22,47 +55,25 @@ jobs:
         uses: ./.github/actions/setup-flutter
         with:
           channel: stable
-          cache-key-suffix: ci
+          cache-key-suffix: ci-test
 
-      # ---- Format Check ----
-      - name: Dart Format Check
-        run: dart format --set-exit-if-changed .
-
-      # ---- Static Analysis (errors only) ----
-      - name: Dart Analyze
-        run: |
-          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.log
-          if grep -q "^  error" analyze.log; then
-            echo "::error::Static analysis found errors. Check the log above."
-            exit 1
-          fi
-          echo "### 📊 Static Analysis" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          cat analyze.log >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-
-      # ---- Tests with Coverage ----
+      # ---- Tests ----
       - name: Run Tests
         run: |
           set -o pipefail
           flutter test --coverage 2>&1 | tee test.log
 
-      # ---- Coverage Report ----
+      # ---- Coverage ----
       - name: Generate Coverage Report
-        if: always()
+        if: always() && hashFiles('coverage/lcov.info') != ''
         run: |
-          if [ -f coverage/lcov.info ]; then
-            sudo apt-get update -qq && sudo apt-get install -y -qq lcov
-            genhtml coverage/lcov.info --output-directory coverage/html
-            COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep lines | grep -oP '\d+\.\d+%' | head -1 || echo "N/A")
-            echo "### ✅ Test Coverage: $COVERAGE" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "### ⚠️ No coverage data generated" >> "$GITHUB_STEP_SUMMARY"
-          fi
+          sudo apt-get update -qq && sudo apt-get install -y -qq lcov
+          genhtml coverage/lcov.info --output-directory coverage/html
+          COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep lines | grep -oP '\d+\.\d+%' | head -1 || echo "N/A")
+          echo "### ✅ Test Coverage: $COVERAGE" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
 
-      # ---- Upload Coverage Artifact ----
-      - name: Upload Coverage
+      - name: Upload Coverage Artifact
         if: always() && hashFiles('coverage/html') != ''
         uses: actions/upload-artifact@v4
         with:
@@ -70,29 +81,28 @@ jobs:
           path: coverage/html
           retention-days: 7
 
-      # ---- PR Summary Comment ----
-      - name: PR Summary
-        if: github.event_name == 'pull_request' && always()
+  # ======================== PR Summary (waits for both) ========================
+  summary:
+    name: "PR Summary"
+    needs: [check, test]
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Post PR Comment
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
+            const checkResult = '${{ needs.check.result }}';
+            const testResult  = '${{ needs.test.result }}';
+            const icon = (checkResult === 'success' && testResult === 'success') ? '✅' : '❌';
 
-            // Read step summary
-            let summary = '';
-            try {
-              summary = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
-            } catch (e) {
-              summary = 'CI check completed.';
-            }
+            const body = `## ${icon} Flutter CI
 
-            // Determine result icon
-            const jobStatus = '${{ job.status }}';
-            const icon = jobStatus === 'success' ? '✅' : '❌';
-
-            const body = `## ${icon} Flutter CI — ${jobStatus}
-
-            ${summary}
+            | Check | Result |
+            |-------|--------|
+            | Format & Analyze | ${checkResult === 'success' ? '✅' : '❌'} |
+            | Tests & Coverage | ${testResult === 'success' ? '✅' : '❌'} |
 
             [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
             `;

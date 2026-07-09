@@ -183,7 +183,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: "Release ${{ needs.version.outputs.version-name }}"
           body: ${{ steps.changelog.outputs.changelog }}
-          draft: false
+          draft: true
           prerelease: false
           files: release/**
           generate_release_notes: false
