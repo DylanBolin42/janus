@@ -35,7 +35,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Trivy Dependency Scan
-        uses: aquasecurity/trivy-action@0.22.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           ignore-unfixed: true
@@ -49,7 +49,7 @@ jobs:
           sarif_file: trivy-results.sarif
 
       - name: OSV Scanner
-        uses: ossf/osv-scanner-action@v1.8.0
+        uses: google/osv-scanner-action@v2.3.8
         with:
           scan-path: .
           format: sarif
@@ -61,7 +61,7 @@ jobs:
           sarif_file: osv-results.sarif
 
       - name: Semgrep SAST
-        uses: returntocorp/semgrep-action@v2.19.0
+        uses: returntocorp/semgrep-action@v1
         with:
           publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
           publishDeployment: ${{ secrets.SEMGREP_DEPLOYMENT_ID }}
@@ -167,7 +167,7 @@ jobs:
           echo "TODO: Implement SPDX license header check if required. E.g., using a custom script to check file headers."
 
       - name: Markdown Link Check
-        uses: gaurav-nelson/github-action-markdown-link-check@v1.0.15
+        uses: gaurav-nelson/github-action-markdown-link-check@1.0.17
         with:
           use-quiet-mode: yes
           config-file: .github/workflows/markdown_link_check_config.json
