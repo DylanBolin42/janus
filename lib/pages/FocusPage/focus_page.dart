@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class Focuspage extends StatefulWidget {
   const Focuspage({super.key});
 

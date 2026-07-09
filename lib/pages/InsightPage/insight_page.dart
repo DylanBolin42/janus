@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class InsightPage extends StatefulWidget {
   const InsightPage({super.key});
 

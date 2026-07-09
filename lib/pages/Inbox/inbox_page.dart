@@ -5,8 +5,6 @@ class AtriumPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Welcome to Janus'),
-    );
+    return const Center(child: Text('Welcome to Janus'));
   }
 }
