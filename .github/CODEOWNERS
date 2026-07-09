@@ -1,6 +1,20 @@
-# 默认所有代码都由项目维护者拥有
-*	@DylanBolin42 # 替换为你的 GitHub 用户名或团队名
+# ---- Code Owners -----------------------------------------------------------
 
-# 可以为特定目录或文件指定不同的 Code Owners
-# /lib/src/core/	@your-team/core-devs
-# /docs/	@your-team/docs-maintainers
+# Each line assigns code review ownership for specific paths
+
+# See: <https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners>
+
+# Global owner (fallback for all files)
+
+* @DylanBolin42
+
+# ---- Path-specific owners ----
+
+/.github/ @DylanBolin42
+/lib/ @DylanBolin42
+/android/ @DylanBolin42
+/ios/ @DylanBolin42
+/linux/ @DylanBolin42
+/windows/ @DylanBolin42
+/macos/ @DylanBolin42
+/web/ @DylanBolin42

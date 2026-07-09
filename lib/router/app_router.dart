@@ -6,6 +6,7 @@ import 'package:janus/pages/TaskPage/task_page.dart';
 import 'package:janus/pages/SettingPage/setting_page.dart';
 import 'package:janus/pages/FocusPage/focus_page.dart';
 import 'package:janus/pages/InsightPage/insight_page.dart';
+
 /// Centralized route path constants.
 ///
 /// Add a new static const for each new route.
@@ -46,7 +47,11 @@ final GoRouter appRouter = GoRouter(
           name: 'focus',
           builder: (context, state) => const Focuspage(),
         ),
-        GoRoute(path: RoutePath.insights, name: 'insights', builder: (context, state) => const InsightPage()),
+        GoRoute(
+          path: RoutePath.insights,
+          name: 'insights',
+          builder: (context, state) => const InsightPage(),
+        ),
         // --- Add new pages here ---
       ],
     ),

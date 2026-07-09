@@ -1,33 +1,29 @@
-## 🚀 变更类型
+# 📋 Description
 
-请选择此 PR 引入的变更类型：
+<!-- Briefly describe what this PR does and why. -->
 
-- [ ] Bug 修复 (非破坏性变更，修复了现有问题)
-- [ ] 新功能 (非破坏性变更，增加了新功能)
-- [ ] 破坏性变更 (修复或功能导致现有功能发生重大变化)
-- [ ] 文档更新 (仅更新了文档)
-- [ ] 其他 (请在下方描述)
+## 🔗 Related Issue
 
-## 📝 变更描述
+<!-- Link to the issue this PR addresses, if any: Closes #123 -->
 
-请清晰简洁地描述您的变更。解释此 PR 解决了什么问题，引入了什么新功能，以及为什么需要这些变更。
+## 🧪 Testing
 
-## ✅ 检查清单
+<!-- Describe how you tested your changes. -->
 
-在提交此 PR 之前，请确保您已完成以下操作：
+- [ ] `flutter analyze` passes (no errors)
+- [ ] `dart format .` passes
+- [ ] `flutter test` passes
+- [ ] Manual testing on: <!-- Android / iOS / Linux / Windows / Web -->
 
-- [ ] 我已在本地运行 `flutter format .` 格式化了代码。
-- [ ] 我已在本地运行 `flutter analyze` 检查了代码。
-- [ ] 我已在本地运行 `flutter test` 确保所有测试通过。
-- [ ] 我已更新了文档（如果需要）。
-- [ ] 我已添加了新测试来覆盖我的变更（如果需要）。
-- [ ] 我已确保我的变更不会引入新的警告或错误。
-- [ ] 我已阅读并理解了项目的贡献指南。
+## 📸 Screenshots (if UI changes)
 
-## 📸 截图或录屏 (可选)
+<!-- Drag and drop screenshots here. -->
 
-如果您的变更涉及 UI 或视觉效果，请提供截图或录屏。
+## ✅ Checklist
 
-## 🔗 相关 Issue (可选)
-
-请链接到此 PR 解决或相关的任何 Issue (例如：`Closes #123`, `Fixes #456`)。
+- [ ] I have read the [CONTRIBUTING](../CONTRIBUTING.md) guidelines
+- [ ] My code follows the project's style guidelines (`dart format`)
+- [ ] I have performed a self-review of my code
+- [ ] I have commented hard-to-understand areas
+- [ ] I have updated documentation if needed
+- [ ] My changes generate no new `flutter analyze` errors

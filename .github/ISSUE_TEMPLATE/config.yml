@@ -1,9 +1,5 @@
-name: Issue Configuration
 blank_issues_enabled: true
 contact_links:
-  - name: Ask a question
-    url: https://github.com/DylanBolin42/janus/discussions/new?category=q-a
-    about: Ask a question about the project or how to use it.
-  - name: Request a feature
-    url: https://github.com/DylanBolin42/janus/discussions/new?category=ideas
-    about: Suggest an idea for this project.
+  - name: "💬 Discussion"
+    url: "https://github.com/DylanBolin42/janus/discussions"
+    about: "For questions, ideas, and general discussion — use Discussions instead."
