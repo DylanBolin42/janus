@@ -48,12 +48,22 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
-      - name: OSV Scanner
-        uses: google/osv-scanner-action@v2.3.8
+      - name: OSV Scanner - dependency scan
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
         with:
-          scan-path: .
-          format: sarif
-          output: osv-results.sarif
+          scan-args: |-
+            --output=osv-results.json
+            --format=json
+            -r
+            ./
+
+      - name: OSV Scanner - report SARIF
+        uses: google/osv-scanner-action/osv-reporter-action@v2.3.8
+        with:
+          scan-args: |-
+            --output=osv-results.sarif
+            --new=osv-results.json
+            --gh-annotations=false
 
       - name: Upload OSV Scan Results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3.25.10

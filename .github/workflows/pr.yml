@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   call-flutter-ci:
     uses: ./.github/workflows/reusable_flutter_ci.yml # 调用可复用 Flutter CI 工作流
@@ -19,11 +22,13 @@ jobs:
     needs: call-flutter-ci
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       security-events: write # 允许上传 SARIF 结果
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0 # Gitleaks 需要完整 Git 历史以扫描所有提交
 
       - name: Gitleaks Secret Scan # Gitleaks 敏感信息扫描
@@ -45,12 +50,22 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
-      - name: OSV Scanner # OSV 漏洞扫描
-        uses: google/osv-scanner-action@v2.3.8
+      - name: OSV Scanner - dependency scan
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
         with:
-          scan-path: .
-          format: sarif
-          output: osv-results.sarif
+          scan-args: |-
+            --output=osv-results.json
+            --format=json
+            -r
+            ./
+
+      - name: OSV Scanner - report SARIF
+        uses: google/osv-scanner-action/osv-reporter-action@v2.3.8
+        with:
+          scan-args: |-
+            --output=osv-results.sarif
+            --new=osv-results.json
+            --gh-annotations=false
 
       - name: Upload OSV Scan Results to GitHub Security # 上传 OSV 扫描结果
         uses: github/codeql-action/upload-sarif@v3
@@ -77,6 +92,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Initialize CodeQL # 初始化 CodeQL
         uses: github/codeql-action/init@v3
@@ -95,6 +112,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Flutter # 设置 Flutter 环境
         uses: subosito/flutter-action@v2
