@@ -33,6 +33,11 @@ mixin _$AppSettings {
   ApproachingNotificationStyle get approachingNotificationStyle =>
       throw _privateConstructorUsedError; // Focus settings
   TempLeaveDuration get tempLeaveDuration => throw _privateConstructorUsedError;
+  TempLeaveTimes get tempLeaveTimes => throw _privateConstructorUsedError;
+  FocusSceneRenderMode get focusSceneRenderMode =>
+      throw _privateConstructorUsedError;
+  FocusSceneRenderQuality get focusSceneRenderQuality =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this AppSettings to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -60,6 +65,9 @@ abstract class $AppSettingsCopyWith<$Res> {
     UrgentNotificationStyle urgentNotificationStyle,
     ApproachingNotificationStyle approachingNotificationStyle,
     TempLeaveDuration tempLeaveDuration,
+    TempLeaveTimes tempLeaveTimes,
+    FocusSceneRenderMode focusSceneRenderMode,
+    FocusSceneRenderQuality focusSceneRenderQuality,
   });
 }
 
@@ -86,6 +94,9 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
     Object? urgentNotificationStyle = null,
     Object? approachingNotificationStyle = null,
     Object? tempLeaveDuration = null,
+    Object? tempLeaveTimes = null,
+    Object? focusSceneRenderMode = null,
+    Object? focusSceneRenderQuality = null,
   }) {
     return _then(
       _value.copyWith(
@@ -121,6 +132,18 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
                 ? _value.tempLeaveDuration
                 : tempLeaveDuration // ignore: cast_nullable_to_non_nullable
                       as TempLeaveDuration,
+            tempLeaveTimes: null == tempLeaveTimes
+                ? _value.tempLeaveTimes
+                : tempLeaveTimes // ignore: cast_nullable_to_non_nullable
+                      as TempLeaveTimes,
+            focusSceneRenderMode: null == focusSceneRenderMode
+                ? _value.focusSceneRenderMode
+                : focusSceneRenderMode // ignore: cast_nullable_to_non_nullable
+                      as FocusSceneRenderMode,
+            focusSceneRenderQuality: null == focusSceneRenderQuality
+                ? _value.focusSceneRenderQuality
+                : focusSceneRenderQuality // ignore: cast_nullable_to_non_nullable
+                      as FocusSceneRenderQuality,
           )
           as $Val,
     );
@@ -145,6 +168,9 @@ abstract class _$$AppSettingsImplCopyWith<$Res>
     UrgentNotificationStyle urgentNotificationStyle,
     ApproachingNotificationStyle approachingNotificationStyle,
     TempLeaveDuration tempLeaveDuration,
+    TempLeaveTimes tempLeaveTimes,
+    FocusSceneRenderMode focusSceneRenderMode,
+    FocusSceneRenderQuality focusSceneRenderQuality,
   });
 }
 
@@ -170,6 +196,9 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
     Object? urgentNotificationStyle = null,
     Object? approachingNotificationStyle = null,
     Object? tempLeaveDuration = null,
+    Object? tempLeaveTimes = null,
+    Object? focusSceneRenderMode = null,
+    Object? focusSceneRenderQuality = null,
   }) {
     return _then(
       _$AppSettingsImpl(
@@ -205,6 +234,18 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
             ? _value.tempLeaveDuration
             : tempLeaveDuration // ignore: cast_nullable_to_non_nullable
                   as TempLeaveDuration,
+        tempLeaveTimes: null == tempLeaveTimes
+            ? _value.tempLeaveTimes
+            : tempLeaveTimes // ignore: cast_nullable_to_non_nullable
+                  as TempLeaveTimes,
+        focusSceneRenderMode: null == focusSceneRenderMode
+            ? _value.focusSceneRenderMode
+            : focusSceneRenderMode // ignore: cast_nullable_to_non_nullable
+                  as FocusSceneRenderMode,
+        focusSceneRenderQuality: null == focusSceneRenderQuality
+            ? _value.focusSceneRenderQuality
+            : focusSceneRenderQuality // ignore: cast_nullable_to_non_nullable
+                  as FocusSceneRenderQuality,
       ),
     );
   }
@@ -222,6 +263,9 @@ class _$AppSettingsImpl extends _AppSettings {
     this.urgentNotificationStyle = UrgentNotificationStyle.notifier,
     this.approachingNotificationStyle = ApproachingNotificationStyle.notifier,
     this.tempLeaveDuration = TempLeaveDuration.tenM,
+    this.tempLeaveTimes = TempLeaveTimes.twice,
+    this.focusSceneRenderMode = FocusSceneRenderMode.rive,
+    this.focusSceneRenderQuality = FocusSceneRenderQuality.medium,
   }) : super._();
 
   factory _$AppSettingsImpl.fromJson(Map<String, dynamic> json) =>
@@ -254,10 +298,19 @@ class _$AppSettingsImpl extends _AppSettings {
   @override
   @JsonKey()
   final TempLeaveDuration tempLeaveDuration;
+  @override
+  @JsonKey()
+  final TempLeaveTimes tempLeaveTimes;
+  @override
+  @JsonKey()
+  final FocusSceneRenderMode focusSceneRenderMode;
+  @override
+  @JsonKey()
+  final FocusSceneRenderQuality focusSceneRenderQuality;
 
   @override
   String toString() {
-    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration)';
+    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality)';
   }
 
   @override
@@ -287,7 +340,16 @@ class _$AppSettingsImpl extends _AppSettings {
                 other.approachingNotificationStyle ==
                     approachingNotificationStyle) &&
             (identical(other.tempLeaveDuration, tempLeaveDuration) ||
-                other.tempLeaveDuration == tempLeaveDuration));
+                other.tempLeaveDuration == tempLeaveDuration) &&
+            (identical(other.tempLeaveTimes, tempLeaveTimes) ||
+                other.tempLeaveTimes == tempLeaveTimes) &&
+            (identical(other.focusSceneRenderMode, focusSceneRenderMode) ||
+                other.focusSceneRenderMode == focusSceneRenderMode) &&
+            (identical(
+                  other.focusSceneRenderQuality,
+                  focusSceneRenderQuality,
+                ) ||
+                other.focusSceneRenderQuality == focusSceneRenderQuality));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -302,6 +364,9 @@ class _$AppSettingsImpl extends _AppSettings {
     urgentNotificationStyle,
     approachingNotificationStyle,
     tempLeaveDuration,
+    tempLeaveTimes,
+    focusSceneRenderMode,
+    focusSceneRenderQuality,
   );
 
   /// Create a copy of AppSettings
@@ -328,6 +393,9 @@ abstract class _AppSettings extends AppSettings {
     final UrgentNotificationStyle urgentNotificationStyle,
     final ApproachingNotificationStyle approachingNotificationStyle,
     final TempLeaveDuration tempLeaveDuration,
+    final TempLeaveTimes tempLeaveTimes,
+    final FocusSceneRenderMode focusSceneRenderMode,
+    final FocusSceneRenderQuality focusSceneRenderQuality,
   }) = _$AppSettingsImpl;
   const _AppSettings._() : super._();
 
@@ -351,6 +419,12 @@ abstract class _AppSettings extends AppSettings {
   ApproachingNotificationStyle get approachingNotificationStyle; // Focus settings
   @override
   TempLeaveDuration get tempLeaveDuration;
+  @override
+  TempLeaveTimes get tempLeaveTimes;
+  @override
+  FocusSceneRenderMode get focusSceneRenderMode;
+  @override
+  FocusSceneRenderQuality get focusSceneRenderQuality;
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.

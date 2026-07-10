@@ -280,6 +280,82 @@ extension TempLeaveDurationLabel on TempLeaveDuration {
   }
 }
 
+// 单次专注最大暂离次数
+enum TempLeaveTimes {
+  @JsonValue('1次')
+  once,
+  @JsonValue('2次')
+  twice,
+  @JsonValue('3次')
+  threeTimes,
+  @JsonValue('4次')
+  fourTimes,
+  @JsonValue('5次')
+  fiveTimes,
+}
+
+extension TempLeaveTimesLabel on TempLeaveTimes {
+  String get label {
+    switch (this) {
+      case TempLeaveTimes.once:
+        return '1次';
+      case TempLeaveTimes.twice:
+        return '2次';
+      case TempLeaveTimes.threeTimes:
+        return '3次';
+      case TempLeaveTimes.fourTimes:
+        return '4次';
+      case TempLeaveTimes.fiveTimes:
+        return '5次';
+    }
+  }
+}
+
+// 专注场景渲染模式
+enum FocusSceneRenderMode {
+  @JsonValue('Unity')
+  unity,
+  @JsonValue('Godot')
+  godot,
+  @JsonValue('Rive')
+  rive,
+}
+
+extension FocusSceneRenderModeLabel on FocusSceneRenderMode {
+  String get label {
+    switch (this) {
+      case FocusSceneRenderMode.unity:
+        return 'Unity';
+      case FocusSceneRenderMode.godot:
+        return 'Godot';
+      case FocusSceneRenderMode.rive:
+        return 'Rive';
+    }
+  }
+}
+
+// 专注场景渲染精度
+enum FocusSceneRenderQuality {
+  @JsonValue('高')
+  high,
+  @JsonValue('中')
+  medium,
+  @JsonValue('低')
+  low,
+}
+
+extension FocusSceneRenderQualityLabel on FocusSceneRenderQuality {
+  String get label {
+    switch (this) {
+      case FocusSceneRenderQuality.high:
+        return '高';
+      case FocusSceneRenderQuality.medium:
+        return '中';
+      case FocusSceneRenderQuality.low:
+        return '低';
+    }
+  }
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // Freezed model — AppSettings
 // ─────────────────────────────────────────────────────────────────────────────
@@ -306,6 +382,11 @@ class AppSettings with _$AppSettings {
 
     // Focus settings
     @Default(TempLeaveDuration.tenM) TempLeaveDuration tempLeaveDuration,
+    @Default(TempLeaveTimes.twice) TempLeaveTimes tempLeaveTimes,
+    @Default(FocusSceneRenderMode.rive)
+    FocusSceneRenderMode focusSceneRenderMode,
+    @Default(FocusSceneRenderQuality.medium)
+    FocusSceneRenderQuality focusSceneRenderQuality,
   }) = _AppSettings;
 
   const AppSettings._();

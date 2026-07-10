@@ -40,6 +40,21 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(
         json['tempLeaveDuration'],
       ) ??
       TempLeaveDuration.tenM,
+  tempLeaveTimes:
+      $enumDecodeNullable(_$TempLeaveTimesEnumMap, json['tempLeaveTimes']) ??
+      TempLeaveTimes.twice,
+  focusSceneRenderMode:
+      $enumDecodeNullable(
+        _$FocusSceneRenderModeEnumMap,
+        json['focusSceneRenderMode'],
+      ) ??
+      FocusSceneRenderMode.rive,
+  focusSceneRenderQuality:
+      $enumDecodeNullable(
+        _$FocusSceneRenderQualityEnumMap,
+        json['focusSceneRenderQuality'],
+      ) ??
+      FocusSceneRenderQuality.medium,
 );
 
 Map<String, dynamic> _$$AppSettingsImplToJson(
@@ -56,6 +71,11 @@ Map<String, dynamic> _$$AppSettingsImplToJson(
       _$ApproachingNotificationStyleEnumMap[instance
           .approachingNotificationStyle]!,
   'tempLeaveDuration': _$TempLeaveDurationEnumMap[instance.tempLeaveDuration]!,
+  'tempLeaveTimes': _$TempLeaveTimesEnumMap[instance.tempLeaveTimes]!,
+  'focusSceneRenderMode':
+      _$FocusSceneRenderModeEnumMap[instance.focusSceneRenderMode]!,
+  'focusSceneRenderQuality':
+      _$FocusSceneRenderQualityEnumMap[instance.focusSceneRenderQuality]!,
 };
 
 const _$AppThemeModeEnumMap = {
@@ -100,4 +120,24 @@ const _$TempLeaveDurationEnumMap = {
   TempLeaveDuration.tenM: '10min',
   TempLeaveDuration.fiftenM: '15min',
   TempLeaveDuration.twentyM: '20min',
+};
+
+const _$TempLeaveTimesEnumMap = {
+  TempLeaveTimes.once: '1次',
+  TempLeaveTimes.twice: '2次',
+  TempLeaveTimes.threeTimes: '3次',
+  TempLeaveTimes.fourTimes: '4次',
+  TempLeaveTimes.fiveTimes: '5次',
+};
+
+const _$FocusSceneRenderModeEnumMap = {
+  FocusSceneRenderMode.unity: 'Unity',
+  FocusSceneRenderMode.godot: 'Godot',
+  FocusSceneRenderMode.rive: 'Rive',
+};
+
+const _$FocusSceneRenderQualityEnumMap = {
+  FocusSceneRenderQuality.high: '高',
+  FocusSceneRenderQuality.medium: '中',
+  FocusSceneRenderQuality.low: '低',
 };
