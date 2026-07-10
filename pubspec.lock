@@ -356,7 +356,7 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "5922b2861e2235a3504896f0d6fa07d84141b480cf52eecd2f42cd25585a9e8a"
+      sha256: f02fd7d2a4dc512fec615529824fdd217fecb3a3d3de68360293a551f21634b3
       url: "https://pub.dartlang.org"
     source: hosted
     version: "17.3.0"
@@ -460,10 +460,10 @@ packages:
     dependency: "direct main"
     description:
       name: liquid_glass_widgets
-      sha256: "82cf91db40e5a7b8e8f18b170c2ceecfcdd3e1bd1fa04c0d16fcb3a596006f25"
+      sha256: "0641f378af6e69455fe5c57717c8640792ae5ce1201a6e1fbb9733cb40901c22"
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.20.1"
+    version: "0.21.3"
   logging:
     dependency: transitive
     description:
