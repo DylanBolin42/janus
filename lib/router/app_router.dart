@@ -7,9 +7,21 @@ import 'package:janus/pages/TaskPage/task_page.dart';
 import 'package:janus/pages/SettingPage/setting_page.dart';
 import 'package:janus/pages/FocusPage/focus_page.dart';
 import 'package:janus/pages/InsightPage/insight_page.dart';
-
 // subsetting pages
 import 'package:janus/pages/SettingPage/subSettingPage/generalSetting/general_setting_page.dart';
+
+/// Centralized route path constants.
+///
+/// Add a new static const for each new route.
+class RoutePath {
+  RoutePath._();
+  static const String inbox = '/inbox';
+  static const String task = '/task';
+  static const String setting = '/setting';
+  static const String focus = '/focus';
+  static const String insights = '/insights';
+  static const String generalSetting = '/setting/generalSetting';
+}
 
 /// The single [GoRouter] instance for the application.
 final GoRouter appRouter = GoRouter(
