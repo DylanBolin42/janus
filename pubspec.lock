@@ -359,7 +359,7 @@ packages:
       sha256: f02fd7d2a4dc512fec615529824fdd217fecb3a3d3de68360293a551f21634b3
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "14.8.1"
+    version: "17.3.0"
   graphs:
     dependency: transitive
     description:
