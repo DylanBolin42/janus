@@ -1,0 +1,16 @@
+# [DEPRECATED] Pull Request Checks
+# This workflow has been replaced by ci.yml.
+# Kept for git history reference only — will not run automatically.
+
+name: "[DEPRECATED] Pull Request Checks"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "⚠️ Deprecated. See ci.yml."
+
+

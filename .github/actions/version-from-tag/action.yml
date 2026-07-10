@@ -1,0 +1,33 @@
+name: "Version from Tag"
+description: "Extracts version name and build number from git tag (e.g. v1.2.3 → 1.2.3 / 123)"
+outputs:
+  version-name:
+    description: "Semantic version (e.g. 1.2.3)"
+    value: ${{ steps.parse.outputs.version_name }}
+  build-number:
+    description: "Build number (e.g. 1002003 for 1.2.3)"
+    value: ${{ steps.parse.outputs.build_number }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Parse Tag
+      id: parse
+      shell: bash
+      run: |
+        # Extract tag from github.ref_name (e.g. v1.2.3 → 1.2.3)
+        TAG="${{ github.ref_name }}"
+        VERSION="${TAG#v}"
+
+        # Parse major.minor.patch
+        MAJOR=$(echo "$VERSION" | cut -d. -f1)
+        MINOR=$(echo "$VERSION" | cut -d. -f2)
+        PATCH=$(echo "$VERSION" | cut -d. -f3 | sed 's/[^0-9].*//')
+
+        # Build number: MAJOR * 1000000 + MINOR * 1000 + PATCH
+        BUILD_NUMBER=$(( MAJOR * 1000000 + MINOR * 1000 + PATCH ))
+
+        echo "version_name=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+
+        echo "📦 Version: $VERSION (build $BUILD_NUMBER)"
