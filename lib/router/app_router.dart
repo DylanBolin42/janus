@@ -20,6 +20,7 @@ class RoutePath {
   static const String setting = '/setting';
   static const String focus = '/focus';
   static const String insights = '/insights';
+  static const String generalSetting = '/setting/generalSetting';
 }
 
 /// The single [GoRouter] instance for the application.
