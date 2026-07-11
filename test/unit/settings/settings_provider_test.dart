@@ -47,10 +47,7 @@ void main() {
       final container = ProviderContainer();
       addTearDown(() => container.dispose());
 
-      expect(
-        container.read(appSettingsNotifierProvider).isLoading,
-        true,
-      );
+      expect(container.read(appSettingsNotifierProvider).isLoading, true);
 
       await waitForInit(container);
 
@@ -118,10 +115,7 @@ void main() {
           .setTabNamingStyle(TabNamingStyle.professional);
 
       expect(
-        container
-            .read(appSettingsNotifierProvider)
-            .valueOrNull!
-            .tabNamingStyle,
+        container.read(appSettingsNotifierProvider).valueOrNull!.tabNamingStyle,
         TabNamingStyle.professional,
       );
     });
@@ -138,8 +132,7 @@ void main() {
       await notifier.setLanguage(AppLanguage.english);
       await notifier.setTabNamingStyle(TabNamingStyle.latin);
 
-      final settings =
-          container.read(appSettingsNotifierProvider).valueOrNull!;
+      final settings = container.read(appSettingsNotifierProvider).valueOrNull!;
       expect(settings.themeMode, AppThemeMode.dark);
       expect(settings.language, AppLanguage.english);
       expect(settings.tabNamingStyle, TabNamingStyle.latin);

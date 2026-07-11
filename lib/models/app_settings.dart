@@ -280,6 +280,82 @@ extension TempLeaveDurationLabel on TempLeaveDuration {
   }
 }
 
+// 单次专注最大暂离次数
+enum TempLeaveTimes {
+  @JsonValue('once')
+  once,
+  @JsonValue('twice')
+  twice,
+  @JsonValue('threeTimes')
+  threeTimes,
+  @JsonValue('fourTimes')
+  fourTimes,
+  @JsonValue('fiveTimes')
+  fiveTimes,
+}
+
+extension TempLeaveTimesLabel on TempLeaveTimes {
+  String get label {
+    switch (this) {
+      case TempLeaveTimes.once:
+        return '1次';
+      case TempLeaveTimes.twice:
+        return '2次';
+      case TempLeaveTimes.threeTimes:
+        return '3次';
+      case TempLeaveTimes.fourTimes:
+        return '4次';
+      case TempLeaveTimes.fiveTimes:
+        return '5次';
+    }
+  }
+}
+
+// 专注场景渲染模式
+enum FocusSceneRenderMode {
+  @JsonValue('Unity')
+  unity,
+  @JsonValue('Godot')
+  godot,
+  @JsonValue('Rive')
+  rive,
+}
+
+extension FocusSceneRenderModeLabel on FocusSceneRenderMode {
+  String get label {
+    switch (this) {
+      case FocusSceneRenderMode.unity:
+        return 'Unity';
+      case FocusSceneRenderMode.godot:
+        return 'Godot';
+      case FocusSceneRenderMode.rive:
+        return 'Rive';
+    }
+  }
+}
+
+// 专注场景渲染精度
+enum FocusSceneRenderQuality {
+  @JsonValue('high')
+  high,
+  @JsonValue('medium')
+  medium,
+  @JsonValue('low')
+  low,
+}
+
+extension FocusSceneRenderQualityLabel on FocusSceneRenderQuality {
+  String get label {
+    switch (this) {
+      case FocusSceneRenderQuality.high:
+        return '高';
+      case FocusSceneRenderQuality.medium:
+        return '中';
+      case FocusSceneRenderQuality.low:
+        return '低';
+    }
+  }
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // Freezed model — AppSettings
 // ─────────────────────────────────────────────────────────────────────────────
@@ -306,6 +382,14 @@ class AppSettings with _$AppSettings {
 
     // Focus settings
     @Default(TempLeaveDuration.tenM) TempLeaveDuration tempLeaveDuration,
+    @Default(TempLeaveTimes.twice) TempLeaveTimes tempLeaveTimes,
+    @Default(FocusSceneRenderMode.rive)
+    FocusSceneRenderMode focusSceneRenderMode,
+    @Default(FocusSceneRenderQuality.medium)
+    FocusSceneRenderQuality focusSceneRenderQuality,
+
+    // Storage settings
+    @Default(false) bool useLogToTrain,
   }) = _AppSettings;
 
   const AppSettings._();

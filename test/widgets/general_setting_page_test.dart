@@ -12,9 +12,7 @@ void main() {
 
   testWidgets('GeneralSettingPage renders with title', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: GeneralSettingPage()),
-      ),
+      const ProviderScope(child: MaterialApp(home: GeneralSettingPage())),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
@@ -24,9 +22,7 @@ void main() {
 
   testWidgets('GeneralSettingPage has back button', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: GeneralSettingPage()),
-      ),
+      const ProviderScope(child: MaterialApp(home: GeneralSettingPage())),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
@@ -36,9 +32,7 @@ void main() {
 
   testWidgets('GeneralSettingPage shows appearance tiles', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: GeneralSettingPage()),
-      ),
+      const ProviderScope(child: MaterialApp(home: GeneralSettingPage())),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
@@ -50,9 +44,7 @@ void main() {
 
   testWidgets('GeneralSettingPage shows language section', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: GeneralSettingPage()),
-      ),
+      const ProviderScope(child: MaterialApp(home: GeneralSettingPage())),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
@@ -62,9 +54,7 @@ void main() {
 
   testWidgets('GeneralSettingPage shows naming style section', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: GeneralSettingPage()),
-      ),
+      const ProviderScope(child: MaterialApp(home: GeneralSettingPage())),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
@@ -83,9 +73,7 @@ void main() {
     });
 
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: GeneralSettingPage()),
-      ),
+      const ProviderScope(child: MaterialApp(home: GeneralSettingPage())),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));

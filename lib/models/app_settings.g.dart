@@ -40,6 +40,22 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(
         json['tempLeaveDuration'],
       ) ??
       TempLeaveDuration.tenM,
+  tempLeaveTimes:
+      $enumDecodeNullable(_$TempLeaveTimesEnumMap, json['tempLeaveTimes']) ??
+      TempLeaveTimes.twice,
+  focusSceneRenderMode:
+      $enumDecodeNullable(
+        _$FocusSceneRenderModeEnumMap,
+        json['focusSceneRenderMode'],
+      ) ??
+      FocusSceneRenderMode.rive,
+  focusSceneRenderQuality:
+      $enumDecodeNullable(
+        _$FocusSceneRenderQualityEnumMap,
+        json['focusSceneRenderQuality'],
+      ) ??
+      FocusSceneRenderQuality.medium,
+  useLogToTrain: json['useLogToTrain'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$$AppSettingsImplToJson(
@@ -56,6 +72,12 @@ Map<String, dynamic> _$$AppSettingsImplToJson(
       _$ApproachingNotificationStyleEnumMap[instance
           .approachingNotificationStyle]!,
   'tempLeaveDuration': _$TempLeaveDurationEnumMap[instance.tempLeaveDuration]!,
+  'tempLeaveTimes': _$TempLeaveTimesEnumMap[instance.tempLeaveTimes]!,
+  'focusSceneRenderMode':
+      _$FocusSceneRenderModeEnumMap[instance.focusSceneRenderMode]!,
+  'focusSceneRenderQuality':
+      _$FocusSceneRenderQualityEnumMap[instance.focusSceneRenderQuality]!,
+  'useLogToTrain': instance.useLogToTrain,
 };
 
 const _$AppThemeModeEnumMap = {
@@ -100,4 +122,24 @@ const _$TempLeaveDurationEnumMap = {
   TempLeaveDuration.tenM: '10min',
   TempLeaveDuration.fiftenM: '15min',
   TempLeaveDuration.twentyM: '20min',
+};
+
+const _$TempLeaveTimesEnumMap = {
+  TempLeaveTimes.once: 'once',
+  TempLeaveTimes.twice: 'twice',
+  TempLeaveTimes.threeTimes: 'threeTimes',
+  TempLeaveTimes.fourTimes: 'fourTimes',
+  TempLeaveTimes.fiveTimes: 'fiveTimes',
+};
+
+const _$FocusSceneRenderModeEnumMap = {
+  FocusSceneRenderMode.unity: 'Unity',
+  FocusSceneRenderMode.godot: 'Godot',
+  FocusSceneRenderMode.rive: 'Rive',
+};
+
+const _$FocusSceneRenderQualityEnumMap = {
+  FocusSceneRenderQuality.high: 'high',
+  FocusSceneRenderQuality.medium: 'medium',
+  FocusSceneRenderQuality.low: 'low',
 };

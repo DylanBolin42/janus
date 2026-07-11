@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:janus/shared/custom_appbar.dart';
-import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:janus/models/app_settings.dart';

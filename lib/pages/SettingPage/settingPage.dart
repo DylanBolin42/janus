@@ -60,7 +60,9 @@ class _SettingpageState extends State<Settingpage> {
                     title: const Text('专注'),
                     leading: const Icon(Icons.filter_center_focus_rounded),
                     description: const Text('专注模式的设置和场景配置等'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.pushNamed('focusSetting');
+                    },
                   ),
                 ],
               ),
@@ -71,7 +73,9 @@ class _SettingpageState extends State<Settingpage> {
                     title: const Text('数据'),
                     leading: const Icon(Icons.dataset_rounded),
                     description: const Text('数据、日志的记录等'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.pushNamed('storageSetting');
+                    },
                   ),
                   SettingsTile.navigation(
                     title: const Text('同步'),
