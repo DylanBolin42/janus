@@ -18,10 +18,11 @@ class StorageSettingPage extends ConsumerStatefulWidget {
 }
 
 class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
-  late final settings =
-      ref.watch(appSettingsNotifierProvider).valueOrNull ?? const AppSettings();
   @override
   Widget build(BuildContext context) {
+    final settings =
+        ref.watch(appSettingsNotifierProvider).valueOrNull ??
+        const AppSettings();
     return GlassScaffold(
       topEdgeFade: false,
       appBar: const CustomAppbar(title: '存储', showBack: true),

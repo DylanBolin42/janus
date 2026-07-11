@@ -15,11 +15,11 @@ class FocusSettingPage extends ConsumerStatefulWidget {
 }
 
 class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
-  late final settings =
-      ref.watch(appSettingsNotifierProvider).valueOrNull ?? const AppSettings();
-
   @override
   Widget build(BuildContext context) {
+    final settings =
+        ref.watch(appSettingsNotifierProvider).valueOrNull ??
+        const AppSettings();
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
@@ -33,14 +33,17 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
               tiles: [
                 SettingsTile(
                   title: const Text('默认专注模式'),
-                  trailing: GlassSegmentedControl(
-                    onSegmentSelected: (_) {},
-                    selectedIndex: 0,
-                    segments: [
-                      GlassSegment(label: '倒计时'),
-                      GlassSegment(label: '正计时'),
-                      GlassSegment(label: '番茄钟'),
-                    ],
+                  trailing: SizedBox(
+                    width: 220,
+                    child: GlassSegmentedControl(
+                      onSegmentSelected: (_) {},
+                      selectedIndex: 0,
+                      segments: [
+                        GlassSegment(label: '倒计时'),
+                        GlassSegment(label: '正计时'),
+                        GlassSegment(label: '番茄钟'),
+                      ],
+                    ),
                   ), //TODO: 创建切换和存储逻辑
                 ),
               ],
@@ -58,7 +61,9 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                 ), //TODO: 添加逻辑和存储
                 SettingsTile.navigation(
                   title: Text('应用白名单'),
-                  description: Text('在专注期间允许访问的程序'),
+                  description: Text(
+                    '可以在专注过程中正常访问，推荐不要把流媒体平台、游戏等易打断专注的软件加入白名单',
+                  ), //TODO: 添加白名单页面
                 ),
               ],
             ),
@@ -113,10 +118,6 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                     }).toList(),
                   ),
                 ),
-                SettingsTile.navigation(
-                  title: Text('应用白名单'),
-                  description: Text('可以在专注过程中正常访问，推荐不要把流媒体平台、游戏等易打断专注的软件加入白名单'),
-                ), //TODO: 创建白名单页面
               ],
             ),
             SettingsSection(

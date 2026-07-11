@@ -11,6 +11,7 @@ import 'package:janus/pages/InsightPage/insight_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/generalSetting/general_setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/notificationSetting/notification_setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/focusSetting/focus_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/storageSetting/storage_setting_page.dart';
 
 /// Centralized route path constants.
 ///
@@ -28,6 +29,7 @@ class RoutePath {
   static const String generalSetting = 'general';
   static const String notificationSetting = 'notification';
   static const String focusSetting = 'focus';
+  static const String storageSetting = 'storage';
 }
 
 /// Display names for each route, used in AppBars.
@@ -98,6 +100,11 @@ final GoRouter appRouter = GoRouter(
           path: RoutePath.focusSetting,
           name: 'focusSetting',
           builder: (context, state) => const FocusSettingPage(),
+        ),
+        GoRoute(
+          path: RoutePath.storageSetting,
+          name: 'storageSetting',
+          builder: (context, state) => const StorageSettingPage(),
         ),
       ],
     ),
