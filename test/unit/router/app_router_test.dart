@@ -26,8 +26,10 @@ void main() {
 
   group('RouteDisplayName', () {
     test('contains all expected route names', () {
-      expect(RouteDisplayName.names.keys,
-          containsAll(['inbox', 'task', 'focus', 'insights', 'setting']));
+      expect(
+        RouteDisplayName.names.keys,
+        containsAll(['inbox', 'task', 'focus', 'insights', 'setting']),
+      );
     });
 
     test('inbox display name', () {

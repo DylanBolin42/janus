@@ -4,9 +4,7 @@ import 'package:janus/pages/SettingPage/settingPage.dart';
 
 void main() {
   testWidgets('SettingPage renders with title', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: Settingpage()),
-    );
+    await tester.pumpWidget(const MaterialApp(home: Settingpage()));
     await tester.pump();
 
     // AppBar title from RouteDisplayName
@@ -14,9 +12,7 @@ void main() {
   });
 
   testWidgets('SettingPage has all six setting tiles', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: Settingpage()),
-    );
+    await tester.pumpWidget(const MaterialApp(home: Settingpage()));
     await tester.pump();
 
     expect(find.text('通用'), findsOneWidget);
@@ -28,18 +24,14 @@ void main() {
   });
 
   testWidgets('SettingPage has back button', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: Settingpage()),
-    );
+    await tester.pumpWidget(const MaterialApp(home: Settingpage()));
     await tester.pump();
 
     expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
   });
 
   testWidgets('SettingPage renders without crashing', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: Settingpage()),
-    );
+    await tester.pumpWidget(const MaterialApp(home: Settingpage()));
     await tester.pump();
 
     // Just verify it renders without errors

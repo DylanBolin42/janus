@@ -46,7 +46,7 @@ final themeModeProvider = AutoDisposeProvider<ThemeMode>.internal(
 // ignore: unused_element
 typedef ThemeModeRef = AutoDisposeProviderRef<ThemeMode>;
 String _$appSettingsNotifierHash() =>
-    r'1891e67814843a41c9434869d98b9641287fef26';
+    r'c957e3992157cd6badaa01856e4915dfab7136a8';
 
 /// Async notifier that loads, exposes, and persists [AppSettings].
 ///

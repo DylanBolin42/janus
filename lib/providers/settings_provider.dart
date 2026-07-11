@@ -96,6 +96,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     );
   }
 
+  // Set Focus Settings
   Future<void> setTempLeaveDuration(TempLeaveDuration duration) async {
     await _persist(
       (state.valueOrNull ?? const AppSettings()).copyWith(
@@ -126,6 +127,15 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     await _persist(
       (state.valueOrNull ?? const AppSettings()).copyWith(
         focusSceneRenderQuality: quality,
+      ),
+    );
+  }
+
+  // Set Storage Settings
+  Future<void> setUseLogToTrain(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        useLogToTrain: enabled,
       ),
     );
   }

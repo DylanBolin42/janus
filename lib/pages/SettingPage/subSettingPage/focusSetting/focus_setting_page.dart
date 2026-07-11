@@ -1,12 +1,10 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
-import 'package:card_settings_ui/list/settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
 import 'package:janus/shared/custom_appbar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
 
 class FocusSettingPage extends ConsumerStatefulWidget {
   const FocusSettingPage({super.key});

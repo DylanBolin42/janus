@@ -282,15 +282,15 @@ extension TempLeaveDurationLabel on TempLeaveDuration {
 
 // 单次专注最大暂离次数
 enum TempLeaveTimes {
-  @JsonValue('1次')
+  @JsonValue('once')
   once,
-  @JsonValue('2次')
+  @JsonValue('twice')
   twice,
-  @JsonValue('3次')
+  @JsonValue('threeTimes')
   threeTimes,
-  @JsonValue('4次')
+  @JsonValue('fourTimes')
   fourTimes,
-  @JsonValue('5次')
+  @JsonValue('fiveTimes')
   fiveTimes,
 }
 
@@ -336,11 +336,11 @@ extension FocusSceneRenderModeLabel on FocusSceneRenderMode {
 
 // 专注场景渲染精度
 enum FocusSceneRenderQuality {
-  @JsonValue('高')
+  @JsonValue('high')
   high,
-  @JsonValue('中')
+  @JsonValue('medium')
   medium,
-  @JsonValue('低')
+  @JsonValue('low')
   low,
 }
 
@@ -387,6 +387,9 @@ class AppSettings with _$AppSettings {
     FocusSceneRenderMode focusSceneRenderMode,
     @Default(FocusSceneRenderQuality.medium)
     FocusSceneRenderQuality focusSceneRenderQuality,
+
+    // Storage settings
+    @Default(false) bool useLogToTrain,
   }) = _AppSettings;
 
   const AppSettings._();

@@ -37,7 +37,8 @@ mixin _$AppSettings {
   FocusSceneRenderMode get focusSceneRenderMode =>
       throw _privateConstructorUsedError;
   FocusSceneRenderQuality get focusSceneRenderQuality =>
-      throw _privateConstructorUsedError;
+      throw _privateConstructorUsedError; // Storage settings
+  bool get useLogToTrain => throw _privateConstructorUsedError;
 
   /// Serializes this AppSettings to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -68,6 +69,7 @@ abstract class $AppSettingsCopyWith<$Res> {
     TempLeaveTimes tempLeaveTimes,
     FocusSceneRenderMode focusSceneRenderMode,
     FocusSceneRenderQuality focusSceneRenderQuality,
+    bool useLogToTrain,
   });
 }
 
@@ -97,6 +99,7 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
     Object? tempLeaveTimes = null,
     Object? focusSceneRenderMode = null,
     Object? focusSceneRenderQuality = null,
+    Object? useLogToTrain = null,
   }) {
     return _then(
       _value.copyWith(
@@ -144,6 +147,10 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
                 ? _value.focusSceneRenderQuality
                 : focusSceneRenderQuality // ignore: cast_nullable_to_non_nullable
                       as FocusSceneRenderQuality,
+            useLogToTrain: null == useLogToTrain
+                ? _value.useLogToTrain
+                : useLogToTrain // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -171,6 +178,7 @@ abstract class _$$AppSettingsImplCopyWith<$Res>
     TempLeaveTimes tempLeaveTimes,
     FocusSceneRenderMode focusSceneRenderMode,
     FocusSceneRenderQuality focusSceneRenderQuality,
+    bool useLogToTrain,
   });
 }
 
@@ -199,6 +207,7 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
     Object? tempLeaveTimes = null,
     Object? focusSceneRenderMode = null,
     Object? focusSceneRenderQuality = null,
+    Object? useLogToTrain = null,
   }) {
     return _then(
       _$AppSettingsImpl(
@@ -246,6 +255,10 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
             ? _value.focusSceneRenderQuality
             : focusSceneRenderQuality // ignore: cast_nullable_to_non_nullable
                   as FocusSceneRenderQuality,
+        useLogToTrain: null == useLogToTrain
+            ? _value.useLogToTrain
+            : useLogToTrain // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -266,6 +279,7 @@ class _$AppSettingsImpl extends _AppSettings {
     this.tempLeaveTimes = TempLeaveTimes.twice,
     this.focusSceneRenderMode = FocusSceneRenderMode.rive,
     this.focusSceneRenderQuality = FocusSceneRenderQuality.medium,
+    this.useLogToTrain = false,
   }) : super._();
 
   factory _$AppSettingsImpl.fromJson(Map<String, dynamic> json) =>
@@ -307,10 +321,14 @@ class _$AppSettingsImpl extends _AppSettings {
   @override
   @JsonKey()
   final FocusSceneRenderQuality focusSceneRenderQuality;
+  // Storage settings
+  @override
+  @JsonKey()
+  final bool useLogToTrain;
 
   @override
   String toString() {
-    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality)';
+    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality, useLogToTrain: $useLogToTrain)';
   }
 
   @override
@@ -349,7 +367,9 @@ class _$AppSettingsImpl extends _AppSettings {
                   other.focusSceneRenderQuality,
                   focusSceneRenderQuality,
                 ) ||
-                other.focusSceneRenderQuality == focusSceneRenderQuality));
+                other.focusSceneRenderQuality == focusSceneRenderQuality) &&
+            (identical(other.useLogToTrain, useLogToTrain) ||
+                other.useLogToTrain == useLogToTrain));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -367,6 +387,7 @@ class _$AppSettingsImpl extends _AppSettings {
     tempLeaveTimes,
     focusSceneRenderMode,
     focusSceneRenderQuality,
+    useLogToTrain,
   );
 
   /// Create a copy of AppSettings
@@ -396,6 +417,7 @@ abstract class _AppSettings extends AppSettings {
     final TempLeaveTimes tempLeaveTimes,
     final FocusSceneRenderMode focusSceneRenderMode,
     final FocusSceneRenderQuality focusSceneRenderQuality,
+    final bool useLogToTrain,
   }) = _$AppSettingsImpl;
   const _AppSettings._() : super._();
 
@@ -424,7 +446,9 @@ abstract class _AppSettings extends AppSettings {
   @override
   FocusSceneRenderMode get focusSceneRenderMode;
   @override
-  FocusSceneRenderQuality get focusSceneRenderQuality;
+  FocusSceneRenderQuality get focusSceneRenderQuality; // Storage settings
+  @override
+  bool get useLogToTrain;
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.

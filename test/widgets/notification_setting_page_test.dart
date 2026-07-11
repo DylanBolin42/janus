@@ -5,9 +5,7 @@ import 'package:janus/pages/SettingPage/subSettingPage/notificationSetting/notif
 
 Widget createNotificationSettingPage() {
   return const ProviderScope(
-    child: MaterialApp(
-      home: NotificationSettingPage(),
-    ),
+    child: MaterialApp(home: NotificationSettingPage()),
   );
 }
 
@@ -26,15 +24,18 @@ void main() {
     expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
   });
 
-  testWidgets('NotificationSettingPage has notification toggle', (tester) async {
+  testWidgets('NotificationSettingPage has notification toggle', (
+    tester,
+  ) async {
     await tester.pumpWidget(createNotificationSettingPage());
     await tester.pump();
 
     expect(find.text('是否通知'), findsOneWidget);
   });
 
-  testWidgets('NotificationSettingPage renders without crashing',
-      (tester) async {
+  testWidgets('NotificationSettingPage renders without crashing', (
+    tester,
+  ) async {
     await tester.pumpWidget(createNotificationSettingPage());
     await tester.pump();
 

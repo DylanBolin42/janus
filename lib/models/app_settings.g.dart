@@ -55,6 +55,7 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(
         json['focusSceneRenderQuality'],
       ) ??
       FocusSceneRenderQuality.medium,
+  useLogToTrain: json['useLogToTrain'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$$AppSettingsImplToJson(
@@ -76,6 +77,7 @@ Map<String, dynamic> _$$AppSettingsImplToJson(
       _$FocusSceneRenderModeEnumMap[instance.focusSceneRenderMode]!,
   'focusSceneRenderQuality':
       _$FocusSceneRenderQualityEnumMap[instance.focusSceneRenderQuality]!,
+  'useLogToTrain': instance.useLogToTrain,
 };
 
 const _$AppThemeModeEnumMap = {
@@ -123,11 +125,11 @@ const _$TempLeaveDurationEnumMap = {
 };
 
 const _$TempLeaveTimesEnumMap = {
-  TempLeaveTimes.once: '1次',
-  TempLeaveTimes.twice: '2次',
-  TempLeaveTimes.threeTimes: '3次',
-  TempLeaveTimes.fourTimes: '4次',
-  TempLeaveTimes.fiveTimes: '5次',
+  TempLeaveTimes.once: 'once',
+  TempLeaveTimes.twice: 'twice',
+  TempLeaveTimes.threeTimes: 'threeTimes',
+  TempLeaveTimes.fourTimes: 'fourTimes',
+  TempLeaveTimes.fiveTimes: 'fiveTimes',
 };
 
 const _$FocusSceneRenderModeEnumMap = {
@@ -137,7 +139,7 @@ const _$FocusSceneRenderModeEnumMap = {
 };
 
 const _$FocusSceneRenderQualityEnumMap = {
-  FocusSceneRenderQuality.high: '高',
-  FocusSceneRenderQuality.medium: '中',
-  FocusSceneRenderQuality.low: '低',
+  FocusSceneRenderQuality.high: 'high',
+  FocusSceneRenderQuality.medium: 'medium',
+  FocusSceneRenderQuality.low: 'low',
 };

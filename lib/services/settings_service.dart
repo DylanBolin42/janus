@@ -17,9 +17,7 @@ class SettingsService {
     final raw = prefs.getString(_key);
     if (raw == null) return const AppSettings();
     try {
-      return AppSettings.fromJson(
-        jsonDecode(raw) as Map<String, dynamic>,
-      );
+      return AppSettings.fromJson(jsonDecode(raw) as Map<String, dynamic>);
     } catch (_) {
       // Corrupt data → reset to defaults
       return const AppSettings();
