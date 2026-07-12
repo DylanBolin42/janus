@@ -129,25 +129,25 @@ jobs:
 
       # ---- Download all artifacts ----
       - name: Download Android
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: android-build-${{ needs.version.outputs.version-name }}
           path: release/
 
       - name: Download Linux
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: desktop-linux-${{ needs.version.outputs.version-name }}
           path: release/
 
       - name: Download Windows
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: desktop-windows-${{ needs.version.outputs.version-name }}
           path: release/
 
       - name: Download Web
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: web-build-${{ needs.version.outputs.version-name }}
           path: release/
