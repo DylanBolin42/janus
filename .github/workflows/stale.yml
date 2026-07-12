@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Stale Bot
-        uses: actions/stale@v9
+        uses: actions/stale@v10
         with:
           days-before-issue-stale: 90
           days-before-issue-close: 30
