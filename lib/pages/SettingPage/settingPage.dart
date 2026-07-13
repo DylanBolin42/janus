@@ -81,7 +81,9 @@ class _SettingpageState extends State<Settingpage> {
                     title: const Text('同步'),
                     leading: const Icon(Icons.cloud_sync_rounded),
                     description: const Text('云端同步设置，实现跨设备数据流转'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.pushNamed('syncSetting');
+                    },
                   ),
                 ],
               ),

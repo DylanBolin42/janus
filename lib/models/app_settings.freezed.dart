@@ -38,7 +38,13 @@ mixin _$AppSettings {
       throw _privateConstructorUsedError;
   FocusSceneRenderQuality get focusSceneRenderQuality =>
       throw _privateConstructorUsedError; // Storage settings
-  bool get useLogToTrain => throw _privateConstructorUsedError;
+  bool get useLogToTrain => throw _privateConstructorUsedError; // Sync settings
+  bool get syncEnabled => throw _privateConstructorUsedError;
+  SyncMode get syncMode => throw _privateConstructorUsedError;
+  SyncTrigger get syncTrigger => throw _privateConstructorUsedError;
+  Duration get syncDurationOnInterval => throw _privateConstructorUsedError;
+  RsaType get rsaType => throw _privateConstructorUsedError;
+  bool get useAppLock => throw _privateConstructorUsedError;
 
   /// Serializes this AppSettings to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -70,6 +76,12 @@ abstract class $AppSettingsCopyWith<$Res> {
     FocusSceneRenderMode focusSceneRenderMode,
     FocusSceneRenderQuality focusSceneRenderQuality,
     bool useLogToTrain,
+    bool syncEnabled,
+    SyncMode syncMode,
+    SyncTrigger syncTrigger,
+    Duration syncDurationOnInterval,
+    RsaType rsaType,
+    bool useAppLock,
   });
 }
 
@@ -100,6 +112,12 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
     Object? focusSceneRenderMode = null,
     Object? focusSceneRenderQuality = null,
     Object? useLogToTrain = null,
+    Object? syncEnabled = null,
+    Object? syncMode = null,
+    Object? syncTrigger = null,
+    Object? syncDurationOnInterval = null,
+    Object? rsaType = null,
+    Object? useAppLock = null,
   }) {
     return _then(
       _value.copyWith(
@@ -151,6 +169,30 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
                 ? _value.useLogToTrain
                 : useLogToTrain // ignore: cast_nullable_to_non_nullable
                       as bool,
+            syncEnabled: null == syncEnabled
+                ? _value.syncEnabled
+                : syncEnabled // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            syncMode: null == syncMode
+                ? _value.syncMode
+                : syncMode // ignore: cast_nullable_to_non_nullable
+                      as SyncMode,
+            syncTrigger: null == syncTrigger
+                ? _value.syncTrigger
+                : syncTrigger // ignore: cast_nullable_to_non_nullable
+                      as SyncTrigger,
+            syncDurationOnInterval: null == syncDurationOnInterval
+                ? _value.syncDurationOnInterval
+                : syncDurationOnInterval // ignore: cast_nullable_to_non_nullable
+                      as Duration,
+            rsaType: null == rsaType
+                ? _value.rsaType
+                : rsaType // ignore: cast_nullable_to_non_nullable
+                      as RsaType,
+            useAppLock: null == useAppLock
+                ? _value.useAppLock
+                : useAppLock // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -179,6 +221,12 @@ abstract class _$$AppSettingsImplCopyWith<$Res>
     FocusSceneRenderMode focusSceneRenderMode,
     FocusSceneRenderQuality focusSceneRenderQuality,
     bool useLogToTrain,
+    bool syncEnabled,
+    SyncMode syncMode,
+    SyncTrigger syncTrigger,
+    Duration syncDurationOnInterval,
+    RsaType rsaType,
+    bool useAppLock,
   });
 }
 
@@ -208,6 +256,12 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
     Object? focusSceneRenderMode = null,
     Object? focusSceneRenderQuality = null,
     Object? useLogToTrain = null,
+    Object? syncEnabled = null,
+    Object? syncMode = null,
+    Object? syncTrigger = null,
+    Object? syncDurationOnInterval = null,
+    Object? rsaType = null,
+    Object? useAppLock = null,
   }) {
     return _then(
       _$AppSettingsImpl(
@@ -259,6 +313,30 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
             ? _value.useLogToTrain
             : useLogToTrain // ignore: cast_nullable_to_non_nullable
                   as bool,
+        syncEnabled: null == syncEnabled
+            ? _value.syncEnabled
+            : syncEnabled // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        syncMode: null == syncMode
+            ? _value.syncMode
+            : syncMode // ignore: cast_nullable_to_non_nullable
+                  as SyncMode,
+        syncTrigger: null == syncTrigger
+            ? _value.syncTrigger
+            : syncTrigger // ignore: cast_nullable_to_non_nullable
+                  as SyncTrigger,
+        syncDurationOnInterval: null == syncDurationOnInterval
+            ? _value.syncDurationOnInterval
+            : syncDurationOnInterval // ignore: cast_nullable_to_non_nullable
+                  as Duration,
+        rsaType: null == rsaType
+            ? _value.rsaType
+            : rsaType // ignore: cast_nullable_to_non_nullable
+                  as RsaType,
+        useAppLock: null == useAppLock
+            ? _value.useAppLock
+            : useAppLock // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -280,6 +358,12 @@ class _$AppSettingsImpl extends _AppSettings {
     this.focusSceneRenderMode = FocusSceneRenderMode.rive,
     this.focusSceneRenderQuality = FocusSceneRenderQuality.medium,
     this.useLogToTrain = false,
+    this.syncEnabled = false,
+    this.syncMode = SyncMode.auto,
+    this.syncTrigger = SyncTrigger.onTime,
+    this.syncDurationOnInterval = const Duration(hours: 3),
+    this.rsaType = RsaType.rsa2048,
+    this.useAppLock = false,
   }) : super._();
 
   factory _$AppSettingsImpl.fromJson(Map<String, dynamic> json) =>
@@ -325,10 +409,29 @@ class _$AppSettingsImpl extends _AppSettings {
   @override
   @JsonKey()
   final bool useLogToTrain;
+  // Sync settings
+  @override
+  @JsonKey()
+  final bool syncEnabled;
+  @override
+  @JsonKey()
+  final SyncMode syncMode;
+  @override
+  @JsonKey()
+  final SyncTrigger syncTrigger;
+  @override
+  @JsonKey()
+  final Duration syncDurationOnInterval;
+  @override
+  @JsonKey()
+  final RsaType rsaType;
+  @override
+  @JsonKey()
+  final bool useAppLock;
 
   @override
   String toString() {
-    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality, useLogToTrain: $useLogToTrain)';
+    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality, useLogToTrain: $useLogToTrain, syncEnabled: $syncEnabled, syncMode: $syncMode, syncTrigger: $syncTrigger, syncDurationOnInterval: $syncDurationOnInterval, rsaType: $rsaType, useAppLock: $useAppLock)';
   }
 
   @override
@@ -369,7 +472,18 @@ class _$AppSettingsImpl extends _AppSettings {
                 ) ||
                 other.focusSceneRenderQuality == focusSceneRenderQuality) &&
             (identical(other.useLogToTrain, useLogToTrain) ||
-                other.useLogToTrain == useLogToTrain));
+                other.useLogToTrain == useLogToTrain) &&
+            (identical(other.syncEnabled, syncEnabled) ||
+                other.syncEnabled == syncEnabled) &&
+            (identical(other.syncMode, syncMode) ||
+                other.syncMode == syncMode) &&
+            (identical(other.syncTrigger, syncTrigger) ||
+                other.syncTrigger == syncTrigger) &&
+            (identical(other.syncDurationOnInterval, syncDurationOnInterval) ||
+                other.syncDurationOnInterval == syncDurationOnInterval) &&
+            (identical(other.rsaType, rsaType) || other.rsaType == rsaType) &&
+            (identical(other.useAppLock, useAppLock) ||
+                other.useAppLock == useAppLock));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -388,6 +502,12 @@ class _$AppSettingsImpl extends _AppSettings {
     focusSceneRenderMode,
     focusSceneRenderQuality,
     useLogToTrain,
+    syncEnabled,
+    syncMode,
+    syncTrigger,
+    syncDurationOnInterval,
+    rsaType,
+    useAppLock,
   );
 
   /// Create a copy of AppSettings
@@ -418,6 +538,12 @@ abstract class _AppSettings extends AppSettings {
     final FocusSceneRenderMode focusSceneRenderMode,
     final FocusSceneRenderQuality focusSceneRenderQuality,
     final bool useLogToTrain,
+    final bool syncEnabled,
+    final SyncMode syncMode,
+    final SyncTrigger syncTrigger,
+    final Duration syncDurationOnInterval,
+    final RsaType rsaType,
+    final bool useAppLock,
   }) = _$AppSettingsImpl;
   const _AppSettings._() : super._();
 
@@ -448,7 +574,19 @@ abstract class _AppSettings extends AppSettings {
   @override
   FocusSceneRenderQuality get focusSceneRenderQuality; // Storage settings
   @override
-  bool get useLogToTrain;
+  bool get useLogToTrain; // Sync settings
+  @override
+  bool get syncEnabled;
+  @override
+  SyncMode get syncMode;
+  @override
+  SyncTrigger get syncTrigger;
+  @override
+  Duration get syncDurationOnInterval;
+  @override
+  RsaType get rsaType;
+  @override
+  bool get useAppLock;
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.

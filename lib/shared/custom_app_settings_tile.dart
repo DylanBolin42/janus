@@ -34,6 +34,8 @@ class CustomAppSettingsTile extends AbstractSettingsTile {
       horizontal: 16,
       vertical: 24,
     ),
+    this.isLeftEdge = true,
+    this.isRightEdge = true,
     super.key,
   });
 
@@ -52,18 +54,52 @@ class CustomAppSettingsTile extends AbstractSettingsTile {
   /// Tile 内部的内边距，默认与 [SettingsTile] 的 title 区域一致。
   final EdgeInsetsGeometry padding;
 
+  /// 是否为行的左边缘 tile（水平排列时左上/左下角使用大圆角）。
+  ///
+  /// 仅在 [FlexRow] 中使用时有意义，独立 tile 默认为 `true`。
+  final bool isLeftEdge;
+
+  /// 是否为行的右边缘 tile（水平排列时右上/右下角使用大圆角）。
+  ///
+  /// 仅在 [FlexRow] 中使用时有意义，独立 tile 默认为 `true`。
+  final bool isRightEdge;
+
   @override
   Widget build(BuildContext context) {
     final info = SettingsTileInfo.of(context);
     final theme = Theme.of(context);
 
+    // ── 四角圆角逻辑 ──────────────────────────────────────────────────────
+    // top-left     = 分组顶部 && 行左边缘  → 大圆角
+    // top-right    = 分组顶部 && 行右边缘  → 大圆角
+    // bottom-left  = 分组底部 && 行左边缘  → 大圆角
+    // bottom-right = 分组底部 && 行右边缘  → 大圆角
+    // 其他情况一律使用默认小圆角（3px）
+    const double largeRadius = 20;
+    const double smallRadius = 3;
+
+    final double topLeft = (info.isTopTile && isLeftEdge)
+        ? largeRadius
+        : smallRadius;
+    final double topRight = (info.isTopTile && isRightEdge)
+        ? largeRadius
+        : smallRadius;
+    final double bottomLeft = (info.isBottomTile && isLeftEdge)
+        ? largeRadius
+        : smallRadius;
+    final double bottomRight = (info.isBottomTile && isRightEdge)
+        ? largeRadius
+        : smallRadius;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(info.isTopTile ? 20 : 3),
-            bottom: Radius.circular(info.isBottomTile ? 20 : 3),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(topLeft),
+            topRight: Radius.circular(topRight),
+            bottomLeft: Radius.circular(bottomLeft),
+            bottomRight: Radius.circular(bottomRight),
           ),
           child: Material(
             color:
@@ -71,16 +107,19 @@ class CustomAppSettingsTile extends AbstractSettingsTile {
                 (theme.brightness == Brightness.light
                     ? theme.colorScheme.surfaceContainerLowest
                     : theme.colorScheme.surfaceContainerHigh),
-            child: InkWell(
-              onTap: enabled ? () => onTap?.call(context) : null,
-              mouseCursor: enabled && onTap != null
-                  ? SystemMouseCursors.click
-                  : null,
-              child: Opacity(
-                opacity: enabled ? 1.0 : 0.5,
-                child: Padding(padding: padding, child: child),
-              ),
-            ),
+            child: enabled && onTap != null
+                ? InkWell(
+                    onTap: () => onTap!.call(context),
+                    mouseCursor: SystemMouseCursors.click,
+                    child: Opacity(
+                      opacity: enabled ? 1.0 : 0.5,
+                      child: Padding(padding: padding, child: child),
+                    ),
+                  )
+                : Opacity(
+                    opacity: enabled ? 1.0 : 0.5,
+                    child: Padding(padding: padding, child: child),
+                  ),
           ),
         ),
         if (info.needDivider) const SizedBox(height: 2),
