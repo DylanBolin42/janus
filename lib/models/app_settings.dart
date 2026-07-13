@@ -394,7 +394,7 @@ extension SyncTriggerLabel on SyncTrigger {
   String get label {
     switch (this) {
       case SyncTrigger.onChanged:
-        return '修改时';
+        return '修改时w';
       case SyncTrigger.onInterval:
         return '间隔时长';
       case SyncTrigger.onTime:
