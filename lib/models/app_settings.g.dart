@@ -56,6 +56,18 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(
       ) ??
       FocusSceneRenderQuality.medium,
   useLogToTrain: json['useLogToTrain'] as bool? ?? false,
+  syncEnabled: json['syncEnabled'] as bool? ?? false,
+  syncMode:
+      $enumDecodeNullable(_$SyncModeEnumMap, json['syncMode']) ?? SyncMode.auto,
+  syncTrigger:
+      $enumDecodeNullable(_$SyncTriggerEnumMap, json['syncTrigger']) ??
+      SyncTrigger.onTime,
+  syncDurationOnInterval: json['syncDurationOnInterval'] == null
+      ? const Duration(hours: 3)
+      : Duration(microseconds: (json['syncDurationOnInterval'] as num).toInt()),
+  rsaType:
+      $enumDecodeNullable(_$RsaTypeEnumMap, json['rsaType']) ?? RsaType.rsa2048,
+  useAppLock: json['useAppLock'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$$AppSettingsImplToJson(
@@ -78,6 +90,12 @@ Map<String, dynamic> _$$AppSettingsImplToJson(
   'focusSceneRenderQuality':
       _$FocusSceneRenderQualityEnumMap[instance.focusSceneRenderQuality]!,
   'useLogToTrain': instance.useLogToTrain,
+  'syncEnabled': instance.syncEnabled,
+  'syncMode': _$SyncModeEnumMap[instance.syncMode]!,
+  'syncTrigger': _$SyncTriggerEnumMap[instance.syncTrigger]!,
+  'syncDurationOnInterval': instance.syncDurationOnInterval.inMicroseconds,
+  'rsaType': _$RsaTypeEnumMap[instance.rsaType]!,
+  'useAppLock': instance.useAppLock,
 };
 
 const _$AppThemeModeEnumMap = {
@@ -142,4 +160,22 @@ const _$FocusSceneRenderQualityEnumMap = {
   FocusSceneRenderQuality.high: 'high',
   FocusSceneRenderQuality.medium: 'medium',
   FocusSceneRenderQuality.low: 'low',
+};
+
+const _$SyncModeEnumMap = {
+  SyncMode.localFirst: 'LocalFirst',
+  SyncMode.cloudFirst: 'CloudFirst',
+  SyncMode.auto: 'Auto',
+};
+
+const _$SyncTriggerEnumMap = {
+  SyncTrigger.onTime: 'OnTime',
+  SyncTrigger.onInterval: 'OnInteral',
+  SyncTrigger.onChanged: 'OnChanged',
+};
+
+const _$RsaTypeEnumMap = {
+  RsaType.rsa2048: 'rsa-2048',
+  RsaType.rsa3072: 'rsa-3072',
+  RsaType.rsa4096: 'rsa-4096',
 };

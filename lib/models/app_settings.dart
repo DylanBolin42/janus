@@ -356,6 +356,86 @@ extension FocusSceneRenderQualityLabel on FocusSceneRenderQuality {
     }
   }
 }
+
+// Sync Settings
+enum SyncMode {
+  @JsonValue('LocalFirst')
+  localFirst,
+  @JsonValue('CloudFirst')
+  cloudFirst,
+  @JsonValue('Auto')
+  auto,
+}
+
+extension SyncModeLabel on SyncMode {
+  String get label {
+    switch (this) {
+      case SyncMode.localFirst:
+        return '本地优先';
+      case SyncMode.cloudFirst:
+        return '云端优先';
+      case SyncMode.auto:
+        return '自动合并';
+    }
+  }
+}
+
+// Sync Trigger
+enum SyncTrigger {
+  @JsonValue('OnTime')
+  onTime,
+  @JsonValue('OnInteral')
+  onInterval,
+  @JsonValue('OnChanged')
+  onChanged,
+}
+
+extension SyncTriggerLabel on SyncTrigger {
+  String get label {
+    switch (this) {
+      case SyncTrigger.onChanged:
+        return '修改时';
+      case SyncTrigger.onInterval:
+        return '间隔时长';
+      case SyncTrigger.onTime:
+        return '定时'; //INFO: [time] sets are written in DB
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case SyncTrigger.onChanged:
+        return Icons.save_rounded;
+      case SyncTrigger.onInterval:
+        return Icons.more_time_rounded;
+      case SyncTrigger.onTime:
+        return Icons.av_timer_rounded;
+    }
+  }
+}
+
+// RSA Encryption selection
+enum RsaType {
+  @JsonValue('rsa-2048')
+  rsa2048,
+  @JsonValue('rsa-3072')
+  rsa3072,
+  @JsonValue('rsa-4096')
+  rsa4096,
+}
+
+extension RsaTypeLabel on RsaType {
+  String get label {
+    switch (this) {
+      case RsaType.rsa2048:
+        return 'RSA-2048';
+      case RsaType.rsa3072:
+        return 'RSA-3072';
+      case RsaType.rsa4096:
+        return 'RSA-4096';
+    }
+  }
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // Freezed model — AppSettings
 // ─────────────────────────────────────────────────────────────────────────────
@@ -390,6 +470,14 @@ class AppSettings with _$AppSettings {
 
     // Storage settings
     @Default(false) bool useLogToTrain,
+
+    // Sync settings
+    @Default(false) bool syncEnabled,
+    @Default(SyncMode.auto) SyncMode syncMode,
+    @Default(SyncTrigger.onTime) SyncTrigger syncTrigger,
+    @Default(Duration(hours: 3)) Duration syncDurationOnInterval,
+    @Default(RsaType.rsa2048) RsaType rsaType,
+    @Default(false) bool useAppLock,
   }) = _AppSettings;
 
   const AppSettings._();
