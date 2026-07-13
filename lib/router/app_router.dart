@@ -9,6 +9,10 @@ import 'package:janus/pages/FocusPage/focus_page.dart';
 import 'package:janus/pages/InsightPage/insight_page.dart';
 // subsetting pages
 import 'package:janus/pages/SettingPage/subSettingPage/generalSetting/general_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/notificationSetting/notification_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/focusSetting/focus_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/storageSetting/storage_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/syncSetting/sync_setting_page.dart';
 
 /// Centralized route path constants.
 ///
@@ -17,10 +21,30 @@ class RoutePath {
   RoutePath._();
   static const String inbox = '/inbox';
   static const String task = '/task';
-  static const String setting = '/setting';
+  static const String setting = '/setting'; // full-screen, no shell
   static const String focus = '/focus';
   static const String insights = '/insights';
-  static const String generalSetting = '/setting/generalSetting';
+
+  // 二级目录 (relative — nested under /setting)
+  static const String generalSetting = 'general';
+  static const String notificationSetting = 'notification';
+  static const String focusSetting = 'focus';
+  static const String storageSetting = 'storage';
+  static const String syncSetting = 'sync';
+}
+
+/// Display names for each route, used in AppBars.
+///
+/// Keyed by [GoRoute.name]. Add a new entry for each new top-level route.
+class RouteDisplayName {
+  RouteDisplayName._();
+  static const Map<String, String> names = {
+    'inbox': 'Inbox',
+    'task': '任务',
+    'setting': '设置',
+    'focus': '专注',
+    'insights': '洞察',
+  };
 }
 
 /// The single [GoRouter] instance for the application.
@@ -62,11 +86,33 @@ final GoRouter appRouter = GoRouter(
       path: RoutePath.setting,
       name: 'setting',
       builder: (context, state) => const Settingpage(),
-    ),
-    GoRoute(
-      path: RoutePath.generalSetting,
-      name: 'generalSetting',
-      builder: (context, state) => const GeneralSettingPage(),
+      routes: [
+        GoRoute(
+          path: RoutePath.generalSetting,
+          name: 'generalSetting',
+          builder: (context, state) => const GeneralSettingPage(),
+        ),
+        GoRoute(
+          path: RoutePath.notificationSetting,
+          name: 'notificationSetting',
+          builder: (context, state) => const NotificationSettingPage(),
+        ),
+        GoRoute(
+          path: RoutePath.focusSetting,
+          name: 'focusSetting',
+          builder: (context, state) => const FocusSettingPage(),
+        ),
+        GoRoute(
+          path: RoutePath.storageSetting,
+          name: 'storageSetting',
+          builder: (context, state) => const StorageSettingPage(),
+        ),
+        GoRoute(
+          path: RoutePath.syncSetting,
+          name: 'syncSetting',
+          builder: (context, state) => const SyncSettingPage(),
+        ),
+      ],
     ),
   ],
 );

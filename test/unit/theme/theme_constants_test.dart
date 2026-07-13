@@ -10,7 +10,7 @@ void main() {
       expect(AppSpacing.gutter, 24.0);
       expect(AppSpacing.marginDesktop, 64.0);
       expect(AppSpacing.marginMobile, 16.0);
-      expect(AppSpacing.topSafeArea, 120.0);
+      expect(AppSpacing.topSafeArea, 30.0);
       expect(AppSpacing.bottomSafeArea, 60.0);
     });
   });

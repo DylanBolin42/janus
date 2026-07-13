@@ -45,6 +45,8 @@ dependencies:
   go_router: ^17.3.0
   liquid_glass_widgets: ^0.21.3
   card_settings_ui: ^2.0.1
+  cupertino_calendar_picker: ^2.2.6
+  font_awesome_flutter: ^11.0.0
 
 dev_dependencies:
   flutter_test:

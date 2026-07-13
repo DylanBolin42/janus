@@ -1,15 +1,22 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:janus/main.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 void main() {
-  testWidgets('App smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      LiquidGlassWidgets.wrap(child: const ProviderScope(child: MyApp())),
-    );
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
-    // 初始路由是 /inbox，应显示 InboxPage 中的提示文字
+  testWidgets('MyApp renders without crashing', (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: MyApp()));
+    // Allow async providers to settle (settings load from SharedPreferences)
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    // The router should have initialised and shows the InboxPage
     expect(find.text('Welcome to Janus'), findsOneWidget);
   });
 }
