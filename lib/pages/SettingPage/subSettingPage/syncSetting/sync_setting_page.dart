@@ -280,7 +280,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                     builder: (ctx) => GlassPullDownButton(
                       icon: null,
                       label: settings.rsaType.label,
-                      buttonWidth: 150,
+                      buttonWidth: 170,
                       buttonShape: const LiquidRoundedRectangle(
                         borderRadius: 64,
                       ),

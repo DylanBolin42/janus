@@ -90,7 +90,7 @@ void main() {
     expect(find.text('同步设置'), findsOneWidget);
     expect(find.text('WEBDAV地址'), findsOneWidget);
     expect(find.text('用户名'), findsOneWidget);
-    expect(find.text('密码'), findsOneWidget);
+    expect(find.text('密码'), findsWidgets);
     expect(find.text('同步至'), findsOneWidget);
     expect(find.text('同步模式'), findsOneWidget);
   });
