@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:janus/router/route_constants.dart';
-import 'package:janus/router/app_router.dart' hide RoutePath;
+import 'package:janus/router/app_router.dart' hide RoutePath, RouteDisplayName;
 
 void main() {
   group('RoutePath', () {
