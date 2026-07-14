@@ -81,10 +81,37 @@ jobs:
           path: coverage/html
           retention-days: 7
 
-  # ======================== PR Summary (waits for both) ========================
+  # ==================== Build test (runs after check & test pass) ==================
+  build_android:
+    name: "Build Android Check"
+    needs: [check, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache-key-suffix: ci-build
+
+      - name: Build Debug APK
+        run: |
+          flutter build apk --debug
+
+  # ======================== PR Summary (waits for all) ========================
   summary:
     name: "PR Summary"
-    needs: [check, test]
+    needs: [check, test, build_android]
     if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -95,7 +122,10 @@ jobs:
           script: |
             const checkResult = '${{ needs.check.result }}';
             const testResult  = '${{ needs.test.result }}';
-            const icon = (checkResult === 'success' && testResult === 'success') ? '✅' : '❌';
+            const buildResult = '${{ needs.build_android.result }}';
+            
+            const isAllSuccess = checkResult === 'success' && testResult === 'success' && buildResult === 'success';
+            const icon = isAllSuccess ? '✅' : '❌';
 
             const body = `## ${icon} Flutter CI
 
@@ -103,6 +133,7 @@ jobs:
             |-------|--------|
             | Format & Analyze | ${checkResult === 'success' ? '✅' : '❌'} |
             | Tests & Coverage | ${testResult === 'success' ? '✅' : '❌'} |
+            | Build Android Check | ${buildResult === 'success' ? '✅' : '❌'} |
 
             [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
             `;
