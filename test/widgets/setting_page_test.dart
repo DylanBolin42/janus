@@ -12,10 +12,19 @@ void main() {
   });
 
   testWidgets('SettingPage has all six setting tiles', (tester) async {
+    // Use a larger viewport so all tiles are visible without scrolling
+    tester.view.physicalSize = const Size(800, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     await tester.pumpWidget(const MaterialApp(home: Settingpage()));
     await tester.pump();
 
-    expect(find.text('通用'), findsOneWidget);
+    // '通用' appears both as a section title and a tile title → findsWidgets
+    expect(find.text('通用'), findsWidgets);
     expect(find.text('通知'), findsOneWidget);
     expect(find.text('专注'), findsOneWidget);
     expect(find.text('数据'), findsOneWidget);

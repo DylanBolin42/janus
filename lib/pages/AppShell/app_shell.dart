@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/router/route_constants.dart';
+import 'package:janus/shared/custom_appbar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class AppShell extends StatelessWidget {
@@ -16,18 +17,17 @@ class AppShell extends StatelessWidget {
         : 'Janus';
 
     return GlassScaffold(
-      appBar: GlassAppBar(
-        title: Text(title),
+      topEdgeFade: false,
+      appBar: CustomAppbar(
+        title: title,
         actions: [
           GlassIconButton(
-            icon: Icon(Icons.settings_rounded),
-            onPressed: () {
-              context.go(RoutePath.setting);
-            },
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () => context.pushNamed('setting'),
           ),
         ],
       ),
-      body: child,
+      body: CustomAppbar.wrapBody(context, child),
       bottomBar: GlassTabBar.bottom(
         extraButton: GlassBottomBarExtraButton(
           icon: Icon(Icons.add_rounded),

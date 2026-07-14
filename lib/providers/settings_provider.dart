@@ -67,8 +67,119 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       ),
     );
   }
-}
 
+  // ── Notification setters ─────────────────────────────────────────────
+
+  Future<void> setNotificationEnabled(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        isNotificationEnabled: enabled,
+      ),
+    );
+  }
+
+  Future<void> setUrgentNotificationStyle(UrgentNotificationStyle style) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        urgentNotificationStyle: style,
+      ),
+    );
+  }
+
+  Future<void> setApproachingNotificationStyle(
+    ApproachingNotificationStyle style,
+  ) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        approachingNotificationStyle: style,
+      ),
+    );
+  }
+
+  // ── Focus settings ─────────────────────────────────────────────────
+
+  Future<void> setTempLeaveDuration(TempLeaveDuration duration) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        tempLeaveDuration: duration,
+      ),
+    );
+  }
+
+  Future<void> setTempLeaveTimes(TempLeaveTimes times) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        tempLeaveTimes: times,
+      ),
+    );
+  }
+
+  Future<void> setFocusSceneRenderMode(FocusSceneRenderMode mode) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        focusSceneRenderMode: mode,
+      ),
+    );
+  }
+
+  Future<void> setFocusSceneRenderQuality(
+    FocusSceneRenderQuality quality,
+  ) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        focusSceneRenderQuality: quality,
+      ),
+    );
+  }
+
+  // Set Storage Settings
+  Future<void> setUseLogToTrain(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        useLogToTrain: enabled,
+      ),
+    );
+  }
+
+  // Set Sync Settings
+  Future<void> setSyncEnabled(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(syncEnabled: enabled),
+    );
+  }
+
+  Future<void> setSyncMode(SyncMode mode) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(syncMode: mode),
+    );
+  }
+
+  Future<void> setSyncTrigger(SyncTrigger trigger) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(syncTrigger: trigger),
+    );
+  }
+
+  Future<void> setSyncDurationOnInterval(Duration duration) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        syncDurationOnInterval: duration,
+      ),
+    );
+  }
+
+  Future<void> setRsaType(RsaType type) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(rsaType: type),
+    );
+  }
+
+  Future<void> setUseAppLock(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(useAppLock: enabled),
+    );
+  }
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)
 // ─────────────────────────────────────────────────────────────────────────────
