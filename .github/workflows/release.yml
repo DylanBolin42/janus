@@ -3,6 +3,16 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: '测试版本名称'
+        required: false
+        default: 'test-1.0.0'
+      build_number:
+        description: '测试构建编号'
+        required: false
+        default: '99'
 
 permissions:
   contents: write
@@ -15,16 +25,30 @@ jobs:
     name: "Extract Version"
     runs-on: ubuntu-latest
     outputs:
-      version-name: ${{ steps.version.outputs.version_name }}
-      build-number: ${{ steps.version.outputs.build_number }}
+      # 2. 👈 修改：让输出指向我们新创建的 final_version 步骤
+      version-name: ${{ steps.final_version.outputs.version_name }}
+      build-number: ${{ steps.final_version.outputs.build_number }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 3. 👈 修改：只有在真正的 tag push 时才跑原有的解析逻辑
       - name: Parse Version from Tag
+        if: github.event_name == 'push'
         id: version
         uses: ./.github/actions/version-from-tag
 
+      # 4. 👈 新增：如果是手动触发，就用输入框的值；如果是 push，就用解析的值
+      - name: Determine Final Version
+        id: final_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version_name=${{ github.event.inputs.version_name }}" >> "$GITHUB_OUTPUT"
+            echo "build_number=${{ github.event.inputs.build_number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version_name=${{ steps.version.outputs.version_name }}" >> "$GITHUB_OUTPUT"
+            echo "build_number=${{ steps.version.outputs.build_number }}" >> "$GITHUB_OUTPUT"
+          fi
   # ================== Build All ==================
   build-android:
     name: "Build Android"
