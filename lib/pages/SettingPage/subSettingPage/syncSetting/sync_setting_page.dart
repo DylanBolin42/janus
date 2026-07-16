@@ -39,6 +39,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
     final settings =
         ref.watch(appSettingsNotifierProvider).valueOrNull ??
         const AppSettings();
+    final tt = Theme.of(context).textTheme;
     return GlassScaffold(
       topEdgeFade: false,
       appBar: const CustomAppbar(title: '同步', showBack: true),
@@ -72,7 +73,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
               ],
             ),
             SettingsSection(
-              title: Text('同步设置'),
+              title: Text('同步设置', style: tt.titleMedium),
               tiles: [
                 InteractiveTile(
                   title: Text('WEBDAV地址'),
@@ -146,19 +147,40 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
               ],
             ),
             FlexSettingSection(
-              title: Text('手动操作'),
+              title: Text('手动操作', style: tt.titleMedium),
               tiles: [
                 FlexRow(
                   children: [
-                    FlexTile(child: Center(child: Text('手动上传'))),
-                    FlexTile(child: Center(child: Text('手动下载'))),
+                    FlexTile(
+                      child: Center(
+                        child: Text(
+                          '手动上传',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    FlexTile(
+                      child: Center(
+                        child: Text(
+                          '手动下载',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                FlexTile(child: Center(child: Text('连通性检查'))),
+                FlexTile(
+                  child: Center(
+                    child: Text(
+                      '连通性检查',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
               ],
             ),
             SettingsSection(
-              title: Text('同步行为'),
+              title: Text('同步行为', style: tt.titleMedium),
               tiles: [
                 InteractiveTile(
                   title: Text('触发间隔'),
@@ -231,11 +253,12 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                         ).add(settings.syncDurationOnInterval),
                       ),
                       onCompleted: (timeOfDay) {
+                        if (timeOfDay == null) return;
                         ref
                             .read(appSettingsNotifierProvider.notifier)
                             .setSyncDurationOnInterval(
                               Duration(
-                                hours: timeOfDay!.hour,
+                                hours: timeOfDay.hour,
                                 minutes: timeOfDay.minute,
                               ),
                             );
@@ -262,7 +285,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
               ],
             ),
             SettingsSection(
-              title: Text('安全'),
+              title: Text('安全', style: tt.titleMedium),
               tiles: [
                 InteractiveTile(
                   leading: Icon(Icons.security_rounded),

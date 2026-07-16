@@ -70,7 +70,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
             ),
             FlexSettingSection(
               tiles: [
-                Row(
+                FlexRow(
                   children: [
                     FlexTile(
                       child: Center(
@@ -78,7 +78,10 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                           children: [
                             Icon(Icons.star_rounded),
                             SizedBox(width: AppSpacing.base),
-                            Text('Github star'),
+                            Text(
+                              'Github star',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                       ),
@@ -89,7 +92,10 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                           children: [
                             Icon(MdiIcons.coffeeToGo),
                             SizedBox(width: AppSpacing.base),
-                            Text('Buy Me a cup of Coffee'),
+                            Text(
+                              '捐赠',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                       ),
