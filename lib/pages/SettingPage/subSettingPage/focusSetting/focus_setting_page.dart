@@ -68,7 +68,7 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
               ],
             ),
             SettingsSection(
-              title: Text('暂离'),
+              title: Text('暂离', style: tt.titleMedium),
               tiles: [
                 SettingsTile(
                   title: Text('单次暂离时长'),
@@ -121,7 +121,7 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
               ],
             ),
             SettingsSection(
-              title: Text('场景'),
+              title: Text('场景', style: tt.titleMedium),
               tiles: [
                 SettingsTile(
                   title: Text('场景渲染引擎'),

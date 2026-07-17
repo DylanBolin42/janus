@@ -105,7 +105,9 @@ class _SettingpageState extends State<Settingpage> {
                     title: const Text('关于'),
                     leading: const Icon(Icons.info_rounded),
                     description: const Text('版本检测、隐私条款、开源许可等'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.pushNamed('aboutPage');
+                    },
                   ),
                   SettingsTile.navigation(
                     title: const Text('功能说明'),

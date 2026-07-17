@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
+import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:liquid_glass_widgets/widgets/surfaces/glass_scaffold.dart';
 import 'package:janus/shared/custom_appbar.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class StorageSettingPage extends ConsumerStatefulWidget {
   const StorageSettingPage({super.key});
@@ -23,6 +24,7 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
     final settings =
         ref.watch(appSettingsNotifierProvider).valueOrNull ??
         const AppSettings();
+    final tt = Theme.of(context).textTheme;
     return GlassScaffold(
       topEdgeFade: false,
       appBar: const CustomAppbar(title: '存储', showBack: true),
@@ -43,27 +45,36 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
               ],
             ),
             SettingsSection(
-              title: Text('数据库操作'),
+              title: Text('数据库操作', style: tt.titleMedium),
               tiles: [
                 SettingsTile.navigation(
                   title: Text('导入数据库'),
-                  leading: FaIcon(FontAwesomeIcons.fileImport),
+                  leading: Icon(MdiIcons.import),
                   description: Text('导入兼容格式的数据库'),
                 ),
                 SettingsTile.navigation(
                   title: Text('导出数据库'),
-                  leading: FaIcon(FontAwesomeIcons.fileExport),
+                  leading: Icon(MdiIcons.export),
                   description: Text('导出特定格式的数据库为某些格式'),
                 ),
                 CustomAppSettingsTile(
                   backgroundColor: Theme.of(context).colorScheme.errorContainer,
                   child: Center(
-                    child: Text(
-                      '删除数据库',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.delete_forever_rounded),
+                        SizedBox(width: AppSpacing.base),
+                        Text(
+                          '删除数据库',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onErrorContainer,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   onTap: (_) {},
@@ -71,7 +82,7 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
               ],
             ),
             SettingsSection(
-              title: Text('日志'),
+              title: Text('日志', style: tt.titleMedium),
               tiles: [
                 SettingsTile(
                   title: Text('本地模型训练'),
