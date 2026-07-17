@@ -178,6 +178,31 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       (state.valueOrNull ?? const AppSettings()).copyWith(useAppLock: enabled),
     );
   }
+
+  // Planning settings
+  Future<void> setWorkingDayTaskDensity(WorkingDayTaskDensity type) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        workingDayTaskDensity: type,
+      ),
+    );
+  }
+
+  Future<void> setRestDayTaskDensity(RestDayTaskDensity type) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        restDayTaskDensity: type,
+      ),
+    );
+  }
+
+  Future<void> setPlanningHorizon(PlanningHorizon horizon) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        planningHorizon: horizon,
+      ),
+    );
+  }
 }
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)

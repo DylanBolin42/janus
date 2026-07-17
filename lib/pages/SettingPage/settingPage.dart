@@ -46,7 +46,9 @@ class _SettingpageState extends State<Settingpage> {
                     title: const Text('规划'),
                     leading: const Icon(Icons.calendar_today_rounded),
                     description: const Text('管理日程的规划逻辑等'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.pushNamed('planningSetting');
+                    },
                   ),
                   SettingsTile.navigation(
                     title: const Text('通知'),

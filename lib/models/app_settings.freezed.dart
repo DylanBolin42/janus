@@ -44,7 +44,15 @@ mixin _$AppSettings {
   SyncTrigger get syncTrigger => throw _privateConstructorUsedError;
   Duration get syncDurationOnInterval => throw _privateConstructorUsedError;
   RsaType get rsaType => throw _privateConstructorUsedError;
-  bool get useAppLock => throw _privateConstructorUsedError;
+  bool get useAppLock =>
+      throw _privateConstructorUsedError; // Planning settings
+  @TimeOfDayConverter()
+  TimeOfDay get workHourStart => throw _privateConstructorUsedError;
+  WorkingDayTaskDensity get workingDayTaskDensity =>
+      throw _privateConstructorUsedError;
+  RestDayTaskDensity get restDayTaskDensity =>
+      throw _privateConstructorUsedError;
+  PlanningHorizon get planningHorizon => throw _privateConstructorUsedError;
 
   /// Serializes this AppSettings to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -82,6 +90,10 @@ abstract class $AppSettingsCopyWith<$Res> {
     Duration syncDurationOnInterval,
     RsaType rsaType,
     bool useAppLock,
+    @TimeOfDayConverter() TimeOfDay workHourStart,
+    WorkingDayTaskDensity workingDayTaskDensity,
+    RestDayTaskDensity restDayTaskDensity,
+    PlanningHorizon planningHorizon,
   });
 }
 
@@ -118,6 +130,10 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
     Object? syncDurationOnInterval = null,
     Object? rsaType = null,
     Object? useAppLock = null,
+    Object? workHourStart = null,
+    Object? workingDayTaskDensity = null,
+    Object? restDayTaskDensity = null,
+    Object? planningHorizon = null,
   }) {
     return _then(
       _value.copyWith(
@@ -193,6 +209,22 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
                 ? _value.useAppLock
                 : useAppLock // ignore: cast_nullable_to_non_nullable
                       as bool,
+            workHourStart: null == workHourStart
+                ? _value.workHourStart
+                : workHourStart // ignore: cast_nullable_to_non_nullable
+                      as TimeOfDay,
+            workingDayTaskDensity: null == workingDayTaskDensity
+                ? _value.workingDayTaskDensity
+                : workingDayTaskDensity // ignore: cast_nullable_to_non_nullable
+                      as WorkingDayTaskDensity,
+            restDayTaskDensity: null == restDayTaskDensity
+                ? _value.restDayTaskDensity
+                : restDayTaskDensity // ignore: cast_nullable_to_non_nullable
+                      as RestDayTaskDensity,
+            planningHorizon: null == planningHorizon
+                ? _value.planningHorizon
+                : planningHorizon // ignore: cast_nullable_to_non_nullable
+                      as PlanningHorizon,
           )
           as $Val,
     );
@@ -227,6 +259,10 @@ abstract class _$$AppSettingsImplCopyWith<$Res>
     Duration syncDurationOnInterval,
     RsaType rsaType,
     bool useAppLock,
+    @TimeOfDayConverter() TimeOfDay workHourStart,
+    WorkingDayTaskDensity workingDayTaskDensity,
+    RestDayTaskDensity restDayTaskDensity,
+    PlanningHorizon planningHorizon,
   });
 }
 
@@ -262,6 +298,10 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
     Object? syncDurationOnInterval = null,
     Object? rsaType = null,
     Object? useAppLock = null,
+    Object? workHourStart = null,
+    Object? workingDayTaskDensity = null,
+    Object? restDayTaskDensity = null,
+    Object? planningHorizon = null,
   }) {
     return _then(
       _$AppSettingsImpl(
@@ -337,6 +377,22 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
             ? _value.useAppLock
             : useAppLock // ignore: cast_nullable_to_non_nullable
                   as bool,
+        workHourStart: null == workHourStart
+            ? _value.workHourStart
+            : workHourStart // ignore: cast_nullable_to_non_nullable
+                  as TimeOfDay,
+        workingDayTaskDensity: null == workingDayTaskDensity
+            ? _value.workingDayTaskDensity
+            : workingDayTaskDensity // ignore: cast_nullable_to_non_nullable
+                  as WorkingDayTaskDensity,
+        restDayTaskDensity: null == restDayTaskDensity
+            ? _value.restDayTaskDensity
+            : restDayTaskDensity // ignore: cast_nullable_to_non_nullable
+                  as RestDayTaskDensity,
+        planningHorizon: null == planningHorizon
+            ? _value.planningHorizon
+            : planningHorizon // ignore: cast_nullable_to_non_nullable
+                  as PlanningHorizon,
       ),
     );
   }
@@ -364,6 +420,11 @@ class _$AppSettingsImpl extends _AppSettings {
     this.syncDurationOnInterval = const Duration(hours: 3),
     this.rsaType = RsaType.rsa2048,
     this.useAppLock = false,
+    @TimeOfDayConverter()
+    this.workHourStart = const TimeOfDay(hour: 8, minute: 0),
+    this.workingDayTaskDensity = WorkingDayTaskDensity.medium,
+    this.restDayTaskDensity = RestDayTaskDensity.loose,
+    this.planningHorizon = PlanningHorizon.weeks,
   }) : super._();
 
   factory _$AppSettingsImpl.fromJson(Map<String, dynamic> json) =>
@@ -428,10 +489,24 @@ class _$AppSettingsImpl extends _AppSettings {
   @override
   @JsonKey()
   final bool useAppLock;
+  // Planning settings
+  @override
+  @JsonKey()
+  @TimeOfDayConverter()
+  final TimeOfDay workHourStart;
+  @override
+  @JsonKey()
+  final WorkingDayTaskDensity workingDayTaskDensity;
+  @override
+  @JsonKey()
+  final RestDayTaskDensity restDayTaskDensity;
+  @override
+  @JsonKey()
+  final PlanningHorizon planningHorizon;
 
   @override
   String toString() {
-    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality, useLogToTrain: $useLogToTrain, syncEnabled: $syncEnabled, syncMode: $syncMode, syncTrigger: $syncTrigger, syncDurationOnInterval: $syncDurationOnInterval, rsaType: $rsaType, useAppLock: $useAppLock)';
+    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality, useLogToTrain: $useLogToTrain, syncEnabled: $syncEnabled, syncMode: $syncMode, syncTrigger: $syncTrigger, syncDurationOnInterval: $syncDurationOnInterval, rsaType: $rsaType, useAppLock: $useAppLock, workHourStart: $workHourStart, workingDayTaskDensity: $workingDayTaskDensity, restDayTaskDensity: $restDayTaskDensity, planningHorizon: $planningHorizon)';
   }
 
   @override
@@ -483,12 +558,20 @@ class _$AppSettingsImpl extends _AppSettings {
                 other.syncDurationOnInterval == syncDurationOnInterval) &&
             (identical(other.rsaType, rsaType) || other.rsaType == rsaType) &&
             (identical(other.useAppLock, useAppLock) ||
-                other.useAppLock == useAppLock));
+                other.useAppLock == useAppLock) &&
+            (identical(other.workHourStart, workHourStart) ||
+                other.workHourStart == workHourStart) &&
+            (identical(other.workingDayTaskDensity, workingDayTaskDensity) ||
+                other.workingDayTaskDensity == workingDayTaskDensity) &&
+            (identical(other.restDayTaskDensity, restDayTaskDensity) ||
+                other.restDayTaskDensity == restDayTaskDensity) &&
+            (identical(other.planningHorizon, planningHorizon) ||
+                other.planningHorizon == planningHorizon));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     themeMode,
     glassIntensity,
@@ -508,7 +591,11 @@ class _$AppSettingsImpl extends _AppSettings {
     syncDurationOnInterval,
     rsaType,
     useAppLock,
-  );
+    workHourStart,
+    workingDayTaskDensity,
+    restDayTaskDensity,
+    planningHorizon,
+  ]);
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.
@@ -544,6 +631,10 @@ abstract class _AppSettings extends AppSettings {
     final Duration syncDurationOnInterval,
     final RsaType rsaType,
     final bool useAppLock,
+    @TimeOfDayConverter() final TimeOfDay workHourStart,
+    final WorkingDayTaskDensity workingDayTaskDensity,
+    final RestDayTaskDensity restDayTaskDensity,
+    final PlanningHorizon planningHorizon,
   }) = _$AppSettingsImpl;
   const _AppSettings._() : super._();
 
@@ -586,7 +677,16 @@ abstract class _AppSettings extends AppSettings {
   @override
   RsaType get rsaType;
   @override
-  bool get useAppLock;
+  bool get useAppLock; // Planning settings
+  @override
+  @TimeOfDayConverter()
+  TimeOfDay get workHourStart;
+  @override
+  WorkingDayTaskDensity get workingDayTaskDensity;
+  @override
+  RestDayTaskDensity get restDayTaskDensity;
+  @override
+  PlanningHorizon get planningHorizon;
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.

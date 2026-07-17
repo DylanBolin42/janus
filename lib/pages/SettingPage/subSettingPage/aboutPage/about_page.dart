@@ -33,6 +33,7 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                   title: Text('版本检测'),
                   leading: Icon(Icons.update_rounded),
                   description: Text('检测最新版本并自动更新'),
+                  trailing: Icon(Icons.navigate_next_rounded),
                 ),
               ],
             ),
@@ -41,18 +42,22 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                 SettingsTile(
                   title: Text('Issue报告'),
                   leading: Icon(Icons.bug_report_rounded),
+                  trailing: Icon(Icons.navigate_next_rounded),
                 ),
                 SettingsTile(
                   title: Text('功能建议'),
                   leading: Icon(Icons.mail_rounded),
+                  trailing: Icon(Icons.navigate_next_rounded),
                 ),
                 SettingsTile(
                   title: Text('Github主页'),
                   leading: FaIcon(FontAwesomeIcons.github),
+                  trailing: Icon(Icons.navigate_next_rounded),
                 ),
                 SettingsTile(
                   title: Text('开源许可证'),
                   leading: Icon(MdiIcons.license),
+                  trailing: Icon(Icons.navigate_next_rounded),
                 ),
               ],
             ),
@@ -61,10 +66,12 @@ class _AboutPageState extends ConsumerState<AboutPage> {
                 SettingsTile(
                   title: Text('开源项目引用清单'),
                   leading: Icon(MdiIcons.import),
+                  trailing: Icon(Icons.navigate_next_rounded),
                 ),
                 SettingsTile(
                   title: Text('AIGC声明清单'),
                   leading: Icon(MdiIcons.robot),
+                  trailing: Icon(Icons.navigate_next_rounded),
                 ),
               ],
             ),
