@@ -1,0 +1,41 @@
+name: "Build Android"
+description: "Builds Flutter APK and AAB for release"
+inputs:
+  build-name:
+    description: "Version name (e.g. 1.2.3)"
+    required: true
+  build-number:
+    description: "Build number (e.g. 42)"
+    required: true
+  target:
+    description: "Build target: apk, appbundle, or both"
+    required: false
+    default: "both"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build APK
+      if: ${{ inputs.target == 'apk' || inputs.target == 'both' }}
+      shell: bash
+      run: |
+        flutter build apk --release \
+          --build-name=${{ inputs.build-name }} \
+          --build-number=${{ inputs.build-number }}
+
+    - name: Build AAB
+      if: ${{ inputs.target == 'appbundle' || inputs.target == 'both' }}
+      shell: bash
+      run: |
+        flutter build appbundle --release \
+          --build-name=${{ inputs.build-name }} \
+          --build-number=${{ inputs.build-number }}
+
+    - name: Upload Android Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-build-${{ inputs.build-name }}
+        path: |
+          build/app/outputs/flutter-apk/*.apk
+          build/app/outputs/bundle/release/*.aab
+        retention-days: 30

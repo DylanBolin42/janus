@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:janus/pages/Inbox/InboxPage.dart';
+import 'package:janus/pages/Inbox/inbox_page.dart';
 
 void main() {
   testWidgets('InboxPage displays welcome message', (tester) async {

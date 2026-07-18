@@ -1,0 +1,20 @@
+# ---- Code Owners -----------------------------------------------------------
+
+# Each line assigns code review ownership for specific paths
+
+# See: <https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners>
+
+# Global owner (fallback for all files)
+
+* @DylanBolin42
+
+# ---- Path-specific owners ----
+
+/.github/ @DylanBolin42
+/lib/ @DylanBolin42
+/android/ @DylanBolin42
+/ios/ @DylanBolin42
+/linux/ @DylanBolin42
+/windows/ @DylanBolin42
+/macos/ @DylanBolin42
+/web/ @DylanBolin42

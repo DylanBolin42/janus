@@ -1,0 +1,58 @@
+name: Deploy to Google Play
+
+on:
+  workflow_dispatch:
+    inputs:
+      version-name:
+        description: "Version name (e.g. 1.2.3)"
+        required: true
+      build-number:
+        description: "Build number (e.g. 42)"
+        required: true
+      track:
+        description: "Release track"
+        required: true
+        type: choice
+        default: "internal"
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: "Build & Deploy to Google Play"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          cache-key-suffix: deploy-play
+
+      - name: Build AAB
+        uses: ./.github/actions/build-android
+        with:
+          build-name: ${{ github.event.inputs.version-name }}
+          build-number: ${{ github.event.inputs.build-number }}
+          target: appbundle
+
+      # ---- Google Play upload requires PLAY_JSON secret ----
+      # Uncomment the step below after adding the secret to your repo:
+      # Settings → Secrets and variables → Actions → PLAY_JSON
+      #
+      # - name: Upload to Google Play
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJsonPlainText: ${{ secrets.PLAY_JSON }}
+      #     packageName: com.example.janus
+      #     releaseFiles: build/app/outputs/bundle/release/*.aab
+      #     track: ${{ github.event.inputs.track }}
+      #     status: completed

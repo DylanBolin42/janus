@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:janus/pages/SettingPage/settingPage.dart';
+import 'package:janus/pages/SettingPage/setting_page.dart';
 
 void main() {
   testWidgets('SettingPage renders with title', (tester) async {

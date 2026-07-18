@@ -96,7 +96,8 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     );
   }
 
-  // Set Focus Settings
+  // ── Focus settings ─────────────────────────────────────────────────
+
   Future<void> setTempLeaveDuration(TempLeaveDuration duration) async {
     await _persist(
       (state.valueOrNull ?? const AppSettings()).copyWith(
