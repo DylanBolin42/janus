@@ -96,7 +96,9 @@ class _SettingpageState extends State<Settingpage> {
                     title: const Text('AI'),
                     leading: const Icon(Icons.bubble_chart_rounded),
                     description: const Text('AI相关设置，使用BYOK策略'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.pushNamed('aiSetting');
+                    },
                   ),
                 ],
               ),

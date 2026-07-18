@@ -15,6 +15,7 @@ import 'package:janus/pages/SettingPage/subSettingPage/storageSetting/storage_se
 import 'package:janus/pages/SettingPage/subSettingPage/syncSetting/sync_setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/aboutPage/about_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/planningSetting/planning_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/aiSetting/ai_setting_page.dart';
 
 /// Centralized route path constants.
 ///
@@ -35,7 +36,8 @@ class RoutePath {
   static const String storageSetting = 'storage';
   static const String syncSetting = 'sync';
   static const String aboutPage = 'about';
-  static const String planningPage = 'planning';
+  static const String planningSetting = 'planning';
+  static const String aiSetting = 'ai';
 }
 
 /// Display names for each route, used in AppBars.
@@ -123,9 +125,14 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) => const AboutPage(),
         ),
         GoRoute(
-          path: RoutePath.planningPage,
+          path: RoutePath.planningSetting,
           name: 'planningSetting',
           builder: (context, state) => const PlanningSettingPage(),
+        ),
+        GoRoute(
+          path: RoutePath.aiSetting,
+          name: 'aiSetting',
+          builder: (context, state) => const AiSettingPage(),
         ),
       ],
     ),

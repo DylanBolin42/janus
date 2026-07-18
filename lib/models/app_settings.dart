@@ -582,6 +582,14 @@ class AppSettings with _$AppSettings {
     WorkingDayTaskDensity workingDayTaskDensity,
     @Default(RestDayTaskDensity.loose) RestDayTaskDensity restDayTaskDensity,
     @Default(PlanningHorizon.weeks) PlanningHorizon planningHorizon,
+
+    // AI settings
+    @Default('') String endPoint, //INFO: API Key通过安全存储持久化
+    @Default('') String modelName,
+    @Default(false) bool aiDailySummary,
+    @Default(false) bool aiAnalyseReport,
+    @Default(false) bool aiTextToTask,
+    @Default(false) bool aiPicToTask,
   }) = _AppSettings;
 
   const AppSettings._();
