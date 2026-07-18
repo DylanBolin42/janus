@@ -50,11 +50,13 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                 SettingsTile.navigation(
                   title: Text('导入数据库'),
                   leading: Icon(MdiIcons.import),
+                  trailing: Icon(Icons.navigate_next_rounded),
                   description: Text('导入兼容格式的数据库'),
                 ),
                 SettingsTile.navigation(
                   title: Text('导出数据库'),
                   leading: Icon(MdiIcons.export),
+                  trailing: Icon(Icons.navigate_next_rounded),
                   description: Text('导出特定格式的数据库为某些格式'),
                 ),
                 CustomAppSettingsTile(

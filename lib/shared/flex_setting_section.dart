@@ -369,7 +369,7 @@ class InteractiveTile extends AbstractSettingsTile {
                   ],
                 ),
                 if (description != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 4),
                   DefaultTextStyle(
                     style: TextStyle(
                       color: enabled ? theme.hintColor : theme.disabledColor,

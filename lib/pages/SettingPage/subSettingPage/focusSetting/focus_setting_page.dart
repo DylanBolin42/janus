@@ -61,6 +61,7 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                 ), //TODO: 添加逻辑和存储
                 SettingsTile.navigation(
                   title: Text('应用白名单'),
+                  trailing: Icon(Icons.navigate_next_rounded),
                   description: Text(
                     '可以在专注过程中正常访问，推荐不要把流媒体平台、游戏等易打断专注的软件加入白名单',
                   ), //TODO: 添加白名单页面

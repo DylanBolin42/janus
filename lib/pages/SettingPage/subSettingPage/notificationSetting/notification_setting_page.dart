@@ -55,7 +55,7 @@ class _NotificationSettingPageState
                   trailing: GlassPullDownButton(
                     icon: Icon(settings.urgentNotificationStyle.icon),
                     label: settings.urgentNotificationStyle.label,
-                    buttonWidth: 120,
+                    buttonWidth: 160,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: UrgentNotificationStyle.values.map((mode) {
                       final isSelected =
@@ -81,7 +81,7 @@ class _NotificationSettingPageState
                   trailing: GlassPullDownButton(
                     icon: Icon(settings.approachingNotificationStyle.icon),
                     label: settings.approachingNotificationStyle.label,
-                    buttonWidth: 120,
+                    buttonWidth: 160,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: ApproachingNotificationStyle.values.map((mode) {
                       final isSelected =

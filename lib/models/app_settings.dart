@@ -394,7 +394,7 @@ extension SyncTriggerLabel on SyncTrigger {
   String get label {
     switch (this) {
       case SyncTrigger.onChanged:
-        return '修改时w';
+        return '修改时';
       case SyncTrigger.onInterval:
         return '间隔时长';
       case SyncTrigger.onTime:
@@ -436,6 +436,101 @@ extension RsaTypeLabel on RsaType {
     }
   }
 }
+
+// Planning settings
+enum WorkingDayTaskDensity {
+  @JsonValue('loose')
+  loose,
+  @JsonValue('medium')
+  medium,
+  @JsonValue('dense')
+  dense,
+  @JsonValue('custom')
+  custom,
+}
+
+extension WorkingDayTaskDensityLabel on WorkingDayTaskDensity {
+  String get label {
+    switch (this) {
+      case WorkingDayTaskDensity.custom:
+        return '自定义';
+      case WorkingDayTaskDensity.dense:
+        return '密集';
+      case WorkingDayTaskDensity.loose:
+        return '宽松';
+      case WorkingDayTaskDensity.medium:
+        return '中等';
+    }
+  }
+}
+
+enum RestDayTaskDensity {
+  @JsonValue('loose')
+  loose,
+  @JsonValue('medium')
+  medium,
+  @JsonValue('dense')
+  dense,
+  @JsonValue('custom')
+  custom,
+}
+
+extension RestDayTaskDensityLabel on RestDayTaskDensity {
+  String get label {
+    switch (this) {
+      case RestDayTaskDensity.custom:
+        return '自定义';
+      case RestDayTaskDensity.dense:
+        return '密集';
+      case RestDayTaskDensity.loose:
+        return '宽松';
+      case RestDayTaskDensity.medium:
+        return '中等';
+    }
+  }
+}
+
+enum PlanningHorizon {
+  @JsonValue('days')
+  days, //INFO: 此处特指3天
+  @JsonValue('weeks')
+  weeks,
+  @JsonValue('months')
+  months,
+}
+
+extension PlanningHorizonLabel on PlanningHorizon {
+  String get label {
+    switch (this) {
+      case PlanningHorizon.days:
+        return '3天';
+      case PlanningHorizon.months:
+        return '1月';
+      case PlanningHorizon.weeks:
+        return '1周';
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// JSON Converters
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Converts [TimeOfDay] to/from a "HH:mm" string for JSON serialization.
+class TimeOfDayConverter implements JsonConverter<TimeOfDay, String> {
+  const TimeOfDayConverter();
+
+  @override
+  TimeOfDay fromJson(String json) {
+    final parts = json.split(':');
+    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
+
+  @override
+  String toJson(TimeOfDay object) =>
+      '${object.hour.toString().padLeft(2, '0')}:${object.minute.toString().padLeft(2, '0')}';
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Freezed model — AppSettings
 // ─────────────────────────────────────────────────────────────────────────────
@@ -478,6 +573,15 @@ class AppSettings with _$AppSettings {
     @Default(Duration(hours: 3)) Duration syncDurationOnInterval,
     @Default(RsaType.rsa2048) RsaType rsaType,
     @Default(false) bool useAppLock,
+
+    // Planning settings
+    @TimeOfDayConverter()
+    @Default(TimeOfDay(hour: 8, minute: 0))
+    TimeOfDay workHourStart,
+    @Default(WorkingDayTaskDensity.medium)
+    WorkingDayTaskDensity workingDayTaskDensity,
+    @Default(RestDayTaskDensity.loose) RestDayTaskDensity restDayTaskDensity,
+    @Default(PlanningHorizon.weeks) PlanningHorizon planningHorizon,
   }) = _AppSettings;
 
   const AppSettings._();
