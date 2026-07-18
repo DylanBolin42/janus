@@ -52,7 +52,15 @@ mixin _$AppSettings {
       throw _privateConstructorUsedError;
   RestDayTaskDensity get restDayTaskDensity =>
       throw _privateConstructorUsedError;
-  PlanningHorizon get planningHorizon => throw _privateConstructorUsedError;
+  PlanningHorizon get planningHorizon =>
+      throw _privateConstructorUsedError; // AI settings
+  String get endPoint =>
+      throw _privateConstructorUsedError; //INFO: API Key通过安全存储持久化
+  String get modelName => throw _privateConstructorUsedError;
+  bool get aiDailySummary => throw _privateConstructorUsedError;
+  bool get aiAnalyseReport => throw _privateConstructorUsedError;
+  bool get aiTextToTask => throw _privateConstructorUsedError;
+  bool get aiPicToTask => throw _privateConstructorUsedError;
 
   /// Serializes this AppSettings to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -94,6 +102,12 @@ abstract class $AppSettingsCopyWith<$Res> {
     WorkingDayTaskDensity workingDayTaskDensity,
     RestDayTaskDensity restDayTaskDensity,
     PlanningHorizon planningHorizon,
+    String endPoint,
+    String modelName,
+    bool aiDailySummary,
+    bool aiAnalyseReport,
+    bool aiTextToTask,
+    bool aiPicToTask,
   });
 }
 
@@ -134,6 +148,12 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
     Object? workingDayTaskDensity = null,
     Object? restDayTaskDensity = null,
     Object? planningHorizon = null,
+    Object? endPoint = null,
+    Object? modelName = null,
+    Object? aiDailySummary = null,
+    Object? aiAnalyseReport = null,
+    Object? aiTextToTask = null,
+    Object? aiPicToTask = null,
   }) {
     return _then(
       _value.copyWith(
@@ -225,6 +245,30 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
                 ? _value.planningHorizon
                 : planningHorizon // ignore: cast_nullable_to_non_nullable
                       as PlanningHorizon,
+            endPoint: null == endPoint
+                ? _value.endPoint
+                : endPoint // ignore: cast_nullable_to_non_nullable
+                      as String,
+            modelName: null == modelName
+                ? _value.modelName
+                : modelName // ignore: cast_nullable_to_non_nullable
+                      as String,
+            aiDailySummary: null == aiDailySummary
+                ? _value.aiDailySummary
+                : aiDailySummary // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            aiAnalyseReport: null == aiAnalyseReport
+                ? _value.aiAnalyseReport
+                : aiAnalyseReport // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            aiTextToTask: null == aiTextToTask
+                ? _value.aiTextToTask
+                : aiTextToTask // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            aiPicToTask: null == aiPicToTask
+                ? _value.aiPicToTask
+                : aiPicToTask // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -263,6 +307,12 @@ abstract class _$$AppSettingsImplCopyWith<$Res>
     WorkingDayTaskDensity workingDayTaskDensity,
     RestDayTaskDensity restDayTaskDensity,
     PlanningHorizon planningHorizon,
+    String endPoint,
+    String modelName,
+    bool aiDailySummary,
+    bool aiAnalyseReport,
+    bool aiTextToTask,
+    bool aiPicToTask,
   });
 }
 
@@ -302,6 +352,12 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
     Object? workingDayTaskDensity = null,
     Object? restDayTaskDensity = null,
     Object? planningHorizon = null,
+    Object? endPoint = null,
+    Object? modelName = null,
+    Object? aiDailySummary = null,
+    Object? aiAnalyseReport = null,
+    Object? aiTextToTask = null,
+    Object? aiPicToTask = null,
   }) {
     return _then(
       _$AppSettingsImpl(
@@ -393,6 +449,30 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
             ? _value.planningHorizon
             : planningHorizon // ignore: cast_nullable_to_non_nullable
                   as PlanningHorizon,
+        endPoint: null == endPoint
+            ? _value.endPoint
+            : endPoint // ignore: cast_nullable_to_non_nullable
+                  as String,
+        modelName: null == modelName
+            ? _value.modelName
+            : modelName // ignore: cast_nullable_to_non_nullable
+                  as String,
+        aiDailySummary: null == aiDailySummary
+            ? _value.aiDailySummary
+            : aiDailySummary // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        aiAnalyseReport: null == aiAnalyseReport
+            ? _value.aiAnalyseReport
+            : aiAnalyseReport // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        aiTextToTask: null == aiTextToTask
+            ? _value.aiTextToTask
+            : aiTextToTask // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        aiPicToTask: null == aiPicToTask
+            ? _value.aiPicToTask
+            : aiPicToTask // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -425,6 +505,12 @@ class _$AppSettingsImpl extends _AppSettings {
     this.workingDayTaskDensity = WorkingDayTaskDensity.medium,
     this.restDayTaskDensity = RestDayTaskDensity.loose,
     this.planningHorizon = PlanningHorizon.weeks,
+    this.endPoint = '',
+    this.modelName = '',
+    this.aiDailySummary = false,
+    this.aiAnalyseReport = false,
+    this.aiTextToTask = false,
+    this.aiPicToTask = false,
   }) : super._();
 
   factory _$AppSettingsImpl.fromJson(Map<String, dynamic> json) =>
@@ -503,10 +589,30 @@ class _$AppSettingsImpl extends _AppSettings {
   @override
   @JsonKey()
   final PlanningHorizon planningHorizon;
+  // AI settings
+  @override
+  @JsonKey()
+  final String endPoint;
+  //INFO: API Key通过安全存储持久化
+  @override
+  @JsonKey()
+  final String modelName;
+  @override
+  @JsonKey()
+  final bool aiDailySummary;
+  @override
+  @JsonKey()
+  final bool aiAnalyseReport;
+  @override
+  @JsonKey()
+  final bool aiTextToTask;
+  @override
+  @JsonKey()
+  final bool aiPicToTask;
 
   @override
   String toString() {
-    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality, useLogToTrain: $useLogToTrain, syncEnabled: $syncEnabled, syncMode: $syncMode, syncTrigger: $syncTrigger, syncDurationOnInterval: $syncDurationOnInterval, rsaType: $rsaType, useAppLock: $useAppLock, workHourStart: $workHourStart, workingDayTaskDensity: $workingDayTaskDensity, restDayTaskDensity: $restDayTaskDensity, planningHorizon: $planningHorizon)';
+    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality, useLogToTrain: $useLogToTrain, syncEnabled: $syncEnabled, syncMode: $syncMode, syncTrigger: $syncTrigger, syncDurationOnInterval: $syncDurationOnInterval, rsaType: $rsaType, useAppLock: $useAppLock, workHourStart: $workHourStart, workingDayTaskDensity: $workingDayTaskDensity, restDayTaskDensity: $restDayTaskDensity, planningHorizon: $planningHorizon, endPoint: $endPoint, modelName: $modelName, aiDailySummary: $aiDailySummary, aiAnalyseReport: $aiAnalyseReport, aiTextToTask: $aiTextToTask, aiPicToTask: $aiPicToTask)';
   }
 
   @override
@@ -566,7 +672,19 @@ class _$AppSettingsImpl extends _AppSettings {
             (identical(other.restDayTaskDensity, restDayTaskDensity) ||
                 other.restDayTaskDensity == restDayTaskDensity) &&
             (identical(other.planningHorizon, planningHorizon) ||
-                other.planningHorizon == planningHorizon));
+                other.planningHorizon == planningHorizon) &&
+            (identical(other.endPoint, endPoint) ||
+                other.endPoint == endPoint) &&
+            (identical(other.modelName, modelName) ||
+                other.modelName == modelName) &&
+            (identical(other.aiDailySummary, aiDailySummary) ||
+                other.aiDailySummary == aiDailySummary) &&
+            (identical(other.aiAnalyseReport, aiAnalyseReport) ||
+                other.aiAnalyseReport == aiAnalyseReport) &&
+            (identical(other.aiTextToTask, aiTextToTask) ||
+                other.aiTextToTask == aiTextToTask) &&
+            (identical(other.aiPicToTask, aiPicToTask) ||
+                other.aiPicToTask == aiPicToTask));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -595,6 +713,12 @@ class _$AppSettingsImpl extends _AppSettings {
     workingDayTaskDensity,
     restDayTaskDensity,
     planningHorizon,
+    endPoint,
+    modelName,
+    aiDailySummary,
+    aiAnalyseReport,
+    aiTextToTask,
+    aiPicToTask,
   ]);
 
   /// Create a copy of AppSettings
@@ -635,6 +759,12 @@ abstract class _AppSettings extends AppSettings {
     final WorkingDayTaskDensity workingDayTaskDensity,
     final RestDayTaskDensity restDayTaskDensity,
     final PlanningHorizon planningHorizon,
+    final String endPoint,
+    final String modelName,
+    final bool aiDailySummary,
+    final bool aiAnalyseReport,
+    final bool aiTextToTask,
+    final bool aiPicToTask,
   }) = _$AppSettingsImpl;
   const _AppSettings._() : super._();
 
@@ -686,7 +816,19 @@ abstract class _AppSettings extends AppSettings {
   @override
   RestDayTaskDensity get restDayTaskDensity;
   @override
-  PlanningHorizon get planningHorizon;
+  PlanningHorizon get planningHorizon; // AI settings
+  @override
+  String get endPoint; //INFO: API Key通过安全存储持久化
+  @override
+  String get modelName;
+  @override
+  bool get aiDailySummary;
+  @override
+  bool get aiAnalyseReport;
+  @override
+  bool get aiTextToTask;
+  @override
+  bool get aiPicToTask;
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.

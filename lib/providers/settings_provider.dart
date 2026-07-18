@@ -203,6 +203,37 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       ),
     );
   }
+
+  // AI settings
+  Future<void> setUseAiDailySummary(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        aiDailySummary: enabled,
+      ),
+    );
+  }
+
+  Future<void> setAiAnalyseReport(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        aiAnalyseReport: enabled,
+      ),
+    );
+  }
+
+  Future<void> setAiTextToTask(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        aiTextToTask: enabled,
+      ),
+    );
+  }
+
+  Future<void> setAiPicToTask(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(aiPicToTask: enabled),
+    );
+  }
 }
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)

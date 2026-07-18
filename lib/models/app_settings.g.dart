@@ -86,6 +86,12 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(
   planningHorizon:
       $enumDecodeNullable(_$PlanningHorizonEnumMap, json['planningHorizon']) ??
       PlanningHorizon.weeks,
+  endPoint: json['endPoint'] as String? ?? '',
+  modelName: json['modelName'] as String? ?? '',
+  aiDailySummary: json['aiDailySummary'] as bool? ?? false,
+  aiAnalyseReport: json['aiAnalyseReport'] as bool? ?? false,
+  aiTextToTask: json['aiTextToTask'] as bool? ?? false,
+  aiPicToTask: json['aiPicToTask'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$$AppSettingsImplToJson(
@@ -120,6 +126,12 @@ Map<String, dynamic> _$$AppSettingsImplToJson(
   'restDayTaskDensity':
       _$RestDayTaskDensityEnumMap[instance.restDayTaskDensity]!,
   'planningHorizon': _$PlanningHorizonEnumMap[instance.planningHorizon]!,
+  'endPoint': instance.endPoint,
+  'modelName': instance.modelName,
+  'aiDailySummary': instance.aiDailySummary,
+  'aiAnalyseReport': instance.aiAnalyseReport,
+  'aiTextToTask': instance.aiTextToTask,
+  'aiPicToTask': instance.aiPicToTask,
 };
 
 const _$AppThemeModeEnumMap = {
