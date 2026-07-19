@@ -68,6 +68,30 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(
   rsaType:
       $enumDecodeNullable(_$RsaTypeEnumMap, json['rsaType']) ?? RsaType.rsa2048,
   useAppLock: json['useAppLock'] as bool? ?? false,
+  workHourStart: json['workHourStart'] == null
+      ? const TimeOfDay(hour: 8, minute: 0)
+      : const TimeOfDayConverter().fromJson(json['workHourStart'] as String),
+  workingDayTaskDensity:
+      $enumDecodeNullable(
+        _$WorkingDayTaskDensityEnumMap,
+        json['workingDayTaskDensity'],
+      ) ??
+      WorkingDayTaskDensity.medium,
+  restDayTaskDensity:
+      $enumDecodeNullable(
+        _$RestDayTaskDensityEnumMap,
+        json['restDayTaskDensity'],
+      ) ??
+      RestDayTaskDensity.loose,
+  planningHorizon:
+      $enumDecodeNullable(_$PlanningHorizonEnumMap, json['planningHorizon']) ??
+      PlanningHorizon.weeks,
+  endPoint: json['endPoint'] as String? ?? '',
+  modelName: json['modelName'] as String? ?? '',
+  aiDailySummary: json['aiDailySummary'] as bool? ?? false,
+  aiAnalyseReport: json['aiAnalyseReport'] as bool? ?? false,
+  aiTextToTask: json['aiTextToTask'] as bool? ?? false,
+  aiPicToTask: json['aiPicToTask'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$$AppSettingsImplToJson(
@@ -96,6 +120,18 @@ Map<String, dynamic> _$$AppSettingsImplToJson(
   'syncDurationOnInterval': instance.syncDurationOnInterval.inMicroseconds,
   'rsaType': _$RsaTypeEnumMap[instance.rsaType]!,
   'useAppLock': instance.useAppLock,
+  'workHourStart': const TimeOfDayConverter().toJson(instance.workHourStart),
+  'workingDayTaskDensity':
+      _$WorkingDayTaskDensityEnumMap[instance.workingDayTaskDensity]!,
+  'restDayTaskDensity':
+      _$RestDayTaskDensityEnumMap[instance.restDayTaskDensity]!,
+  'planningHorizon': _$PlanningHorizonEnumMap[instance.planningHorizon]!,
+  'endPoint': instance.endPoint,
+  'modelName': instance.modelName,
+  'aiDailySummary': instance.aiDailySummary,
+  'aiAnalyseReport': instance.aiAnalyseReport,
+  'aiTextToTask': instance.aiTextToTask,
+  'aiPicToTask': instance.aiPicToTask,
 };
 
 const _$AppThemeModeEnumMap = {
@@ -178,4 +214,24 @@ const _$RsaTypeEnumMap = {
   RsaType.rsa2048: 'rsa-2048',
   RsaType.rsa3072: 'rsa-3072',
   RsaType.rsa4096: 'rsa-4096',
+};
+
+const _$WorkingDayTaskDensityEnumMap = {
+  WorkingDayTaskDensity.loose: 'loose',
+  WorkingDayTaskDensity.medium: 'medium',
+  WorkingDayTaskDensity.dense: 'dense',
+  WorkingDayTaskDensity.custom: 'custom',
+};
+
+const _$RestDayTaskDensityEnumMap = {
+  RestDayTaskDensity.loose: 'loose',
+  RestDayTaskDensity.medium: 'medium',
+  RestDayTaskDensity.dense: 'dense',
+  RestDayTaskDensity.custom: 'custom',
+};
+
+const _$PlanningHorizonEnumMap = {
+  PlanningHorizon.days: 'days',
+  PlanningHorizon.weeks: 'weeks',
+  PlanningHorizon.months: 'months',
 };

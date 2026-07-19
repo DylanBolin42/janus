@@ -179,6 +179,62 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       (state.valueOrNull ?? const AppSettings()).copyWith(useAppLock: enabled),
     );
   }
+
+  // Planning settings
+  Future<void> setWorkingDayTaskDensity(WorkingDayTaskDensity type) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        workingDayTaskDensity: type,
+      ),
+    );
+  }
+
+  Future<void> setRestDayTaskDensity(RestDayTaskDensity type) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        restDayTaskDensity: type,
+      ),
+    );
+  }
+
+  Future<void> setPlanningHorizon(PlanningHorizon horizon) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        planningHorizon: horizon,
+      ),
+    );
+  }
+
+  // AI settings
+  Future<void> setUseAiDailySummary(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        aiDailySummary: enabled,
+      ),
+    );
+  }
+
+  Future<void> setAiAnalyseReport(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        aiAnalyseReport: enabled,
+      ),
+    );
+  }
+
+  Future<void> setAiTextToTask(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        aiTextToTask: enabled,
+      ),
+    );
+  }
+
+  Future<void> setAiPicToTask(bool enabled) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(aiPicToTask: enabled),
+    );
+  }
 }
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)

@@ -53,7 +53,7 @@ class FlexTile extends StatelessWidget {
   /// Tile 内部的自定义内容树。
   final Widget child;
 
-  /// 点击回调。为 `null` 时不可点击（没有水波纹）。
+  /// 点击回调。为 `null` 时 tile 仍有点击水波纹反馈，但不执行任何操作。
   final Function(BuildContext)? onTap;
 
   /// 是否启用。为 `false` 时不可点击且内容半透明。
@@ -78,7 +78,7 @@ class FlexTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomAppSettingsTile(
-      onTap: onTap,
+      onTap: onTap ?? (_) {},
       enabled: enabled,
       backgroundColor: backgroundColor,
       padding:
@@ -369,7 +369,7 @@ class InteractiveTile extends AbstractSettingsTile {
                   ],
                 ),
                 if (description != null) ...[
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   DefaultTextStyle(
                     style: TextStyle(
                       color: enabled ? theme.hintColor : theme.disabledColor,

@@ -46,7 +46,9 @@ class _SettingpageState extends State<Settingpage> {
                     title: const Text('规划'),
                     leading: const Icon(Icons.calendar_today_rounded),
                     description: const Text('管理日程的规划逻辑等'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.pushNamed('planningSetting');
+                    },
                   ),
                   SettingsTile.navigation(
                     title: const Text('通知'),
@@ -94,7 +96,9 @@ class _SettingpageState extends State<Settingpage> {
                     title: const Text('AI'),
                     leading: const Icon(Icons.bubble_chart_rounded),
                     description: const Text('AI相关设置，使用BYOK策略'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.pushNamed('aiSetting');
+                    },
                   ),
                 ],
               ),
@@ -105,7 +109,9 @@ class _SettingpageState extends State<Settingpage> {
                     title: const Text('关于'),
                     leading: const Icon(Icons.info_rounded),
                     description: const Text('版本检测、隐私条款、开源许可等'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.pushNamed('aboutPage');
+                    },
                   ),
                   SettingsTile.navigation(
                     title: const Text('功能说明'),
