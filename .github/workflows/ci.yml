@@ -1,3 +1,6 @@
+# Comprehensive CI Workflow for Pull Requests targeting the main branch.
+# Merging a PR triggers this workflow, but after merging, the main branch does not trigger an extra workflow run.
+
 name: CI
 
 on:
