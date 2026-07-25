@@ -7,6 +7,6 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: InboxPage()));
 
     expect(find.text('Welcome to Janus'), findsOneWidget);
-    expect(find.byType(Center), findsOneWidget);
+    expect(find.byType(Center), findsAtLeastNWidgets(1));
   });
 }

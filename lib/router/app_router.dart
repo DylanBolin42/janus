@@ -15,6 +15,7 @@ import 'package:janus/pages/SettingPage/subSettingPage/syncSetting/sync_setting_
 import 'package:janus/pages/SettingPage/subSettingPage/aboutPage/about_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/planningSetting/planning_setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/aiSetting/ai_setting_page.dart';
+import 'package:janus/pages/demo/infinite_card_stack_demo.dart';
 
 /// Centralized route path constants.
 ///
@@ -26,6 +27,7 @@ class RoutePath {
   static const String setting = '/setting'; // full-screen, no shell
   static const String focus = '/focus';
   static const String insights = '/insights';
+  static const String cardStackDemo = '/card-stack-demo';
 
   // 二级目录 (relative — nested under /setting)
   static const String generalSetting = 'general';
@@ -49,6 +51,7 @@ class RouteDisplayName {
     'setting': '设置',
     'focus': '专注',
     'insights': '洞察',
+    'cardStackDemo': '无限卡片堆栈演示',
   };
 }
 
@@ -80,6 +83,11 @@ final GoRouter appRouter = GoRouter(
           path: RoutePath.insights,
           name: 'insights',
           builder: (context, state) => const InsightPage(),
+        ),
+        GoRoute(
+          path: RoutePath.cardStackDemo,
+          name: 'cardStackDemo',
+          builder: (context, state) => const InfiniteCardStackDemo(),
         ),
 
         // --- Add new ShellRoute child pages here ---
