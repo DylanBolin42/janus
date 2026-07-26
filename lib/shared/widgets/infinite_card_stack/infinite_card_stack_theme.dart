@@ -13,31 +13,31 @@ class InfiniteCardStackTheme {
 
   /// The vertical spacing offset (in logical pixels) between consecutive card layers.
   ///
-  /// Defaults to 18.0.
+  /// Default changed to 0.0 to avoid visual distraction of stacked cards under rest.
   final double spacing;
 
   /// The scale of the bottom-most visible card layer.
   ///
   /// Each intermediate layer's scale is linearly interpolated between 1.0 and [minScale].
-  /// Defaults to 0.88.
+  /// Default changed to 1.0 to avoid visual distraction of stacked cards.
   final double minScale;
 
   /// The opacity of the bottom-most visible card layer.
   ///
   /// Each intermediate layer's opacity is linearly interpolated between 1.0 and [minOpacity].
-  /// Defaults to 0.6.
+  /// Default changed to 0.0 to completely hide lower cards under rest to avoid visual clutter.
   final double minOpacity;
 
   /// The physical shadow elevation of the topmost card.
   ///
   /// Lower cards' elevations are reduced proportionally down to 0.0.
-  /// Defaults to 6.0.
+  /// Defaults to 4.0.
   final double maxElevation;
 
   /// The incremental rotation step (in radians) applied to lower card layers to create a gorgeous
   /// layered visual effect. Alternates between positive and negative rotations.
   ///
-  /// Defaults to 0.015 radians (approx 0.8 degrees). Pass 0.0 to disable.
+  /// Defaults to 0.0. Pass e.g. 0.015 for messy Expressive look.
   final double stackRotationStep;
 
   /// The height peak of the quadratic Bezier flight path of a card being swiped or advanced.
@@ -73,11 +73,11 @@ class InfiniteCardStackTheme {
   /// Creates an [InfiniteCardStackTheme] with highly-tuned, beautiful defaults.
   const InfiniteCardStackTheme({
     this.visibleCount = 4,
-    this.spacing = 18.0,
-    this.minScale = 0.88,
-    this.minOpacity = 0.6,
-    this.maxElevation = 6.0,
-    this.stackRotationStep = 0.015,
+    this.spacing = 0.0,
+    this.minScale = 1.0,
+    this.minOpacity = 0.0,
+    this.maxElevation = 4.0,
+    this.stackRotationStep = 0.0,
     this.bezierHeight = 120.0,
     this.flightWidthFactor = 1.2,
     this.maxFlightRotation = 0.25,
