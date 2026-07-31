@@ -242,8 +242,18 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
 /// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
 /// without watching the full [AppSettings] in main.dart.
+///
+/// **Optimization:** By using Riverpod's [select] feature, this provider only
+/// triggers a rebuild when the [themeMode] field actually changes. This prevents
+/// the entire app widget tree (including routing and AppShell) from rebuilding
+/// whenever other unrelated settings (such as AI, sync, or storage) are updated.
 @riverpod
 ThemeMode themeMode(ThemeModeRef ref) {
-  final settingsAsync = ref.watch(appSettingsNotifierProvider);
-  return settingsAsync.valueOrNull?.themeMode.toFlutter() ?? ThemeMode.system;
+  final themeMode = ref.watch(
+    appSettingsNotifierProvider.select(
+      (settingsAsync) =>
+          settingsAsync.valueOrNull?.themeMode.toFlutter() ?? ThemeMode.system,
+    ),
+  );
+  return themeMode;
 }
