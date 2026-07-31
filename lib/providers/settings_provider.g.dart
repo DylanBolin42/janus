@@ -25,10 +25,15 @@ final settingsServiceProvider = AutoDisposeProvider<SettingsService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SettingsServiceRef = AutoDisposeProviderRef<SettingsService>;
-String _$themeModeHash() => r'693a142363301131a896240439e91c2326a7ee52';
+String _$themeModeHash() => r'fc03ea92664c25bb60892302289229fb1c17341c';
 
 /// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
 /// without watching the full [AppSettings] in main.dart.
+///
+/// **Optimization:** By using Riverpod's [select] feature, this provider only
+/// triggers a rebuild when the [themeMode] field actually changes. This prevents
+/// the entire app widget tree (including routing and AppShell) from rebuilding
+/// whenever other unrelated settings (such as AI, sync, or storage) are updated.
 ///
 /// Copied from [themeMode].
 @ProviderFor(themeMode)
