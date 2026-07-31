@@ -227,7 +227,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
           shrinkWrap: widget.shrinkWrap,
           center: widget.center,
           anchor: widget.anchor,
-          scrollCacheExtent: widget.scrollCacheExtent,
+          cacheExtent: widget.cacheExtent,
           semanticChildCount: widget.semanticChildCount,
           dragStartBehavior: widget.dragStartBehavior,
           keyboardDismissBehavior: widget.keyboardDismissBehavior,
