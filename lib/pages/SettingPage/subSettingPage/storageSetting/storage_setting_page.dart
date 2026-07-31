@@ -100,7 +100,9 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                                 );
                               },
                               style: TextButton.styleFrom(
-                                foregroundColor: Theme.of(context).colorScheme.error,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
                               ),
                               child: const Text('确认删除'),
                             ),
