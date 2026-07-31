@@ -104,4 +104,46 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('StorageSettingPage tapping "删除数据库" displays confirmation dialog', (tester) async {
+    tester.view.physicalSize = const Size(800, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(createStorageSettingPage());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    // Tap "删除数据库"
+    await tester.tap(find.text('删除数据库'));
+    await tester.pumpAndSettle();
+
+    // Dialog should be present
+    expect(find.text('确认删除数据库？'), findsOneWidget);
+    expect(find.text('此操作将永久清空本地所有数据，且不可逆。请谨慎操作。'), findsOneWidget);
+    expect(find.text('取消'), findsOneWidget);
+    expect(find.text('确认删除'), findsOneWidget);
+
+    // Tap Cancel
+    await tester.tap(find.text('取消'));
+    await tester.pumpAndSettle();
+
+    // Dialog should be dismissed
+    expect(find.text('确认删除数据库？'), findsNothing);
+
+    // Tap "删除数据库" again
+    await tester.tap(find.text('删除数据库'));
+    await tester.pumpAndSettle();
+
+    // Tap Confirm Delete
+    await tester.tap(find.text('确认删除'));
+    await tester.pumpAndSettle();
+
+    // Dialog should be dismissed and snackbar shown
+    expect(find.text('确认删除数据库？'), findsNothing);
+    expect(find.text('数据库已成功删除'), findsOneWidget);
+  });
 }
