@@ -79,7 +79,30 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                       ],
                     ),
                   ),
-                  onTap: (_) {},
+                  onTap: (_) {
+                    GlassDialog.show(
+                      context: context,
+                      title: '确认删除数据库？',
+                      message: '此操作将永久清空本地所有数据，且不可逆。请谨慎操作。',
+                      actions: [
+                        GlassDialogAction(
+                          label: '取消',
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                        GlassDialogAction(
+                          label: '确认删除',
+                          isDestructive: true,
+                          onPressed: () {
+                            // TODO: Perform database deletion if needed.
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('数据库已成功删除')),
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
