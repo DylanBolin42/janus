@@ -108,9 +108,12 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                     top: 0,
                     bottom: 0,
                     child: Center(
-                      child: GlassIconButton(
-                        icon: const Icon(Icons.arrow_back_rounded),
-                        onPressed: () => context.pop(),
+                      child: Tooltip(
+                        message: '返回',
+                        child: GlassIconButton(
+                          icon: const Icon(Icons.arrow_back_rounded),
+                          onPressed: () => context.pop(),
+                        ),
                       ),
                     ),
                   ),

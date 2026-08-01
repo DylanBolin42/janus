@@ -5,7 +5,6 @@ import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:liquid_glass_widgets/widgets/surfaces/glass_scaffold.dart';
 import 'package:janus/shared/custom_appbar.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
@@ -79,7 +78,36 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                       ],
                     ),
                   ),
-                  onTap: (_) {},
+                  onTap: (ctx) async {
+                    final result = await GlassDialog.show<bool>(
+                      context: ctx,
+                      title: '确认删除数据库？',
+                      message: '此操作将永久删除本地所有数据库数据、日志及配置，且无法撤销。请确保你已备份重要数据。',
+                      actions: [
+                        GlassDialogAction(
+                          label: '取消',
+                          onPressed: () => Navigator.of(ctx).pop(false),
+                        ),
+                        GlassDialogAction(
+                          label: '确认删除',
+                          isDestructive: true,
+                          onPressed: () => Navigator.of(ctx).pop(true),
+                        ),
+                      ],
+                    );
+                    if (result == true) {
+                      await ref
+                          .read(appSettingsNotifierProvider.notifier)
+                          .resetToDefaults();
+                      if (ctx.mounted) {
+                        GlassToast.show(
+                          ctx,
+                          message: '数据库已重置为默认值！',
+                          type: GlassToastType.success,
+                        );
+                      }
+                    }
+                  },
                 ),
               ],
             ),
