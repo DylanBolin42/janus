@@ -38,7 +38,9 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   /// disk I/O. Then, SharedPreferences is written asynchronously. This completely
   /// eliminates input-to-render latency (lag) for interactive controls like switches and sliders.
   Future<void> _persist(AppSettings updated) async {
-    state = AsyncData(updated); // ⚡ Optimistic UI update: trigger immediate frame rendering
+    state = AsyncData(
+      updated,
+    ); // ⚡ Optimistic UI update: trigger immediate frame rendering
     final service = ref.read(settingsServiceProvider);
     await service.save(updated); // Persist to disk asynchronously
   }
