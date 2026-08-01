@@ -80,35 +80,27 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                     ),
                   ),
                   onTap: (_) {
-                    showDialog(
+                    GlassDialog.show(
                       context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('确认删除数据库？'),
-                          content: const Text('此操作将永久清空本地所有数据，且不可逆。请谨慎操作。'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('取消'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // TODO: Perform database deletion if needed.
-                                Navigator.of(context).pop();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('数据库已成功删除')),
-                                );
-                              },
-                              style: TextButton.styleFrom(
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.error,
-                              ),
-                              child: const Text('确认删除'),
-                            ),
-                          ],
-                        );
-                      },
+                      title: '确认删除数据库？',
+                      message: '此操作将永久清空本地所有数据，且不可逆。请谨慎操作。',
+                      actions: [
+                        GlassDialogAction(
+                          label: '取消',
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                        GlassDialogAction(
+                          label: '确认删除',
+                          isDestructive: true,
+                          onPressed: () {
+                            // TODO: Perform database deletion if needed.
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('数据库已成功删除')),
+                            );
+                          },
+                        ),
+                      ],
                     );
                   },
                 ),
