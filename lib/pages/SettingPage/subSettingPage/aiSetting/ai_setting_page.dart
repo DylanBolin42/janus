@@ -16,11 +16,75 @@ class AiSettingPage extends ConsumerStatefulWidget {
 }
 
 class _AiSettingPageState extends ConsumerState<AiSettingPage> {
+  late final TextEditingController _endpointController;
+  late final TextEditingController _apiKeyController;
+  late final TextEditingController _modelController;
+  bool _isInitialized = false;
+  String? _endpointError;
+
+  @override
+  void initState() {
+    super.initState();
+    _endpointController = TextEditingController();
+    _apiKeyController = TextEditingController();
+    _modelController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _endpointController.dispose();
+    _apiKeyController.dispose();
+    _modelController.dispose();
+    super.dispose();
+  }
+
+  void _validateAndSaveEndpoint(String val) {
+    final trimmed = val.trim();
+    if (trimmed.isEmpty) {
+      setState(() {
+        _endpointError = null;
+      });
+      ref.read(appSettingsNotifierProvider.notifier).setEndPoint('');
+      return;
+    }
+
+    final uri = Uri.tryParse(trimmed);
+    final isLocal =
+        uri != null &&
+        (uri.host == 'localhost' ||
+            uri.host == '127.0.0.1' ||
+            uri.host == '::1');
+
+    if (uri == null || (uri.hasScheme && uri.scheme != 'https' && !isLocal)) {
+      setState(() {
+        _endpointError = '为了安全，远程端点必须使用 HTTPS 协议以防止 API Key 被拦截';
+      });
+      return;
+    }
+
+    setState(() {
+      _endpointError = null;
+    });
+    ref.read(appSettingsNotifierProvider.notifier).setEndPoint(trimmed);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final settings =
-        ref.watch(appSettingsNotifierProvider).valueOrNull ??
-        const AppSettings();
+    final settingsAsync = ref.watch(appSettingsNotifierProvider);
+    final apiKeyAsync = ref.watch(aiApiKeyProvider);
+
+    final settings = settingsAsync.valueOrNull ?? const AppSettings();
+    final apiKey = apiKeyAsync.valueOrNull ?? '';
+
+    if (settingsAsync is AsyncData && apiKeyAsync is AsyncData) {
+      if (!_isInitialized) {
+        _endpointController.text = settings.endPoint;
+        _modelController.text = settings.modelName;
+        _apiKeyController.text = apiKey;
+        _isInitialized = true;
+      }
+    }
+
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
@@ -42,11 +106,11 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
               ],
             ),
             SettingsSection(
-              //TODO: 接入TextField持久化逻辑
               title: Text('配置', style: tt.titleMedium),
               tiles: [
                 CustomAppSettingsTile(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -58,46 +122,57 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                       ),
                       SizedBox(height: AppSpacing.base),
                       GlassTextField(
+                        controller: _endpointController,
                         shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                        onChanged: _validateAndSaveEndpoint,
                       ),
+                      if (_endpointError != null) ...[
+                        const SizedBox(height: AppSpacing.base / 2),
+                        Text(
+                          _endpointError!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
-                //SettingsTile(
-                //  title: Text('Endpoint'),
-                //  trailing: SizedBox(
-                //    width: 160,
-                //    child: GlassTextField(
-                //      shape: LiquidRoundedSuperellipse(borderRadius: 64),
-                //    ),
-                //  ),
-                //  description: Text('暂仅支持OpenAI格式请求'),
-                //),
                 SettingsTile(
                   title: Text('API Key'),
-
                   trailing: SizedBox(
                     width: 160,
                     child: GlassTextField(
+                      controller: _apiKeyController,
                       obscureText: true,
                       shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                      onChanged: (val) {
+                        ref
+                            .read(appSettingsNotifierProvider.notifier)
+                            .setAiApiKey(val.trim());
+                      },
                     ),
                   ),
                 ),
                 SettingsTile(
                   title: Text('Model'),
-
                   trailing: SizedBox(
                     width: 160,
                     child: GlassTextField(
+                      controller: _modelController,
                       shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                      onChanged: (val) {
+                        ref
+                            .read(appSettingsNotifierProvider.notifier)
+                            .setModelName(val.trim());
+                      },
                     ),
                   ),
                   description: Text('以官方提供的名称为准'),
                 ),
               ],
             ),
-
             SettingsSection(
               title: Text('AI功能', style: tt.titleMedium),
               tiles: [
@@ -125,7 +200,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                 ),
                 SettingsTile(
                   title: Text('智慧文本日程提取'),
-                  description: Text('指拥有更强的上下文理解能力和联想推理能力'),
+                  description: Text('指拥有更强的上下文理解能力 and 联想推理能力'),
                   trailing: GlassSwitch(
                     value: settings.aiTextToTask,
                     onChanged: (val) {

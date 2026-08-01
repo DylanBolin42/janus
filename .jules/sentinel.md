@@ -1,0 +1,6 @@
+# Sentinel's Journal
+
+## 2026-07-23 - [Insecure Local Storage & MitM Risk in AI Configurations]
+**Vulnerability:** The AI setting configuration page was un-implemented, leaving the API Key, Endpoint, and Model fields completely un-persisted. Furthermore, standard configuration storage mechanisms like `shared_preferences` save values in plaintext on disk, which is highly insecure for sensitive API keys/credentials. Additionally, there was no input validation ensuring that endpoints used secure protocols (HTTPS), which could result in sending sensitive API keys and prompts over unencrypted HTTP (making them vulnerable to Man-in-the-Middle/MitM data interception and theft).
+**Learning:** Credentials and sensitive communications are often overlooked during early feature scaffolding (the "TODO: 接入TextField持久化逻辑" comment in the code). Without proactive design, developers might store API keys in plaintext or fail to enforce HTTPS, leading to critical security gaps.
+**Prevention:** Enforce strict HTTPS URL validation on user-configured endpoints (with exception for local environment development/testing) to guarantee encrypted in-transit communication. Store credentials using a layer of obfuscation/encryption on standard local disk storage to protect against basic plaintext credential harvesting from backups or local scans.
