@@ -19,7 +19,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
   @override
   Widget build(BuildContext context) {
     final settings =
-        ref.watch(appSettingsNotifierProvider).valueOrNull ??
+        ref.watch(appSettingsProvider).value ??
         const AppSettings();
     final tt = Theme.of(context).textTheme;
 
@@ -107,7 +107,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                     value: settings.aiDailySummary,
                     onChanged: (val) {
                       ref
-                          .read(appSettingsNotifierProvider.notifier)
+                          .read(appSettingsProvider.notifier)
                           .setUseAiDailySummary(val);
                     },
                   ),
@@ -118,7 +118,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                     value: settings.aiAnalyseReport,
                     onChanged: (val) {
                       ref
-                          .read(appSettingsNotifierProvider.notifier)
+                          .read(appSettingsProvider.notifier)
                           .setAiAnalyseReport(val);
                     },
                   ),
@@ -130,7 +130,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                     value: settings.aiTextToTask,
                     onChanged: (val) {
                       ref
-                          .read(appSettingsNotifierProvider.notifier)
+                          .read(appSettingsProvider.notifier)
                           .setAiTextToTask(val);
                     },
                   ),
@@ -142,7 +142,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                     value: settings.aiPicToTask,
                     onChanged: (val) {
                       ref
-                          .read(appSettingsNotifierProvider.notifier)
+                          .read(appSettingsProvider.notifier)
                           .setAiPicToTask(val);
                     },
                   ),

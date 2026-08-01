@@ -35,25 +35,25 @@ void main() {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // appSettingsNotifierProvider
+  // appSettingsProvider
   // ─────────────────────────────────────────────────────────────────────────
-  group('appSettingsNotifierProvider', () {
+  group('appSettingsProvider', () {
     /// Helper: wait for the notifier's async build to complete.
     Future<void> waitForInit(ProviderContainer container) async {
-      await container.read(appSettingsNotifierProvider.notifier).future;
+      await container.read(appSettingsProvider.notifier).future;
     }
 
     test('loads default settings initially', () async {
       final container = ProviderContainer();
       addTearDown(() => container.dispose());
 
-      expect(container.read(appSettingsNotifierProvider).isLoading, true);
+      expect(container.read(appSettingsProvider).isLoading, true);
 
       await waitForInit(container);
 
-      final settings = container.read(appSettingsNotifierProvider);
+      final settings = container.read(appSettingsProvider);
       expect(settings.hasValue, true);
-      expect(settings.valueOrNull!.themeMode, AppThemeMode.system);
+      expect(settings.value!.themeMode, AppThemeMode.system);
     });
 
     test('setThemeMode updates the value and persists', () async {
@@ -63,11 +63,11 @@ void main() {
       await waitForInit(container);
 
       await container
-          .read(appSettingsNotifierProvider.notifier)
+          .read(appSettingsProvider.notifier)
           .setThemeMode(AppThemeMode.dark);
 
       expect(
-        container.read(appSettingsNotifierProvider).valueOrNull!.themeMode,
+        container.read(appSettingsProvider).value!.themeMode,
         AppThemeMode.dark,
       );
     });
@@ -79,11 +79,11 @@ void main() {
       await waitForInit(container);
 
       await container
-          .read(appSettingsNotifierProvider.notifier)
+          .read(appSettingsProvider.notifier)
           .setGlassIntensity(GlassIntensity.extreme);
 
       expect(
-        container.read(appSettingsNotifierProvider).valueOrNull!.glassIntensity,
+        container.read(appSettingsProvider).value!.glassIntensity,
         GlassIntensity.extreme,
       );
     });
@@ -95,11 +95,11 @@ void main() {
       await waitForInit(container);
 
       await container
-          .read(appSettingsNotifierProvider.notifier)
+          .read(appSettingsProvider.notifier)
           .setLanguage(AppLanguage.english);
 
       expect(
-        container.read(appSettingsNotifierProvider).valueOrNull!.language,
+        container.read(appSettingsProvider).value!.language,
         AppLanguage.english,
       );
     });
@@ -111,11 +111,11 @@ void main() {
       await waitForInit(container);
 
       await container
-          .read(appSettingsNotifierProvider.notifier)
+          .read(appSettingsProvider.notifier)
           .setTabNamingStyle(TabNamingStyle.professional);
 
       expect(
-        container.read(appSettingsNotifierProvider).valueOrNull!.tabNamingStyle,
+        container.read(appSettingsProvider).value!.tabNamingStyle,
         TabNamingStyle.professional,
       );
     });
@@ -126,13 +126,13 @@ void main() {
 
       await waitForInit(container);
 
-      final notifier = container.read(appSettingsNotifierProvider.notifier);
+      final notifier = container.read(appSettingsProvider.notifier);
 
       await notifier.setThemeMode(AppThemeMode.dark);
       await notifier.setLanguage(AppLanguage.english);
       await notifier.setTabNamingStyle(TabNamingStyle.latin);
 
-      final settings = container.read(appSettingsNotifierProvider).valueOrNull!;
+      final settings = container.read(appSettingsProvider).value!;
       expect(settings.themeMode, AppThemeMode.dark);
       expect(settings.language, AppLanguage.english);
       expect(settings.tabNamingStyle, TabNamingStyle.latin);
@@ -145,7 +145,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   group('themeModeProvider', () {
     Future<void> waitForInit(ProviderContainer container) async {
-      await container.read(appSettingsNotifierProvider.notifier).future;
+      await container.read(appSettingsProvider.notifier).future;
     }
 
     test('defaults to ThemeMode.system', () async {
@@ -164,7 +164,7 @@ void main() {
       await waitForInit(container);
 
       await container
-          .read(appSettingsNotifierProvider.notifier)
+          .read(appSettingsProvider.notifier)
           .setThemeMode(AppThemeMode.light);
 
       expect(container.read(themeModeProvider), ThemeMode.light);

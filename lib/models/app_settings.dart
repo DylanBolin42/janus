@@ -540,7 +540,7 @@ class TimeOfDayConverter implements JsonConverter<TimeOfDay, String> {
 /// All fields have sensible defaults. Serializes to/from JSON
 /// for persistence via [shared_preferences].
 @freezed
-class AppSettings with _$AppSettings {
+abstract class AppSettings with _$AppSettings {
   const factory AppSettings({
     // Gereral settings
     @Default(AppThemeMode.system) AppThemeMode themeMode,

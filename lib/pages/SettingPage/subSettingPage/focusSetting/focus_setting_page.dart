@@ -18,7 +18,7 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
   @override
   Widget build(BuildContext context) {
     final settings =
-        ref.watch(appSettingsNotifierProvider).valueOrNull ??
+        ref.watch(appSettingsProvider).value ??
         const AppSettings();
     final tt = Theme.of(context).textTheme;
 
@@ -88,7 +88,7 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setTempLeaveDuration(duration);
                         },
                       );
@@ -112,7 +112,7 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setTempLeaveTimes(times);
                         },
                       );
@@ -143,7 +143,7 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setFocusSceneRenderMode(mode);
                         },
                       );
@@ -168,7 +168,7 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setFocusSceneRenderQuality(quality);
                         },
                       );
