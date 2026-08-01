@@ -110,7 +110,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('AiSettingPage validates endpoint input and enforces HTTPS', (tester) async {
+  testWidgets('AiSettingPage validates endpoint input and enforces HTTPS', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
