@@ -21,15 +21,18 @@ class AppShell extends StatelessWidget {
       appBar: CustomAppbar(
         title: title,
         actions: [
-          GlassIconButton(
-            icon: const Icon(Icons.settings_rounded),
-            onPressed: () => context.pushNamed('setting'),
+          Tooltip(
+            message: '设置',
+            child: GlassIconButton(
+              icon: const Icon(Icons.settings_rounded),
+              onPressed: () => context.pushNamed('setting'),
+            ),
           ),
         ],
       ),
       body: CustomAppbar.wrapBody(context, child),
       bottomBar: GlassTabBar.bottom(
-        extraButton: GlassBottomBarExtraButton(
+        extraButton: GlassTabBarExtraButton(
           icon: Icon(Icons.add_rounded),
           onTap: () {}, //TODO: 添加功能
           label: 'Add',

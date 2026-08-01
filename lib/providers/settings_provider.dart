@@ -235,6 +235,10 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       (state.valueOrNull ?? const AppSettings()).copyWith(aiPicToTask: enabled),
     );
   }
+
+  Future<void> resetToDefaults() async {
+    await _persist(const AppSettings());
+  }
 }
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)

@@ -138,6 +138,32 @@ void main() {
       expect(settings.tabNamingStyle, TabNamingStyle.latin);
       expect(settings.glassIntensity, GlassIntensity.moderate); // ← unchanged
     });
+
+    test('resetToDefaults reverts all settings to default values', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+
+      await waitForInit(container);
+
+      final notifier = container.read(appSettingsNotifierProvider.notifier);
+
+      // Mutate multiple settings first
+      await notifier.setThemeMode(AppThemeMode.dark);
+      await notifier.setLanguage(AppLanguage.english);
+      await notifier.setTabNamingStyle(TabNamingStyle.latin);
+
+      var settings = container.read(appSettingsNotifierProvider).valueOrNull!;
+      expect(settings.themeMode, AppThemeMode.dark);
+      expect(settings.language, AppLanguage.english);
+
+      // Reset to defaults
+      await notifier.resetToDefaults();
+
+      settings = container.read(appSettingsNotifierProvider).valueOrNull!;
+      expect(settings.themeMode, AppThemeMode.system);
+      expect(settings.language, AppLanguage.chinese);
+      expect(settings.tabNamingStyle, TabNamingStyle.classic);
+    });
   });
 
   // ─────────────────────────────────────────────────────────────────────────
