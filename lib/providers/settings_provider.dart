@@ -32,10 +32,17 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   /// Persist an updated settings object and update state.
+  ///
+  /// OPTIMIZATION: Updates the Riverpod state synchronously (optimistically)
+  /// first so that all UI watchers rebuild immediately without waiting for
+  /// disk I/O. Then, SharedPreferences is written asynchronously. This completely
+  /// eliminates input-to-render latency (lag) for interactive controls like switches and sliders.
   Future<void> _persist(AppSettings updated) async {
+    state = AsyncData(
+      updated,
+    ); // ⚡ Optimistic UI update: trigger immediate frame rendering
     final service = ref.read(settingsServiceProvider);
-    await service.save(updated);
-    state = AsyncData(updated);
+    await service.save(updated); // Persist to disk asynchronously
   }
 
   // ── Individual setters ───────────────────────────────────────────────
@@ -242,8 +249,17 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
 /// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
 /// without watching the full [AppSettings] in main.dart.
+///
+/// OPTIMIZATION: Use `.select` to only listen to the `themeMode` field
+/// of [AppSettings], preventing [MyApp] from being re-evaluated when unrelated
+/// settings (e.g., AI summary, Sync triggers, rest day density) change.
 @riverpod
 ThemeMode themeMode(ThemeModeRef ref) {
-  final settingsAsync = ref.watch(appSettingsNotifierProvider);
-  return settingsAsync.valueOrNull?.themeMode.toFlutter() ?? ThemeMode.system;
+  final themeMode = ref.watch(
+    appSettingsNotifierProvider.select(
+      (settingsAsync) =>
+          settingsAsync.valueOrNull?.themeMode ?? AppThemeMode.system,
+    ),
+  );
+  return themeMode.toFlutter();
 }

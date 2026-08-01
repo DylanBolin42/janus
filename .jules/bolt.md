@@ -1,0 +1,5 @@
+# Bolt's Journal
+
+## 2025-02-14 - Latency Compensation and Async Settings Persistence
+**Learning:** In highly interactive apps like settings configurations, awaiting disk I/O (e.g., `SharedPreferences` saves) before updating the in-memory state introduces a noticeable asynchronous gap. This results in lagging UI interactions (like sluggish switches and slow dropdown responses) because the UI rebuild is blocked until the persistence write finishes. Decoupling the UI state update from disk I/O via optimistic in-memory state updates delivers instant tactile response to the user.
+**Action:** Always update the state synchronously in memory (e.g., `state = AsyncData(updated);`) first to trigger immediate UI rebuilds, and then await or perform the disk/network persistence asynchronously in the background. Additionally, cache asynchronous instances (such as `SharedPreferences`) locally in service singletons to eliminate the repetitive microtask scheduling and platform channel overhead of checking for instances.
