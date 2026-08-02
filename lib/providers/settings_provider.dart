@@ -34,8 +34,10 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   /// Persist an updated settings object and update state.
   Future<void> _persist(AppSettings updated) async {
     final service = ref.read(settingsServiceProvider);
+    state = AsyncData(
+      updated,
+    ); // Optimistically update in memory to eliminate UI block
     await service.save(updated);
-    state = AsyncData(updated);
   }
 
   // ── Individual setters ───────────────────────────────────────────────
@@ -206,6 +208,22 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
+  Future<void> setEndPoint(String endPoint) async {
+    // Validate HTTPS protocol to prevent MITM attacks
+    if (endPoint.isNotEmpty && !endPoint.toLowerCase().startsWith('https://')) {
+      return;
+    }
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(endPoint: endPoint),
+    );
+  }
+
+  Future<void> setModelName(String model) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(modelName: model),
+    );
+  }
+
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.valueOrNull ?? const AppSettings()).copyWith(
@@ -236,6 +254,29 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// API Key Secure Storage Notifier (XOR obfuscation)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Async notifier that loads, exposes, and persists the API key with XOR obfuscation.
+@riverpod
+class ApiKey extends _$ApiKey {
+  @override
+  Future<String> build() async {
+    final service = ref.watch(settingsServiceProvider);
+    return service.loadApiKey();
+  }
+
+  Future<void> setApiKey(String key) async {
+    final service = ref.read(settingsServiceProvider);
+    state = AsyncData(
+      key,
+    ); // Optimistically update in memory to eliminate UI block
+    await service.saveApiKey(key);
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)
 // ─────────────────────────────────────────────────────────────────────────────

@@ -46,7 +46,7 @@ final themeModeProvider = AutoDisposeProvider<ThemeMode>.internal(
 // ignore: unused_element
 typedef ThemeModeRef = AutoDisposeProviderRef<ThemeMode>;
 String _$appSettingsNotifierHash() =>
-    r'14b2b74752bc17519bea3c1f60494ee86e5a8bf1';
+    r'7beb87d4367c4f3f4c0f52fc6680a14d4ae76925';
 
 /// Async notifier that loads, exposes, and persists [AppSettings].
 ///
@@ -67,5 +67,23 @@ final appSettingsNotifierProvider =
     );
 
 typedef _$AppSettingsNotifier = AutoDisposeAsyncNotifier<AppSettings>;
+String _$apiKeyHash() => r'467f22a6da5a3cef6a384e02045e8f2fae24135c';
+
+/// Async notifier that loads, exposes, and persists the API key with XOR obfuscation.
+///
+/// Copied from [ApiKey].
+@ProviderFor(ApiKey)
+final apiKeyProvider =
+    AutoDisposeAsyncNotifierProvider<ApiKey, String>.internal(
+      ApiKey.new,
+      name: r'apiKeyProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$apiKeyHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$ApiKey = AutoDisposeAsyncNotifier<String>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
