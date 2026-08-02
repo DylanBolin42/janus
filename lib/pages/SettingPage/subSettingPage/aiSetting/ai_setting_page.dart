@@ -45,7 +45,8 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
     }
 
     final endpointText = _endpointController.text;
-    final isEndpointValid = endpointText.isEmpty ||
+    final isEndpointValid =
+        endpointText.isEmpty ||
         endpointText.toLowerCase().startsWith('https://');
 
     final tt = Theme.of(context).textTheme;
@@ -88,7 +89,8 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                         controller: _endpointController,
                         onChanged: (val) {
                           setState(() {}); // Dynamically update isEndpointValid
-                          if (val.isEmpty || val.toLowerCase().startsWith('https://')) {
+                          if (val.isEmpty ||
+                              val.toLowerCase().startsWith('https://')) {
                             ref
                                 .read(appSettingsNotifierProvider.notifier)
                                 .setEndPoint(val);
@@ -100,12 +102,19 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                         const SizedBox(height: 4),
                         const Row(
                           children: [
-                            Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 16),
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.redAccent,
+                              size: 16,
+                            ),
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 '安全提示: Endpoint 必须使用 HTTPS 协议以防止中间人攻击(MITM)',
-                                style: TextStyle(color: Colors.redAccent, fontSize: 12),
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ],

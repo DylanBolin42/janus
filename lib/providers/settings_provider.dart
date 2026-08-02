@@ -34,7 +34,9 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   /// Persist an updated settings object and update state.
   Future<void> _persist(AppSettings updated) async {
     final service = ref.read(settingsServiceProvider);
-    state = AsyncData(updated); // Optimistically update in memory to eliminate UI block
+    state = AsyncData(
+      updated,
+    ); // Optimistically update in memory to eliminate UI block
     await service.save(updated);
   }
 
@@ -268,7 +270,9 @@ class ApiKey extends _$ApiKey {
 
   Future<void> setApiKey(String key) async {
     final service = ref.read(settingsServiceProvider);
-    state = AsyncData(key); // Optimistically update in memory to eliminate UI block
+    state = AsyncData(
+      key,
+    ); // Optimistically update in memory to eliminate UI block
     await service.saveApiKey(key);
   }
 }

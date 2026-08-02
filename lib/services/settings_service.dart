@@ -9,7 +9,8 @@ import 'package:janus/models/app_settings.dart';
 class SettingsService {
   static const String _key = 'app_settings';
   static const String _apiKeyKey = 'secure_api_key';
-  static const int _xorKey = 0x5A; // Lightweight XOR key for obfuscating API key on disk
+  static const int _xorKey =
+      0x5A; // Lightweight XOR key for obfuscating API key on disk
 
   SharedPreferences? _prefs;
 

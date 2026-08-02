@@ -139,25 +139,34 @@ void main() {
       expect(settings.glassIntensity, GlassIntensity.moderate); // ← unchanged
     });
 
-    test('setEndPoint saves valid HTTPS endpoints and ignores insecure HTTP endpoints', () async {
-      final container = ProviderContainer();
-      addTearDown(() => container.dispose());
+    test(
+      'setEndPoint saves valid HTTPS endpoints and ignores insecure HTTP endpoints',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(() => container.dispose());
 
-      await waitForInit(container);
+        await waitForInit(container);
 
-      final notifier = container.read(appSettingsNotifierProvider.notifier);
+        final notifier = container.read(appSettingsNotifierProvider.notifier);
 
-      // Save a valid HTTPS URL
-      const secureUrl = 'https://api.openai.com/v1';
-      await notifier.setEndPoint(secureUrl);
-      expect(container.read(appSettingsNotifierProvider).valueOrNull!.endPoint, secureUrl);
+        // Save a valid HTTPS URL
+        const secureUrl = 'https://api.openai.com/v1';
+        await notifier.setEndPoint(secureUrl);
+        expect(
+          container.read(appSettingsNotifierProvider).valueOrNull!.endPoint,
+          secureUrl,
+        );
 
-      // Attempt to save an insecure HTTP URL
-      const insecureUrl = 'http://api.insecure.com/v1';
-      await notifier.setEndPoint(insecureUrl);
-      // The endpoint should remain unchanged (secureUrl) due to HTTPS validation enforcement
-      expect(container.read(appSettingsNotifierProvider).valueOrNull!.endPoint, secureUrl);
-    });
+        // Attempt to save an insecure HTTP URL
+        const insecureUrl = 'http://api.insecure.com/v1';
+        await notifier.setEndPoint(insecureUrl);
+        // The endpoint should remain unchanged (secureUrl) due to HTTPS validation enforcement
+        expect(
+          container.read(appSettingsNotifierProvider).valueOrNull!.endPoint,
+          secureUrl,
+        );
+      },
+    );
 
     test('setModelName updates the model value', () async {
       final container = ProviderContainer();
