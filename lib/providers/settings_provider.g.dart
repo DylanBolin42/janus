@@ -25,10 +25,13 @@ final settingsServiceProvider = AutoDisposeProvider<SettingsService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SettingsServiceRef = AutoDisposeProviderRef<SettingsService>;
-String _$themeModeHash() => r'693a142363301131a896240439e91c2326a7ee52';
+String _$themeModeHash() => r'32e39f5e88b180ffcc382a3cfd143b91cbef7368';
 
 /// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
 /// without watching the full [AppSettings] in main.dart.
+///
+/// Uses granular `.select` to watch only the `themeMode` property, avoiding
+/// rebuilding MaterialApp/app root on unrelated settings changes.
 ///
 /// Copied from [themeMode].
 @ProviderFor(themeMode)
@@ -46,7 +49,7 @@ final themeModeProvider = AutoDisposeProvider<ThemeMode>.internal(
 // ignore: unused_element
 typedef ThemeModeRef = AutoDisposeProviderRef<ThemeMode>;
 String _$appSettingsNotifierHash() =>
-    r'14b2b74752bc17519bea3c1f60494ee86e5a8bf1';
+    r'0be2e0246977c982c8e30e217f83fd37c2b387b6';
 
 /// Async notifier that loads, exposes, and persists [AppSettings].
 ///

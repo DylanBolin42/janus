@@ -9,11 +9,20 @@ import 'package:janus/models/app_settings.dart';
 class SettingsService {
   static const String _key = 'app_settings';
 
+  /// Cached instance of [SharedPreferences] to avoid redundant asynchronous calls.
+  SharedPreferences? _prefs;
+
+  /// Helper getter to retrieve or initialize the [SharedPreferences] instance.
+  Future<SharedPreferences> _getPrefs() async {
+    _prefs ??= await SharedPreferences.getInstance();
+    return _prefs!;
+  }
+
   /// Loads [AppSettings] from shared preferences.
   /// Returns the default [AppSettings] if nothing is stored yet
   /// or if the stored JSON is corrupt.
   Future<AppSettings> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     final raw = prefs.getString(_key);
     if (raw == null) return const AppSettings();
     try {
@@ -26,7 +35,7 @@ class SettingsService {
 
   /// Persists [settings] to shared preferences.
   Future<void> save(AppSettings settings) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _getPrefs();
     await prefs.setString(_key, jsonEncode(settings.toJson()));
   }
 }
