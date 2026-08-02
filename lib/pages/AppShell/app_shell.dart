@@ -29,9 +29,15 @@ class AppShell extends StatelessWidget {
       ),
       body: CustomAppbar.wrapBody(context, child),
       bottomBar: GlassTabBar.bottom(
-        extraButton: GlassBottomBarExtraButton(
+        extraButton: GlassTabBarExtraButton(
           icon: Icon(Icons.add_rounded),
-          onTap: () {}, //TODO: 添加功能
+          onTap: () {
+            GlassToast.show(
+              context,
+              message: '添加任务功能正在开发中',
+              type: GlassToastType.info,
+            );
+          },
           label: 'Add',
         ),
         selectedIconColor: Theme.of(context).colorScheme.primary,

@@ -5,7 +5,6 @@ import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:liquid_glass_widgets/widgets/surfaces/glass_scaffold.dart';
 import 'package:janus/shared/custom_appbar.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
@@ -52,12 +51,26 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                   leading: Icon(MdiIcons.import),
                   trailing: Icon(Icons.navigate_next_rounded),
                   description: Text('导入兼容格式的数据库'),
+                  onPressed: (context) {
+                    GlassToast.show(
+                      context,
+                      message: '数据库导入功能正在开发中',
+                      type: GlassToastType.info,
+                    );
+                  },
                 ),
                 SettingsTile.navigation(
                   title: Text('导出数据库'),
                   leading: Icon(MdiIcons.export),
                   trailing: Icon(Icons.navigate_next_rounded),
                   description: Text('导出特定格式的数据库为某些格式'),
+                  onPressed: (context) {
+                    GlassToast.show(
+                      context,
+                      message: '数据库导出功能正在开发中',
+                      type: GlassToastType.info,
+                    );
+                  },
                 ),
                 CustomAppSettingsTile(
                   backgroundColor: Theme.of(context).colorScheme.errorContainer,
@@ -79,7 +92,31 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                       ],
                     ),
                   ),
-                  onTap: (_) {},
+                  onTap: (context) {
+                    GlassDialog.show(
+                      context: context,
+                      title: '确定删除数据库吗？',
+                      message: '此操作不可逆，将永久清除所有本地数据！建议在操作前先进行备份。',
+                      actions: [
+                        GlassDialogAction(
+                          label: '取消',
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        GlassDialogAction(
+                          label: '确定删除',
+                          isDestructive: true,
+                          onPressed: () {
+                            Navigator.pop(context);
+                            GlassToast.show(
+                              context,
+                              message: '数据库已清空',
+                              type: GlassToastType.success,
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),

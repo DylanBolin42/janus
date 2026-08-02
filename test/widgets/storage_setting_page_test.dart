@@ -104,4 +104,31 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('Tapping 删除数据库 opens confirmation GlassDialog', (tester) async {
+    tester.view.physicalSize = const Size(800, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(createStorageSettingPage());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    await tester.tap(find.text('删除数据库'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500)); // allow dialog animation
+
+    expect(find.text('确定删除数据库吗？'), findsOneWidget);
+    expect(find.text('取消'), findsOneWidget);
+    expect(find.text('确定删除'), findsOneWidget);
+
+    await tester.tap(find.text('取消'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500)); // allow dialog animation
+
+    expect(find.text('确定删除数据库吗？'), findsNothing);
+  });
 }
