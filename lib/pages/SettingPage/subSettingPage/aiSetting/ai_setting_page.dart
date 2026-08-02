@@ -16,16 +16,43 @@ class AiSettingPage extends ConsumerStatefulWidget {
 }
 
 class _AiSettingPageState extends ConsumerState<AiSettingPage> {
+  final _endpointController = TextEditingController();
+  final _apiKeyController = TextEditingController();
+  final _modelController = TextEditingController();
+  bool _isInitialized = false;
+
+  @override
+  void dispose() {
+    _endpointController.dispose();
+    _apiKeyController.dispose();
+    _modelController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final settings =
-        ref.watch(appSettingsNotifierProvider).valueOrNull ??
-        const AppSettings();
+    final settingsAsync = ref.watch(appSettingsNotifierProvider);
+    final apiKeyAsync = ref.watch(apiKeyProvider);
+
+    final settings = settingsAsync.valueOrNull ?? const AppSettings();
+    final apiKey = apiKeyAsync.valueOrNull ?? '';
+
+    if (!_isInitialized && settingsAsync.hasValue && apiKeyAsync.hasValue) {
+      _endpointController.text = settings.endPoint;
+      _modelController.text = settings.modelName;
+      _apiKeyController.text = apiKey;
+      _isInitialized = true;
+    }
+
+    final endpointText = _endpointController.text;
+    final isEndpointValid = endpointText.isEmpty ||
+        endpointText.toLowerCase().startsWith('https://');
+
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
       topEdgeFade: false,
-      appBar: CustomAppbar(title: 'AI', showBack: true),
+      appBar: const CustomAppbar(title: 'AI', showBack: true),
       body: CustomAppbar.wrapBody(
         context,
         SettingsList(
@@ -33,22 +60,22 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
             SettingsSection(
               tiles: [
                 SettingsTile(
-                  title: Text('说明'),
-                  leading: Icon(Icons.rocket_launch_rounded),
-                  description: Text(
+                  title: const Text('说明'),
+                  leading: const Icon(Icons.rocket_launch_rounded),
+                  description: const Text(
                     'AI设置内的设置项如启用能够增进用户体验，但不开启也不会影响基础使用。\n推荐用户理性选择调用的模型，本应用程序不需要大容量上下文推理和非常严谨的逻辑推导，因此推荐价格便宜的模型如Deepseek Flash，而不是Fable等高端模型。',
                   ),
                 ),
               ],
             ),
             SettingsSection(
-              //TODO: 接入TextField持久化逻辑
               title: Text('配置', style: tt.titleMedium),
               tiles: [
                 CustomAppSettingsTile(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      const Row(
                         children: [
                           Text(
                             'Endpoint',
@@ -56,44 +83,66 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: AppSpacing.base),
+                      const SizedBox(height: AppSpacing.base),
                       GlassTextField(
+                        controller: _endpointController,
+                        onChanged: (val) {
+                          setState(() {}); // Dynamically update isEndpointValid
+                          if (val.isEmpty || val.toLowerCase().startsWith('https://')) {
+                            ref
+                                .read(appSettingsNotifierProvider.notifier)
+                                .setEndPoint(val);
+                          }
+                        },
                         shape: LiquidRoundedSuperellipse(borderRadius: 64),
                       ),
+                      if (!isEndpointValid) ...[
+                        const SizedBox(height: 4),
+                        const Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 16),
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                '安全提示: Endpoint 必须使用 HTTPS 协议以防止中间人攻击(MITM)',
+                                style: TextStyle(color: Colors.redAccent, fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
-                //SettingsTile(
-                //  title: Text('Endpoint'),
-                //  trailing: SizedBox(
-                //    width: 160,
-                //    child: GlassTextField(
-                //      shape: LiquidRoundedSuperellipse(borderRadius: 64),
-                //    ),
-                //  ),
-                //  description: Text('暂仅支持OpenAI格式请求'),
-                //),
                 SettingsTile(
-                  title: Text('API Key'),
-
+                  title: const Text('API Key'),
                   trailing: SizedBox(
                     width: 160,
                     child: GlassTextField(
+                      controller: _apiKeyController,
+                      onChanged: (val) {
+                        ref.read(apiKeyProvider.notifier).setApiKey(val);
+                      },
                       obscureText: true,
                       shape: LiquidRoundedSuperellipse(borderRadius: 64),
                     ),
                   ),
                 ),
                 SettingsTile(
-                  title: Text('Model'),
-
+                  title: const Text('Model'),
                   trailing: SizedBox(
                     width: 160,
                     child: GlassTextField(
+                      controller: _modelController,
+                      onChanged: (val) {
+                        ref
+                            .read(appSettingsNotifierProvider.notifier)
+                            .setModelName(val);
+                      },
                       shape: LiquidRoundedSuperellipse(borderRadius: 64),
                     ),
                   ),
-                  description: Text('以官方提供的名称为准'),
+                  description: const Text('以官方提供的名称为准'),
                 ),
               ],
             ),
@@ -102,7 +151,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
               title: Text('AI功能', style: tt.titleMedium),
               tiles: [
                 SettingsTile(
-                  title: Text('每日日报总结'),
+                  title: const Text('每日日报总结'),
                   trailing: GlassSwitch(
                     value: settings.aiDailySummary,
                     onChanged: (val) {
@@ -113,7 +162,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                   ),
                 ),
                 SettingsTile(
-                  title: Text('更完善的分析报告'),
+                  title: const Text('更完善的分析报告'),
                   trailing: GlassSwitch(
                     value: settings.aiAnalyseReport,
                     onChanged: (val) {
@@ -124,8 +173,8 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                   ),
                 ),
                 SettingsTile(
-                  title: Text('智慧文本日程提取'),
-                  description: Text('指拥有更强的上下文理解能力和联想推理能力'),
+                  title: const Text('智慧文本日程提取'),
+                  description: const Text('指拥有更强的上下文理解能力 and 联想推理能力'),
                   trailing: GlassSwitch(
                     value: settings.aiTextToTask,
                     onChanged: (val) {
@@ -136,8 +185,8 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                   ),
                 ),
                 SettingsTile(
-                  title: Text('图片日程提取'),
-                  description: Text('需要对应模型支持图片输入和图像理解'),
+                  title: const Text('图片日程提取'),
+                  description: const Text('需要对应模型支持图片输入和图像理解'),
                   trailing: GlassSwitch(
                     value: settings.aiPicToTask,
                     onChanged: (val) {

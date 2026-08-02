@@ -80,5 +80,28 @@ void main() {
       final restored = AppSettings.fromJson(decoded);
       expect(restored, settings);
     });
+
+    test('saveApiKey and loadApiKey round-trips correctly', () async {
+      SharedPreferences.setMockInitialValues({});
+
+      const key = 'sk-proj-1234567890abcdef';
+      await service.saveApiKey(key);
+      final loaded = await service.loadApiKey();
+
+      expect(loaded, key);
+    });
+
+    test('API key is obfuscated (not plain text) on disk', () async {
+      SharedPreferences.setMockInitialValues({});
+
+      const key = 'my_secret_key';
+      await service.saveApiKey(key);
+
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString('secure_api_key');
+
+      expect(raw, isNotNull);
+      expect(raw, isNot(key));
+    });
   });
 }
