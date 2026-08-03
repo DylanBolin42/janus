@@ -211,13 +211,13 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     if (trimmed.isNotEmpty) {
       final uri = Uri.tryParse(trimmed);
       if (uri == null || uri.scheme != 'https') {
-        throw ArgumentError('Endpoint must use HTTPS (preventing MITM attacks).');
+        throw ArgumentError(
+          'Endpoint must use HTTPS (preventing MITM attacks).',
+        );
       }
     }
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        endPoint: trimmed,
-      ),
+      (state.valueOrNull ?? const AppSettings()).copyWith(endPoint: trimmed),
     );
   }
 

@@ -24,7 +24,9 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
   @override
   void initState() {
     super.initState();
-    final settings = ref.read(appSettingsNotifierProvider).valueOrNull ?? const AppSettings();
+    final settings =
+        ref.read(appSettingsNotifierProvider).valueOrNull ??
+        const AppSettings();
     _endpointController = TextEditingController(text: settings.endPoint);
     _modelController = TextEditingController(text: settings.modelName);
     _apiKeyController = TextEditingController();
@@ -60,19 +62,25 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
     final val = _endpointController.text.trim();
     if (val.isEmpty) {
       if (_isHttpsError) {
-        setState(() { _isHttpsError = false; });
+        setState(() {
+          _isHttpsError = false;
+        });
       }
       ref.read(appSettingsNotifierProvider.notifier).setEndPoint('');
     } else {
       final uri = Uri.tryParse(val);
       if (uri != null && uri.scheme == 'https') {
         if (_isHttpsError) {
-          setState(() { _isHttpsError = false; });
+          setState(() {
+            _isHttpsError = false;
+          });
         }
         ref.read(appSettingsNotifierProvider.notifier).setEndPoint(val);
       } else {
         if (!_isHttpsError) {
-          setState(() { _isHttpsError = true; });
+          setState(() {
+            _isHttpsError = true;
+          });
         }
       }
     }
@@ -137,7 +145,10 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                         const SizedBox(height: 4),
                         const Text(
                           '必须使用 HTTPS 地址 (防止中间人攻击)',
-                          style: TextStyle(color: Colors.redAccent, fontSize: 12),
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ],
