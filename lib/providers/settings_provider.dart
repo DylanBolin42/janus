@@ -32,10 +32,14 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   /// Persist an updated settings object and update state.
+  /// Performs an optimistic state update in memory prior to awaiting
+  /// the asynchronous SharedPreferences serialization to eliminate UI lag/block.
   Future<void> _persist(AppSettings updated) async {
+    // Optimistic state update in memory first
+    state = AsyncData(updated);
+
     final service = ref.read(settingsServiceProvider);
     await service.save(updated);
-    state = AsyncData(updated);
   }
 
   // ── Individual setters ───────────────────────────────────────────────
@@ -242,8 +246,14 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
 /// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
 /// without watching the full [AppSettings] in main.dart.
+/// Uses Riverpod's `.select` API to watch only the `themeMode` property granularly,
+/// preventing global app rebuilds on other, unrelated settings changes.
 @riverpod
 ThemeMode themeMode(ThemeModeRef ref) {
-  final settingsAsync = ref.watch(appSettingsNotifierProvider);
-  return settingsAsync.valueOrNull?.themeMode.toFlutter() ?? ThemeMode.system;
+  final themeMode = ref.watch(
+    appSettingsNotifierProvider.select(
+      (settingsAsync) => settingsAsync.valueOrNull?.themeMode,
+    ),
+  );
+  return themeMode?.toFlutter() ?? ThemeMode.system;
 }

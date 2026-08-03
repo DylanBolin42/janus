@@ -1,0 +1,3 @@
+## 2024-08-03 - Granular Riverpod Watching & SharedPreferences Caching
+**Learning:** Watching whole configuration objects in Riverpod providers that supply root-level properties (like `themeMode` in `MaterialApp`) triggers complete app rebuilds on unrelated settings adjustments. Granular selector `.select` watches restrict builds to target fields only. Caching platform-channel instances of `SharedPreferences` avoids asynchronous setup latency on repeated load/save mutations.
+**Action:** Use `.select` on state objects for fine-grained updates, and keep a cached reference of platform interfaces.
