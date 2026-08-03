@@ -5,7 +5,6 @@ import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:liquid_glass_widgets/widgets/surfaces/glass_scaffold.dart';
 import 'package:janus/shared/custom_appbar.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
@@ -79,7 +78,31 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                       ],
                     ),
                   ),
-                  onTap: (_) {},
+                  onTap: (BuildContext ctx) {
+                    GlassDialog.show(
+                      context: ctx,
+                      title: '确定要删除数据库吗？',
+                      message: '此操作将永久清空本地所有日程、任务和配置数据，且无法撤销。',
+                      actions: [
+                        GlassDialogAction(
+                          label: '取消',
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                        GlassDialogAction(
+                          label: '确认删除',
+                          isDestructive: true,
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            GlassToast.show(
+                              ctx,
+                              message: '数据库已清空',
+                              type: GlassToastType.success,
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),

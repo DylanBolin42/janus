@@ -1,0 +1,3 @@
+## 2024-08-03 - Modal confirmation for destructive settings actions
+**Learning:** Destructive features like "Delete Database" present in settings panels represent a high accidental-trigger risk. Integrating contextual modal dialogs matching the application's unique visual language (such as glassmorphic `GlassDialog` and `GlassToast` animations) significantly improves visual feedback, user trust, and system safety.
+**Action:** Always inspect custom Settings panels for actions that are irreversible and ensure they are guarded with confirmation modals and success toasts utilizing the design system's preferred overlay components.
