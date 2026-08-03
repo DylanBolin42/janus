@@ -16,6 +16,86 @@ class AiSettingPage extends ConsumerStatefulWidget {
 }
 
 class _AiSettingPageState extends ConsumerState<AiSettingPage> {
+  late final TextEditingController _endpointController;
+  late final TextEditingController _apiKeyController;
+  late final TextEditingController _modelController;
+  bool _isHttpsError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final settings =
+        ref.read(appSettingsNotifierProvider).valueOrNull ??
+        const AppSettings();
+    _endpointController = TextEditingController(text: settings.endPoint);
+    _modelController = TextEditingController(text: settings.modelName);
+    _apiKeyController = TextEditingController();
+
+    _endpointController.addListener(_onEndpointChanged);
+    _modelController.addListener(_onModelChanged);
+    _apiKeyController.addListener(_onApiKeyChanged);
+
+    // Load the obfuscated API key asynchronously from the settings service.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final service = ref.read(settingsServiceProvider);
+      final apiKey = await service.loadApiKey();
+      if (mounted) {
+        _apiKeyController.removeListener(_onApiKeyChanged);
+        _apiKeyController.text = apiKey;
+        _apiKeyController.addListener(_onApiKeyChanged);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _endpointController.removeListener(_onEndpointChanged);
+    _modelController.removeListener(_onModelChanged);
+    _apiKeyController.removeListener(_onApiKeyChanged);
+    _endpointController.dispose();
+    _apiKeyController.dispose();
+    _modelController.dispose();
+    super.dispose();
+  }
+
+  void _onEndpointChanged() {
+    final val = _endpointController.text.trim();
+    if (val.isEmpty) {
+      if (_isHttpsError) {
+        setState(() {
+          _isHttpsError = false;
+        });
+      }
+      ref.read(appSettingsNotifierProvider.notifier).setEndPoint('');
+    } else {
+      final uri = Uri.tryParse(val);
+      if (uri != null && uri.scheme == 'https') {
+        if (_isHttpsError) {
+          setState(() {
+            _isHttpsError = false;
+          });
+        }
+        ref.read(appSettingsNotifierProvider.notifier).setEndPoint(val);
+      } else {
+        if (!_isHttpsError) {
+          setState(() {
+            _isHttpsError = true;
+          });
+        }
+      }
+    }
+  }
+
+  void _onModelChanged() {
+    final val = _modelController.text;
+    ref.read(appSettingsNotifierProvider.notifier).setModelName(val);
+  }
+
+  void _onApiKeyChanged() {
+    final val = _apiKeyController.text;
+    ref.read(settingsServiceProvider).saveApiKey(val);
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings =
@@ -25,7 +105,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
 
     return GlassScaffold(
       topEdgeFade: false,
-      appBar: CustomAppbar(title: 'AI', showBack: true),
+      appBar: const CustomAppbar(title: 'AI', showBack: true),
       body: CustomAppbar.wrapBody(
         context,
         SettingsList(
@@ -42,11 +122,11 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
               ],
             ),
             SettingsSection(
-              //TODO: 接入TextField持久化逻辑
               title: Text('配置', style: tt.titleMedium),
               tiles: [
                 CustomAppSettingsTile(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -58,27 +138,28 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                       ),
                       SizedBox(height: AppSpacing.base),
                       GlassTextField(
+                        controller: _endpointController,
                         shape: LiquidRoundedSuperellipse(borderRadius: 64),
                       ),
+                      if (_isHttpsError) ...[
+                        const SizedBox(height: 4),
+                        const Text(
+                          '必须使用 HTTPS 地址 (防止中间人攻击)',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
-                //SettingsTile(
-                //  title: Text('Endpoint'),
-                //  trailing: SizedBox(
-                //    width: 160,
-                //    child: GlassTextField(
-                //      shape: LiquidRoundedSuperellipse(borderRadius: 64),
-                //    ),
-                //  ),
-                //  description: Text('暂仅支持OpenAI格式请求'),
-                //),
                 SettingsTile(
                   title: Text('API Key'),
-
                   trailing: SizedBox(
                     width: 160,
                     child: GlassTextField(
+                      controller: _apiKeyController,
                       obscureText: true,
                       shape: LiquidRoundedSuperellipse(borderRadius: 64),
                     ),
@@ -86,10 +167,10 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                 ),
                 SettingsTile(
                   title: Text('Model'),
-
                   trailing: SizedBox(
                     width: 160,
                     child: GlassTextField(
+                      controller: _modelController,
                       shape: LiquidRoundedSuperellipse(borderRadius: 64),
                     ),
                   ),

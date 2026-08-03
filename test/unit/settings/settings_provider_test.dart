@@ -138,6 +138,45 @@ void main() {
       expect(settings.tabNamingStyle, TabNamingStyle.latin);
       expect(settings.glassIntensity, GlassIntensity.moderate); // ← unchanged
     });
+
+    test('setEndPoint allows valid HTTPS URL', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+
+      await waitForInit(container);
+
+      final notifier = container.read(appSettingsNotifierProvider.notifier);
+      await notifier.setEndPoint('https://api.openai.com/v1');
+
+      final settings = container.read(appSettingsNotifierProvider).valueOrNull!;
+      expect(settings.endPoint, 'https://api.openai.com/v1');
+    });
+
+    test('setEndPoint throws ArgumentError for HTTP URL', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+
+      await waitForInit(container);
+
+      final notifier = container.read(appSettingsNotifierProvider.notifier);
+      expect(
+        () => notifier.setEndPoint('http://api.openai.com/v1'),
+        throwsArgumentError,
+      );
+    });
+
+    test('setModelName updates model name correctly', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+
+      await waitForInit(container);
+
+      final notifier = container.read(appSettingsNotifierProvider.notifier);
+      await notifier.setModelName('gpt-4o-mini');
+
+      final settings = container.read(appSettingsNotifierProvider).valueOrNull!;
+      expect(settings.modelName, 'gpt-4o-mini');
+    });
   });
 
   // ─────────────────────────────────────────────────────────────────────────

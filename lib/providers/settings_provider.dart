@@ -206,6 +206,29 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
+  Future<void> setEndPoint(String endPoint) async {
+    final trimmed = endPoint.trim();
+    if (trimmed.isNotEmpty) {
+      final uri = Uri.tryParse(trimmed);
+      if (uri == null || uri.scheme != 'https') {
+        throw ArgumentError(
+          'Endpoint must use HTTPS (preventing MITM attacks).',
+        );
+      }
+    }
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(endPoint: trimmed),
+    );
+  }
+
+  Future<void> setModelName(String modelName) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        modelName: modelName.trim(),
+      ),
+    );
+  }
+
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.valueOrNull ?? const AppSettings()).copyWith(

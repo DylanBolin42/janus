@@ -80,5 +80,38 @@ void main() {
       final restored = AppSettings.fromJson(decoded);
       expect(restored, settings);
     });
+
+    test(
+      'saveApiKey obfuscates and stores API Key, loadApiKey deciphers it correctly',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+
+        const rawApiKey = 'my_secret_ai_api_key_12345';
+        await service.saveApiKey(rawApiKey);
+
+        // Verify it is NOT stored in plain text
+        final prefs = await SharedPreferences.getInstance();
+        final rawStored = prefs.getString('ai_api_key');
+        expect(rawStored, isNotNull);
+        expect(rawStored, isNot(rawApiKey));
+
+        // Verify loading retrieves the plain text correctly
+        final loadedKey = await service.loadApiKey();
+        expect(loadedKey, rawApiKey);
+      },
+    );
+
+    test('saveApiKey with empty key removes it from preferences', () async {
+      SharedPreferences.setMockInitialValues({});
+
+      await service.saveApiKey('some_key');
+      await service.saveApiKey('');
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('ai_api_key'), false);
+
+      final loadedKey = await service.loadApiKey();
+      expect(loadedKey, '');
+    });
   });
 }
