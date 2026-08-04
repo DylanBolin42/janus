@@ -17,19 +17,29 @@ class AppShell extends StatelessWidget {
         : 'Janus';
 
     return GlassScaffold(
-      topEdgeFade: false,
+      topEdgeFade: true,
       appBar: CustomAppbar(
         title: title,
         actions: [
-          GlassIconButton(
-            icon: const Icon(Icons.settings_rounded),
-            onPressed: () => context.pushNamed('setting'),
+          GlassButtonGroup.icons(
+            borderRadius: 64,
+            items: [
+              if (_calculateSelectedIndex(context) == 0)
+                GlassButtonGroupItem(
+                  icon: const Icon(Icons.filter_list_rounded),
+                  onTap: () {},
+                ),
+              GlassButtonGroupItem(
+                icon: const Icon(Icons.settings_rounded),
+                onTap: () => context.pushNamed('setting'),
+              ),
+            ],
           ),
         ],
       ),
-      body: CustomAppbar.wrapBody(context, child),
+      body: child,
       bottomBar: GlassTabBar.bottom(
-        extraButton: GlassBottomBarExtraButton(
+        extraButton: GlassTabBarExtraButton(
           icon: Icon(Icons.add_rounded),
           onTap: () {}, //TODO: 添加功能
           label: 'Add',

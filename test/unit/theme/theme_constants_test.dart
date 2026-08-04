@@ -11,7 +11,7 @@ void main() {
       expect(AppSpacing.marginDesktop, 64.0);
       expect(AppSpacing.marginMobile, 16.0);
       expect(AppSpacing.topSafeArea, 30.0);
-      expect(AppSpacing.bottomSafeArea, 60.0);
+      expect(AppSpacing.bottomSafeArea, 120.0);
     });
   });
 

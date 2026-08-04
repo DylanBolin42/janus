@@ -45,7 +45,10 @@ class AppSpacing {
 
   /// Top and bottom safe areas
   static const double topSafeArea = 30.0;
-  static const double bottomSafeArea = 60.0;
+  static const double bottomSafeArea = 120.0;
+
+  /// Page Margin
+  static const double pagePadding = 16.0;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -262,12 +265,12 @@ abstract class _TypographyTokens {
 
   // ── Body ────────────────────────────────────────────────────────────────
 
-  /// body-lg — 18px sans, long-form reading (from dark theme)
+  /// body-lg — 20px sans, long-form reading (from dark theme)
   static const TextStyle bodyLarge = TextStyle(
     fontFamily: FontFamily.sans,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: FontWeight.w400,
-    height: 28 / 18, // 28px line-height
+    height: 28 / 20, // 28px line-height
   );
 
   /// body-md — 16px sans, primary UI copy

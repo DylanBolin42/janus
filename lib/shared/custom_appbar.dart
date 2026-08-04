@@ -1,7 +1,7 @@
+import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:card_settings_ui/card_settings_ui.dart';
 
 /// A gradient AppBar with an absolutely centered title, auto back button,
 /// and action slots.
@@ -61,9 +61,10 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   /// The vertical offset from the screen top where body content should begin.
   ///
   /// This accounts for the status bar, breathing room, and the portion of
-  /// the gradient bar that is opaque enough to obscure content (~45% from top).
+  /// the gradient bar that is opaque enough to obscure content (~35% from top,
+  /// matching the gradient's solid zone).
   static double bodyTopOffset(BuildContext context) =>
-      topPad(context) + height * 0.45 + 16;
+      topPad(context) + height * 0.35 + 16;
 
   @override
   Size get preferredSize => const Size.fromHeight(height);
@@ -84,15 +85,16 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
+            // 遵循 Apple 材料设计规范：顶部保持实体用于内容可读性，
+            // 随后以自然缓出曲线过渡至透明，模拟模糊材质的衰减效果。
             colors: [
-              cs.surface, // 0.0 -> 不透明
-              cs.surface.withValues(alpha: 0.99), // 0.2
-              cs.surface.withValues(alpha: 0.94), // 0.4
-              cs.surface.withValues(alpha: 0.78), // 0.6
-              cs.surface.withValues(alpha: 0.49), // 0.8
-              cs.surface.withValues(alpha: 0.0), // 1.0 -> 完全透明
+              cs.surface, // 0.00 — 完全不透明
+              cs.surface.withValues(alpha: 0.95), // 0.25 — 几乎实体
+              cs.surface.withValues(alpha: 0.6), // 0.50 — 开始过渡
+              cs.surface.withValues(alpha: 0.15), // 0.75 — 加速淡出
+              cs.surface.withValues(alpha: 0.0), // 1.00 — 完全透明
             ],
-            stops: const [0.0, 0.2, 0.4, 0.6, 0.9, 1.0],
+            stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
           ),
         ),
         child: Padding(
