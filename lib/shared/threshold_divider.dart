@@ -110,7 +110,9 @@ class ThresholdDivider extends StatelessWidget {
                       boxShadow: [
                         if (warmth > 0.3)
                           BoxShadow(
-                            color: glowColor.withValues(alpha: glowOpacity * 0.5),
+                            color: glowColor.withValues(
+                              alpha: glowOpacity * 0.5,
+                            ),
                             blurRadius: 6 * glowScale,
                             spreadRadius: 2 * glowScale,
                           ),

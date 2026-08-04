@@ -231,21 +231,27 @@ class _AgileCardStackState extends State<AgileCardStack>
       } else {
         // Lower card – has its rest offset + drag influence.
         final int lowerIdx = depth - 1; // 0‑based index into _lowerOffsets
-        baseOffset = Offset(vs.offsetX, vs.offsetY) +
-            (lowerIdx < _lowerOffsets.length ? _lowerOffsets[lowerIdx] : Offset.zero);
-        baseRotation = vs.rotationDeg +
+        baseOffset =
+            Offset(vs.offsetX, vs.offsetY) +
+            (lowerIdx < _lowerOffsets.length
+                ? _lowerOffsets[lowerIdx]
+                : Offset.zero);
+        baseRotation =
+            vs.rotationDeg +
             (lowerIdx < _lowerAngles.length ? _lowerAngles[lowerIdx] : 0.0);
         opacity = _opacityForDepth(depth);
       }
 
-      stackChildren.add(_CardPositioned(
-        offset: baseOffset,
-        rotation: baseRotation * math.pi / 180.0,
-        opacity: opacity,
-        cardWidth: widget.cardSize.width,
-        cardHeight: widget.cardSize.height,
-        child: widget.children[cardIdx],
-      ));
+      stackChildren.add(
+        _CardPositioned(
+          offset: baseOffset,
+          rotation: baseRotation * math.pi / 180.0,
+          opacity: opacity,
+          cardWidth: widget.cardSize.width,
+          cardHeight: widget.cardSize.height,
+          child: widget.children[cardIdx],
+        ),
+      );
     }
 
     return GestureDetector(
@@ -382,8 +388,7 @@ class _AgileCardStackState extends State<AgileCardStack>
 
       // Effective amplification at this depth (1/r² decay).
       // A / (depth+1)² gives ~1.0, 0.44, 0.25, 0.16 for depths 1‑4.
-      final double aEff =
-          _amplification / ((depth + 1.0) * (depth + 1.0));
+      final double aEff = _amplification / ((depth + 1.0) * (depth + 1.0));
 
       // Equilibrium deflection ratio: aEff / (1 + aEff).
       final double eqRatio = aEff / (1.0 + aEff); // 0.5, 0.31, 0.20, 0.14
@@ -396,15 +401,14 @@ class _AgileCardStackState extends State<AgileCardStack>
       _lowerOffsets[d] = _topCardOffset * approach;
 
       // Soft clamp: linearly below 75% of limit, then asymptotic approach.
-      _lowerOffsets[d] =
-          _softClampOffset(_lowerOffsets[d], _maxLowerOffset);
+      _lowerOffsets[d] = _softClampOffset(_lowerOffsets[d], _maxLowerOffset);
 
       // Angular influence: rotate card in the plane toward the drag direction.
       // Simple model: angle is proportional to tangential component of drag.
       _lowerAngles[d] =
           (dragMag / _maxDragDistance).clamp(0.0, 1.0) *
-              eqRatio *
-              _maxLowerAngle;
+          eqRatio *
+          _maxLowerAngle;
     }
 
     // Clear remaining slots.
@@ -469,8 +473,9 @@ class _AgileCardStackState extends State<AgileCardStack>
       startOffset: startOffset,
       startRotation: 0.0,
       duration: Duration(
-        milliseconds:
-            (startOffset.distance / _releaseThreshold * 1000).clamp(400, 1000).toInt(),
+        milliseconds: (startOffset.distance / _releaseThreshold * 1000)
+            .clamp(400, 1000)
+            .toInt(),
       ),
       curve: Curves.easeOutCubic,
       onComplete: _onReturnToTopComplete,
@@ -509,7 +514,8 @@ class _AgileCardStackState extends State<AgileCardStack>
     // It's currently at depth 1 (second card) in the stack.
     final int newTopIdx = _cardOrder[1];
     final vs = _visualStates[newTopIdx];
-    final Offset startOffset = Offset(vs.offsetX, vs.offsetY) + _lowerOffsets[0];
+    final Offset startOffset =
+        Offset(vs.offsetX, vs.offsetY) + _lowerOffsets[0];
     final double startRotation = vs.rotationDeg + _lowerAngles[0];
 
     // Reset lower card influences.
@@ -557,15 +563,9 @@ class _AgileCardStackState extends State<AgileCardStack>
   }) {
     _curvedAnim?.dispose();
     _animController?.dispose();
-    _animController = AnimationController(
-      vsync: this,
-      duration: duration,
-    );
+    _animController = AnimationController(vsync: this, duration: duration);
 
-    _curvedAnim = CurvedAnimation(
-      parent: _animController!,
-      curve: curve,
-    );
+    _curvedAnim = CurvedAnimation(parent: _animController!, curve: curve);
 
     _posAnim = Tween<Offset>(
       begin: startOffset,

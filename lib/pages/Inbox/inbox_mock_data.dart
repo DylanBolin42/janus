@@ -47,9 +47,11 @@ Map<String, List<Task>> buildInboxMockData() {
         title: '整理 Q3 需求文档',
         description: '汇总产品、设计、研发三方需求并输出评审稿',
         priority: '高',
-        ddl:
-            DateTime(now.year, now.month, now.day)
-                .add(const Duration(days: 1, hours: 14)),
+        ddl: DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).add(const Duration(days: 1, hours: 14)),
         est: const TimeOfDay(hour: 3, minute: 0),
       ),
       Task(
@@ -57,9 +59,11 @@ Map<String, List<Task>> buildInboxMockData() {
         title: '设计系统组件评审',
         description: '新组件规范与现有主题对齐情况检查',
         priority: '中',
-        ddl:
-            DateTime(now.year, now.month, now.day)
-                .add(const Duration(days: 1, hours: 10)),
+        ddl: DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).add(const Duration(days: 1, hours: 10)),
         est: const TimeOfDay(hour: 2, minute: 0),
       ),
       Task(
