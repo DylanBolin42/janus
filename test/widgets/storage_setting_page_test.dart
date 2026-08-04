@@ -105,34 +105,37 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('StorageSettingPage delete database tile triggers dialog and toast', (tester) async {
-    tester.view.physicalSize = const Size(800, 3000);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
+  testWidgets(
+    'StorageSettingPage delete database tile triggers dialog and toast',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
 
-    await tester.pumpWidget(createStorageSettingPage());
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(createStorageSettingPage());
+      await tester.pumpAndSettle();
 
-    // Find and tap the delete database tile
-    final deleteTile = find.text('删除数据库');
-    expect(deleteTile, findsOneWidget);
-    await tester.tap(deleteTile);
-    await tester.pumpAndSettle();
+      // Find and tap the delete database tile
+      final deleteTile = find.text('删除数据库');
+      expect(deleteTile, findsOneWidget);
+      await tester.tap(deleteTile);
+      await tester.pumpAndSettle();
 
-    // Dialog should be displayed with confirm title and message
-    expect(find.text('确认删除数据库？'), findsOneWidget);
-    expect(find.text('此操作将永久清空本地所有数据且无法撤销，请谨慎操作。'), findsOneWidget);
+      // Dialog should be displayed with confirm title and message
+      expect(find.text('确认删除数据库？'), findsOneWidget);
+      expect(find.text('此操作将永久清空本地所有数据且无法撤销，请谨慎操作。'), findsOneWidget);
 
-    // Tap confirm delete action button
-    final confirmBtn = find.text('确认删除');
-    expect(confirmBtn, findsOneWidget);
-    await tester.tap(confirmBtn);
-    await tester.pumpAndSettle();
+      // Tap confirm delete action button
+      final confirmBtn = find.text('确认删除');
+      expect(confirmBtn, findsOneWidget);
+      await tester.tap(confirmBtn);
+      await tester.pumpAndSettle();
 
-    // Dialog should be dismissed, and toast with "数据库已成功删除" should be displayed
-    expect(find.text('确认删除数据库？'), findsNothing);
-  });
+      // Dialog should be dismissed, and toast with "数据库已成功删除" should be displayed
+      expect(find.text('确认删除数据库？'), findsNothing);
+    },
+  );
 }
