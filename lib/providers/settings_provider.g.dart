@@ -25,6 +25,25 @@ final settingsServiceProvider = AutoDisposeProvider<SettingsService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SettingsServiceRef = AutoDisposeProviderRef<SettingsService>;
+String _$aiApiKeyHash() => r'573ac892c98ed1f6da16694896f0f533c54d6f55';
+
+/// Provides the securely stored (obfuscated) AI API key asynchronously.
+///
+/// Copied from [aiApiKey].
+@ProviderFor(aiApiKey)
+final aiApiKeyProvider = AutoDisposeFutureProvider<String>.internal(
+  aiApiKey,
+  name: r'aiApiKeyProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$aiApiKeyHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AiApiKeyRef = AutoDisposeFutureProviderRef<String>;
 String _$themeModeHash() => r'693a142363301131a896240439e91c2326a7ee52';
 
 /// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
@@ -46,7 +65,7 @@ final themeModeProvider = AutoDisposeProvider<ThemeMode>.internal(
 // ignore: unused_element
 typedef ThemeModeRef = AutoDisposeProviderRef<ThemeMode>;
 String _$appSettingsNotifierHash() =>
-    r'14b2b74752bc17519bea3c1f60494ee86e5a8bf1';
+    r'2303057ccf5b9f169e2e1526fc86818cbae850ae';
 
 /// Async notifier that loads, exposes, and persists [AppSettings].
 ///

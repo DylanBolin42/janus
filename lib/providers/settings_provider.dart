@@ -235,7 +235,37 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       (state.valueOrNull ?? const AppSettings()).copyWith(aiPicToTask: enabled),
     );
   }
+
+  Future<void> setEndPoint(String endPoint) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(endPoint: endPoint),
+    );
+  }
+
+  Future<void> setModelName(String modelName) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(modelName: modelName),
+    );
+  }
+
+  Future<void> setAiApiKey(String apiKey) async {
+    final service = ref.read(settingsServiceProvider);
+    await service.saveAiApiKey(apiKey);
+    ref.invalidate(aiApiKeyProvider);
+  }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Secure AI API Key provider
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Provides the securely stored (obfuscated) AI API key asynchronously.
+@riverpod
+Future<String> aiApiKey(AiApiKeyRef ref) async {
+  final service = ref.watch(settingsServiceProvider);
+  return service.getAiApiKey();
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)
 // ─────────────────────────────────────────────────────────────────────────────

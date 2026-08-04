@@ -80,5 +80,24 @@ void main() {
       final restored = AppSettings.fromJson(decoded);
       expect(restored, settings);
     });
+
+    test('API Key is obfuscated on save and de-obfuscated on load', () async {
+      SharedPreferences.setMockInitialValues({});
+
+      const testApiKey = 'sk-or-deepseek-1234567890abcdef';
+      await service.saveAiApiKey(testApiKey);
+
+      final prefs = await SharedPreferences.getInstance();
+      final rawStoredValue = prefs.getString('ai_api_key_secure');
+
+      // Verify it is indeed persisted under the secure key
+      expect(rawStoredValue, isNotNull);
+      // Ensure the plaintext API Key is NOT stored directly (obfuscation works)
+      expect(rawStoredValue, isNot(contains(testApiKey)));
+
+      // Verify that getAiApiKey successfully recovers the original plaintext value
+      final retrievedKey = await service.getAiApiKey();
+      expect(retrievedKey, testApiKey);
+    });
   });
 }
