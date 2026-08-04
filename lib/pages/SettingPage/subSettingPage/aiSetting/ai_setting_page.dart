@@ -50,7 +50,8 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
     }
 
     final uri = Uri.tryParse(trimmed);
-    final isLocal = trimmed.contains('localhost') || trimmed.contains('127.0.0.1');
+    final isLocal =
+        trimmed.contains('localhost') || trimmed.contains('127.0.0.1');
 
     if (uri == null || (uri.scheme != 'https' && !isLocal)) {
       setState(() {
