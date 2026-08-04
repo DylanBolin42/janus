@@ -1,0 +1,3 @@
+## 2024-11-20 - Optimizing Settings and State Propagation
+**Learning:** Watching the entire settings notifier in derived settings providers causes global widget tree rebuilds for any unrelated settings modifications. Performing disk serialization (such as SharedPreferences) before updating the Riverpod state causes UI blocking and perceived lag. Caching the `SharedPreferences` instance avoids unnecessary setup overhead.
+**Action:** Always use `.select` granular selectors for dependent Riverpod providers, perform in-memory state updates optimistically, and cache heavy asynchronous dependency initializations like SharedPreferences.
