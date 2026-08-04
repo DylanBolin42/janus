@@ -1,46 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:janus/models/task.dart';
-import 'package:janus/pages/Inbox/inbox_mock_data.dart';
-import 'package:janus/shared/task_card.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:m3e_dismissible/m3e_dismissible.dart';
 import 'package:reel_text/reel_text.dart';
 
+/// 首页轮播的三种模式（有序循环）
+const List<String> _inboxModes = ['EMERGENCY', 'PLANNED', 'COMING'];
+
 /// 当前模式索引（Riverpod 状态）
 final _currentModeIndexProvider = StateProvider<int>((ref) => 0);
-
-/// 三种模式对应的任务列表（支持滑动删除 / 完成状态切换）
-final _tasksProvider =
-    NotifierProvider<InboxTasksNotifier, Map<String, List<Task>>>(
-      InboxTasksNotifier.new,
-    );
-
-/// 管理三种模式任务列表的 Notifier。
-///
-/// 数据源当前来自 [buildInboxMockData]，后续替换为真实查询。
-class InboxTasksNotifier extends Notifier<Map<String, List<Task>>> {
-  @override
-  Map<String, List<Task>> build() => buildInboxMockData();
-
-  /// 移除 [mode] 下第 [index] 个任务（滑动删除后同步数据源）
-  void removeTask(String mode, int index) {
-    final tasks = List<Task>.of(state[mode] ?? const []);
-    if (index < 0 || index >= tasks.length) return;
-    tasks.removeAt(index);
-    state = {...state, mode: tasks};
-  }
-
-  /// 切换 [mode] 下第 [index] 个任务的完成状态
-  void toggleTask(String mode, int index, bool completed) {
-    final tasks = List<Task>.of(state[mode] ?? const []);
-    if (index < 0 || index >= tasks.length) return;
-    tasks[index] = tasks[index].copyWith(isCompleted: completed);
-    state = {...state, mode: tasks};
-  }
-}
 
 class InboxPage extends ConsumerStatefulWidget {
   const InboxPage({super.key});
@@ -61,7 +31,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
   void initState() {
     super.initState();
     _modeController = ReelTextController(
-      initialText: inboxModes[ref.read(_currentModeIndexProvider)],
+      initialText: _inboxModes[ref.read(_currentModeIndexProvider)],
     );
   }
 
@@ -73,46 +43,24 @@ class _InboxPageState extends ConsumerState<InboxPage> {
 
   /// 循环切换模式：delta = 1 下一个，-1 上一个
   void _cycleMode(int delta) {
-    final total = inboxModes.length;
+    final total = _inboxModes.length;
     ref.read(_currentModeIndexProvider.notifier).update((index) {
       return (index + delta + total) % total;
     });
   }
 
-  /// 实现任务列表搭建的模块（展示当前模式对应的任务卡片列表）
-  Widget _buildTaskList() {
-    final mode = inboxModes[ref.watch(_currentModeIndexProvider)];
-    final tasks = ref.watch(_tasksProvider)[mode] ?? const <Task>[];
+  /// 实现任务列表搭建的模块
+  Widget _buildTaskList({required List<String> items}) {
+    //TODO: 需要添加真实查询逻辑
     return M3EDismissibleCardList(
-      // 切换模式时重建列表，避免残留滑动动画状态
-      key: ValueKey(mode),
-      // 外层已是 ListView，内部列表收缩包裹内容，避免无界高度约束
-      shrinkWrap: true,
-      itemCount: tasks.length,
-      itemBuilder: (ctx, i) {
-        final task = tasks[i];
-        return TaskCard(
-          title: task.title,
-          description: task.description,
-          isCompleted: task.isCompleted,
-          priority: task.priority,
-          ddl: task.ddl,
-          est: task.est,
-          compact: true,
-          onToggle: (completed) =>
-              ref.read(_tasksProvider.notifier).toggleTask(mode, i, completed),
-        );
-      },
+      itemCount: items.length,
+      itemBuilder: (ctx, i) => Text(items[i]),
       onDismiss: (i, dir) async {
-        // 数据源由 provider 统一管理，返回 true 触发飞离 + 折叠动画
-        ref.read(_tasksProvider.notifier).removeTask(mode, i);
+        items.removeAt(i);
         return true;
       },
       style: M3EDismissibleCardStyle(
-        outerRadius: AppRadius.md,
-        // 内边距交由 TaskCard 自身（BlurryContainer）控制
-        padding: EdgeInsets.zero,
-        gap: AppSpacing.base + 4,
+        outerRadius: 24,
         dismissThreshold: 0.3,
         neighbourPull: 12.0,
         color: Theme.of(context).colorScheme.surfaceContainer,
@@ -125,10 +73,10 @@ class _InboxPageState extends ConsumerState<InboxPage> {
   Widget build(BuildContext context) {
     // Riverpod 状态 → reel_text：切换时触发滚动动画
     ref.listen(_currentModeIndexProvider, (previous, next) {
-      final total = inboxModes.length;
+      final total = _inboxModes.length;
       final delta = ((next - (previous ?? 0)) % total + total) % total;
       _modeController.set(
-        inboxModes[next],
+        _inboxModes[next],
         // 前进默认向下滚；后退向上滚
         options: delta == 1
             ? null
@@ -321,7 +269,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                   SizedBox(height: AppSpacing.base),
 
                   // 任务卡片显示区域
-                  _buildTaskList(),
+                  //TODO: 需要在接入数据库后对接
                 ],
               ),
             ),
