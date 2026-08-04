@@ -45,6 +45,10 @@ jobs:
           cat analyze.log >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
+      # ---- TODO Check ----
+      - name: Check & Report TODOs
+        run: dart scripts/todo_reporter.dart
+
   # ======================== Tests + Coverage (parallel with check) ========================
   test:
     name: "Tests & Coverage"
