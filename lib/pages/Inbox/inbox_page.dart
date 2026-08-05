@@ -5,12 +5,20 @@ import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:m3e_dismissible/m3e_dismissible.dart';
 import 'package:reel_text/reel_text.dart';
+import 'package:janus/models/task.dart';
+import 'package:janus/shared/task_card.dart';
+import 'package:janus/pages/Inbox/inbox_mock_data.dart';
 
 /// 首页轮播的三种模式（有序循环）
 const List<String> _inboxModes = ['EMERGENCY', 'PLANNED', 'COMING'];
 
 /// 当前模式索引（Riverpod 状态）
 final _currentModeIndexProvider = StateProvider<int>((ref) => 0);
+
+/// 任务列表数据提供者（包含每种模式的任务列表）
+final _inboxTasksProvider = StateProvider<Map<String, List<Task>>>((ref) {
+  return buildInboxMockData();
+});
 
 class InboxPage extends ConsumerStatefulWidget {
   const InboxPage({super.key});
@@ -50,13 +58,41 @@ class _InboxPageState extends ConsumerState<InboxPage> {
   }
 
   /// 实现任务列表搭建的模块
-  Widget _buildTaskList({required List<String> items}) {
-    //TODO: 需要添加真实查询逻辑
+  Widget _buildTaskList({required List<Task> items, required String mode}) {
     return M3EDismissibleCardList(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
-      itemBuilder: (ctx, i) => Text(items[i]),
+      itemBuilder: (ctx, i) {
+        final task = items[i];
+        return TaskCard(
+          key: ValueKey(task.id),
+          title: task.title,
+          description: task.description,
+          isCompleted: task.isCompleted,
+          priority: task.priority,
+          ddl: task.ddl,
+          est: task.est,
+          onToggle: (completed) {
+            ref.read(_inboxTasksProvider.notifier).update((state) {
+              final currentModeTasks = state[mode] ?? [];
+              final updatedList = currentModeTasks.map((t) {
+                if (t.id == task.id) {
+                  return t.copyWith(isCompleted: completed);
+                }
+                return t;
+              }).toList();
+              return {...state, mode: updatedList};
+            });
+          },
+        );
+      },
       onDismiss: (i, dir) async {
-        items.removeAt(i);
+        ref.read(_inboxTasksProvider.notifier).update((state) {
+          final currentModeTasks = state[mode] ?? [];
+          final updatedList = List<Task>.from(currentModeTasks)..removeAt(i);
+          return {...state, mode: updatedList};
+        });
         return true;
       },
       style: M3EDismissibleCardStyle(
@@ -219,6 +255,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                             shape: CircleBorder(),
                           ),
                           onPressed: () => _cycleMode(-1),
+                          tooltip: '上一个模式',
                           icon: Icon(Icons.keyboard_arrow_left_rounded),
                           iconSize: 70,
                           color: Theme.of(
@@ -256,6 +293,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                             shape: CircleBorder(),
                           ),
                           onPressed: () => _cycleMode(1),
+                          tooltip: '下一个模式',
                           icon: Icon(Icons.keyboard_arrow_right_rounded),
                           iconSize: 70,
                           color: Theme.of(
@@ -269,7 +307,45 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                   SizedBox(height: AppSpacing.base),
 
                   // 任务卡片显示区域
-                  //TODO: 需要在接入数据库后对接
+                  Builder(
+                    builder: (context) {
+                      final modeIndex = ref.watch(_currentModeIndexProvider);
+                      final mode = _inboxModes[modeIndex];
+                      final allTasks = ref.watch(_inboxTasksProvider);
+                      final tasks = allTasks[mode] ?? [];
+
+                      if (tasks.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.all_inclusive_rounded,
+                                size: 48,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outline.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                '所有任务已搞定，太棒了！',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.6),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return _buildTaskList(items: tasks, mode: mode);
+                    },
+                  ),
                 ],
               ),
             ),
