@@ -115,29 +115,35 @@ class _TaskCardState extends ConsumerState<TaskCard> {
             // ── Checkbox ─────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.only(top: 2, right: 12),
-              child: GestureDetector(
-                onTap: () {
-                  setState(() => _completed = !_completed);
-                  widget.onToggle?.call(_completed);
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeInOut,
-                  width: 22,
-                  height: 22,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _completed ? cs.primary : Colors.transparent,
-                    border: Border.all(
-                      color: _completed
-                          ? cs.primary
-                          : cs.onSurface.withValues(alpha: 0.4),
-                      width: 2,
+              child: Semantics(
+                label: '标记完成',
+                value: _completed ? '已完成' : '未完成',
+                checked: _completed,
+                button: true,
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() => _completed = !_completed);
+                    widget.onToggle?.call(_completed);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _completed ? cs.primary : Colors.transparent,
+                      border: Border.all(
+                        color: _completed
+                            ? cs.primary
+                            : cs.onSurface.withValues(alpha: 0.4),
+                        width: 2,
+                      ),
                     ),
+                    child: _completed
+                        ? Icon(Icons.check_rounded, size: 14, color: cs.onPrimary)
+                        : null,
                   ),
-                  child: _completed
-                      ? Icon(Icons.check_rounded, size: 14, color: cs.onPrimary)
-                      : null,
                 ),
               ),
             ),
