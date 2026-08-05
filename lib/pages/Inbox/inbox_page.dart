@@ -82,10 +82,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                 }
                 return t;
               }).toList();
-              return {
-                ...state,
-                mode: updatedList,
-              };
+              return {...state, mode: updatedList};
             });
           },
         );
@@ -94,10 +91,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
         ref.read(_inboxTasksProvider.notifier).update((state) {
           final currentModeTasks = state[mode] ?? [];
           final updatedList = List<Task>.from(currentModeTasks)..removeAt(i);
-          return {
-            ...state,
-            mode: updatedList,
-          };
+          return {...state, mode: updatedList};
         });
         return true;
       },
@@ -329,14 +323,20 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                               Icon(
                                 Icons.all_inclusive_rounded,
                                 size: 48,
-                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outline.withValues(alpha: 0.5),
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 '所有任务已搞定，太棒了！',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.6),
+                                    ),
                               ),
                             ],
                           ),
