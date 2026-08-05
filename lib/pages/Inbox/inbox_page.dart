@@ -262,7 +262,9 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                   // 绝不引起外层 large UI (如 300px 高 Header 与进度条) 的重绘
                   Consumer(
                     builder: (context, ref, child) {
-                      final currentModeIndex = ref.watch(_currentModeIndexProvider);
+                      final currentModeIndex = ref.watch(
+                        _currentModeIndexProvider,
+                      );
                       final currentMode = _inboxModes[currentModeIndex];
                       return _InboxTaskList(currentMode: currentMode);
                     },
@@ -297,8 +299,10 @@ class _InboxTaskList extends ConsumerWidget {
           child: Text(
             '当前没有任务哦~',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
           ),
         ),
       );
