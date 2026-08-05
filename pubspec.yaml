@@ -48,6 +48,16 @@ dependencies:
   cupertino_calendar_picker: ^2.2.6
   font_awesome_flutter: ^11.0.0
   flutter_material_design_icons: ^3.1.0+7447
+  flutter_card_swiper: ^7.2.0
+  animated_checkmark: ^3.1.0
+  styled_widget: ^0.4.1
+  flip_card_swiper: ^2.1.0
+  reel_text: ^0.4.3
+  blurrycontainer: ^2.1.0
+  m3e_dismissible: ^0.1.0
+  carousel_slider: ^5.1.2
+  linear_progress_bar: ^3.0.0
+  m3e_buttons: ^0.0.5
 
 dev_dependencies:
   flutter_test:
@@ -120,3 +130,13 @@ flutter:
     - family: GoogleSans
       fonts: 
         - asset: assets/fonts/en/GoogleSans/GoogleSansFlex-VariableFont_GRAD,ROND,opsz,slnt,wdth,wght.ttf
+    - family: AntonTitle
+      fonts:
+        - asset: assets/fonts/en/anton/Anton-Regular.ttf
+          style: normal
+    - family: bitcount
+      fonts:
+        - asset: assets/fonts/en/bitcount_prop_single/BitcountPropSingle-VariableFont_CRSV,ELSH,ELXP,slnt,wght.ttf
+    - family: boldonse
+      fonts:
+        - asset: assets/fonts/en/boldonse/Boldonse-Regular.ttf

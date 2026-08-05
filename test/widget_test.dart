@@ -1,7 +1,7 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:janus/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() {
@@ -15,6 +15,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
 
     // The router should have initialised and shows the InboxPage
-    expect(find.text('Welcome to Janus'), findsOneWidget);
+    expect(find.text('GOOD MORNING'), findsOneWidget);
   });
 }
