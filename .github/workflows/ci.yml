@@ -45,6 +45,18 @@ jobs:
           cat analyze.log >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
+      # ---- TODO Check ----
+      - name: Check & Report TODOs
+        run: dart scripts/todo_reporter.dart
+
+      - name: Upload TODO Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: todo-report
+          path: todo_report.md
+          retention-days: 1
+
   # ======================== Tests + Coverage (parallel with check) ========================
   test:
     name: "Tests & Coverage"
@@ -119,6 +131,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+      - name: Download TODO Report
+        uses: actions/download-artifact@v4
+        with:
+          name: todo-report
+          path: .
+          merge-multiple: true
+        continue-on-error: true
+
       - name: Post PR Comment
         uses: actions/github-script@v9
         with:
@@ -131,6 +151,16 @@ jobs:
             const isAllSuccess = checkResult === 'success' && testResult === 'success' && buildResult === 'success';
             const icon = isAllSuccess ? '✅' : '❌';
 
+            const fs = require('fs');
+            let todoReport = '';
+            try {
+              if (fs.existsSync('todo_report.md')) {
+                todoReport = fs.readFileSync('todo_report.md', 'utf8');
+              }
+            } catch (e) {
+              console.log('Error reading todo_report.md:', e);
+            }
+
             const body = `## ${icon} Flutter CI
 
             | Check | Result |
@@ -140,6 +170,8 @@ jobs:
             | Build Android Check | ${buildResult === 'success' ? '✅' : '❌'} |
 
             [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ${todoReport}
             `;
 
             await github.rest.issues.createComment({
