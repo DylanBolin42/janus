@@ -23,6 +23,12 @@ class _InboxPageState extends ConsumerState<InboxPage> {
   /// reel_text 控制器：驱动模式标签的滚动动画
   late final ReelTextController _modeController;
 
+  final Map<String, List<String>> _tasks = {
+    'EMERGENCY': ['修复登录页闪退', '上线支付网关补丁'],
+    'PLANNED': ['整理 Q3 需求文档', '准备团队周会'],
+    'COMING': ['年度技术分享 PPT', '规划年末旅行'],
+  };
+
   // final 常量定义
   double get screenWidth => MediaQuery.sizeOf(context).width;
   TextTheme get tt => Theme.of(context).textTheme;
@@ -269,7 +275,16 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                   SizedBox(height: AppSpacing.base),
 
                   // 任务卡片显示区域
-                  //TODO: 需要在接入数据库后对接
+                  SizedBox(
+                    height: 300,
+                    child: _buildTaskList(
+                      items:
+                          _tasks[_inboxModes[ref.watch(
+                            _currentModeIndexProvider,
+                          )]] ??
+                          [],
+                    ),
+                  ),
                 ],
               ),
             ),

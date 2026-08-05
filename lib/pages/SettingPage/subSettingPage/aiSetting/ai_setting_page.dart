@@ -16,6 +16,88 @@ class AiSettingPage extends ConsumerStatefulWidget {
 }
 
 class _AiSettingPageState extends ConsumerState<AiSettingPage> {
+  late final TextEditingController _endpointController;
+  late final TextEditingController _apiKeyController;
+  late final TextEditingController _modelController;
+  String? _endpointError;
+
+  @override
+  void initState() {
+    super.initState();
+    final settings =
+        ref.read(appSettingsNotifierProvider).valueOrNull ??
+        const AppSettings();
+    _endpointController = TextEditingController(text: settings.endPoint);
+    _modelController = TextEditingController(text: settings.modelName);
+    _apiKeyController = TextEditingController();
+
+    _loadApiKey();
+  }
+
+  Future<void> _loadApiKey() async {
+    final service = ref.read(settingsServiceProvider);
+    final key = await service.getApiKey();
+    if (mounted) {
+      setState(() {
+        _apiKeyController.text = key;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _endpointController.dispose();
+    _apiKeyController.dispose();
+    _modelController.dispose();
+    super.dispose();
+  }
+
+  void _validateAndSaveEndpoint(String val) {
+    final trimmed = val.trim();
+    if (trimmed.isEmpty) {
+      setState(() {
+        _endpointError = null;
+      });
+      ref.read(appSettingsNotifierProvider.notifier).setEndPoint('');
+      return;
+    }
+
+    Uri? uri = Uri.tryParse(trimmed);
+    if (uri == null || !uri.hasScheme) {
+      uri = Uri.tryParse('https://$trimmed');
+    }
+
+    if (uri == null || uri.host.isEmpty) {
+      setState(() {
+        _endpointError = '请输入有效的URL';
+      });
+      return;
+    }
+
+    if (uri.scheme != 'https') {
+      final host = uri.host.toLowerCase();
+      if (host != 'localhost' && host != '127.0.0.1' && host != '::1') {
+        setState(() {
+          _endpointError = '远程端点必须使用HTTPS协议';
+        });
+        return;
+      }
+    }
+
+    setState(() {
+      _endpointError = null;
+    });
+    ref.read(appSettingsNotifierProvider.notifier).setEndPoint(trimmed);
+  }
+
+  void _validateAndSaveApiKey(String val) {
+    ref.read(appSettingsNotifierProvider.notifier).setApiKey(val);
+  }
+
+  void _validateAndSaveModelName(String val) {
+    ref.read(appSettingsNotifierProvider.notifier).setModelName(val);
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings =
@@ -42,11 +124,11 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
               ],
             ),
             SettingsSection(
-              //TODO: 接入TextField持久化逻辑
               title: Text('配置', style: tt.titleMedium),
               tiles: [
                 CustomAppSettingsTile(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -58,39 +140,43 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                       ),
                       SizedBox(height: AppSpacing.base),
                       GlassTextField(
+                        controller: _endpointController,
                         shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                        onChanged: _validateAndSaveEndpoint,
                       ),
+                      if (_endpointError != null) ...[
+                        SizedBox(height: 4),
+                        Text(
+                          _endpointError!,
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
-                //SettingsTile(
-                //  title: Text('Endpoint'),
-                //  trailing: SizedBox(
-                //    width: 160,
-                //    child: GlassTextField(
-                //      shape: LiquidRoundedSuperellipse(borderRadius: 64),
-                //    ),
-                //  ),
-                //  description: Text('暂仅支持OpenAI格式请求'),
-                //),
                 SettingsTile(
                   title: Text('API Key'),
-
                   trailing: SizedBox(
                     width: 160,
                     child: GlassTextField(
+                      controller: _apiKeyController,
                       obscureText: true,
                       shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                      onChanged: _validateAndSaveApiKey,
                     ),
                   ),
                 ),
                 SettingsTile(
                   title: Text('Model'),
-
                   trailing: SizedBox(
                     width: 160,
                     child: GlassTextField(
+                      controller: _modelController,
                       shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                      onChanged: _validateAndSaveModelName,
                     ),
                   ),
                   description: Text('以官方提供的名称为准'),
