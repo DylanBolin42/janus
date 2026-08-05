@@ -105,6 +105,11 @@ void main() async {
   sb.writeln('**Total TODOs found: $totalTodos**\n');
 
   if (totalTodos > 0) {
+    sb.writeln('<details>');
+    sb.writeln(
+      '<summary><b>📋 Click to expand TODO Details ($totalTodos)</b></summary>\n',
+    );
+
     sb.writeln('#### 📂 Files with TODOs:\n');
     sb.writeln('| File Path | TODO Count |');
     sb.writeln('| :--- | :--- |');
@@ -131,6 +136,8 @@ void main() async {
       }
       sb.writeln('\n</details>\n');
     }
+
+    sb.writeln('</details>\n');
   } else {
     sb.writeln('🎉 No TODOs found!');
   }
@@ -139,6 +146,15 @@ void main() async {
 
   // Print report to standard output
   print(report);
+
+  // Write the report to a local file
+  try {
+    final reportFile = File('todo_report.md');
+    await reportFile.writeAsString(report);
+    print('Successfully wrote TODO report to ${reportFile.path}');
+  } catch (e) {
+    stderr.writeln('Error writing report file: $e');
+  }
 
   // If in GITHUB_ACTIONS, write to GITHUB_STEP_SUMMARY
   final stepSummaryPath = Platform.environment['GITHUB_STEP_SUMMARY'];
