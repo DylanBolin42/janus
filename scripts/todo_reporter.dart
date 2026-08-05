@@ -77,7 +77,21 @@ void main() async {
       for (int i = 0; i < lines.length; i++) {
         final line = lines[i];
         if (hasTodo(line, ext)) {
-          list.add(TodoItem(i + 1, line.trim()));
+          final match = RegExp(
+            r'\bTODO\b:?\s*(.*)',
+            caseSensitive: true,
+          ).firstMatch(line);
+          String todoText = '';
+          if (match != null) {
+            todoText = match.group(1)?.trim() ?? '';
+          }
+          if (todoText.endsWith('*/')) {
+            todoText = todoText.substring(0, todoText.length - 2).trim();
+          }
+          if (todoText.isEmpty) {
+            todoText = 'Unspecified task';
+          }
+          list.add(TodoItem(i + 1, todoText));
         }
       }
 
@@ -124,15 +138,11 @@ void main() async {
       final todos = fileTodos[file]!;
       sb.writeln('<details>');
       sb.writeln('<summary><b>$file (${todos.length})</b></summary>\n');
-      sb.writeln('| Line | Content |');
-      sb.writeln('| :--- | :--- |');
       for (final todo in todos) {
-        // Clean comment characters and escape markdown pipe
         final displayContent = todo.content
-            .replaceAll('|', '\\|')
             .replaceAll('<', '&lt;')
             .replaceAll('>', '&gt;');
-        sb.writeln('| `${todo.lineNumber}` | $displayContent |');
+        sb.writeln('- [ ] $displayContent **(line ${todo.lineNumber})**');
       }
       sb.writeln('\n</details>\n');
     }
