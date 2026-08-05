@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/services/settings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void main() {
   group('SettingsService', () {
@@ -11,6 +12,7 @@ void main() {
 
     setUp(() {
       service = SettingsService();
+      FlutterSecureStorage.setMockInitialValues({});
     });
 
     test('load returns defaults when nothing stored', () async {
@@ -81,23 +83,19 @@ void main() {
       expect(restored, settings);
     });
 
-    test('API Key is obfuscated on save and de-obfuscated on load', () async {
-      SharedPreferences.setMockInitialValues({});
+    test(
+      'API Key is stored and retrieved securely from FlutterSecureStorage',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        FlutterSecureStorage.setMockInitialValues({});
 
-      const testApiKey = 'sk-or-deepseek-1234567890abcdef';
-      await service.saveAiApiKey(testApiKey);
+        const testApiKey = 'sk-or-deepseek-1234567890abcdef';
+        await service.saveAiApiKey(testApiKey);
 
-      final prefs = await SharedPreferences.getInstance();
-      final rawStoredValue = prefs.getString('ai_api_key_secure');
-
-      // Verify it is indeed persisted under the secure key
-      expect(rawStoredValue, isNotNull);
-      // Ensure the plaintext API Key is NOT stored directly (obfuscation works)
-      expect(rawStoredValue, isNot(contains(testApiKey)));
-
-      // Verify that getAiApiKey successfully recovers the original plaintext value
-      final retrievedKey = await service.getAiApiKey();
-      expect(retrievedKey, testApiKey);
-    });
+        // Verify that getAiApiKey successfully recovers the original value from mock secure storage
+        final retrievedKey = await service.getAiApiKey();
+        expect(retrievedKey, testApiKey);
+      },
+    );
   });
 }

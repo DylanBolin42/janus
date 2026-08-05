@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/aiSetting/ai_setting_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 Widget createAiSettingPage() {
   return const ProviderScope(child: MaterialApp(home: AiSettingPage()));
@@ -12,6 +13,7 @@ Widget createAiSettingPage() {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   testWidgets('AiSettingPage renders with title', (tester) async {
