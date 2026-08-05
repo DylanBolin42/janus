@@ -235,6 +235,23 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
       (state.valueOrNull ?? const AppSettings()).copyWith(aiPicToTask: enabled),
     );
   }
+
+  Future<void> setEndPoint(String endPoint) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(endPoint: endPoint),
+    );
+  }
+
+  Future<void> setModelName(String modelName) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(modelName: modelName),
+    );
+  }
+
+  Future<void> setApiKey(String apiKey) async {
+    final service = ref.read(settingsServiceProvider);
+    await service.saveApiKey(apiKey);
+  }
 }
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)
