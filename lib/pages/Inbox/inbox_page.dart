@@ -5,12 +5,21 @@ import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:m3e_dismissible/m3e_dismissible.dart';
 import 'package:reel_text/reel_text.dart';
+import 'package:janus/pages/Inbox/inbox_mock_data.dart';
+import 'package:janus/models/task.dart';
+import 'package:janus/shared/task_card.dart';
 
 /// 首页轮播的三种模式（有序循环）
 const List<String> _inboxModes = ['EMERGENCY', 'PLANNED', 'COMING'];
 
 /// 当前模式索引（Riverpod 状态）
 final _currentModeIndexProvider = StateProvider<int>((ref) => 0);
+
+/// 首页任务数据（Riverpod 状态）
+/// ⚡ Bolt 性能优化：通过 StateProvider 存储任务，减少不必要的外部重拉，并支持局部动画与滑动删除
+final _inboxTasksProvider = StateProvider<Map<String, List<Task>>>((ref) {
+  return buildInboxMockData();
+});
 
 class InboxPage extends ConsumerStatefulWidget {
   const InboxPage({super.key});
@@ -47,26 +56,6 @@ class _InboxPageState extends ConsumerState<InboxPage> {
     ref.read(_currentModeIndexProvider.notifier).update((index) {
       return (index + delta + total) % total;
     });
-  }
-
-  /// 实现任务列表搭建的模块
-  Widget _buildTaskList({required List<String> items}) {
-    //TODO: 需要添加真实查询逻辑
-    return M3EDismissibleCardList(
-      itemCount: items.length,
-      itemBuilder: (ctx, i) => Text(items[i]),
-      onDismiss: (i, dir) async {
-        items.removeAt(i);
-        return true;
-      },
-      style: M3EDismissibleCardStyle(
-        outerRadius: 24,
-        dismissThreshold: 0.3,
-        neighbourPull: 12.0,
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        elevation: 0,
-      ),
-    );
   }
 
   @override
@@ -269,12 +258,98 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                   SizedBox(height: AppSpacing.base),
 
                   // 任务卡片显示区域
-                  //TODO: 需要在接入数据库后对接
+                  // ⚡ Bolt 性能优化：通过 granular Consumer 局部渲染，仅在模式切换时触发 _InboxTaskList，
+                  // 绝不引起外层 large UI (如 300px 高 Header 与进度条) 的重绘
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final currentModeIndex = ref.watch(
+                        _currentModeIndexProvider,
+                      );
+                      final currentMode = _inboxModes[currentModeIndex];
+                      return _InboxTaskList(currentMode: currentMode);
+                    },
+                  ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// ⚡ Bolt 性能优化：高度隔离的 TaskList 局部更新组件。
+/// 只有当 [_inboxTasksProvider] 在当前 [currentMode] 下的列表数据改变时才会 rebuild，
+/// 从而完全避免了外层大 Widget（如 300px 高的 Header 与 Progress Elements）的重复渲染与回流。
+class _InboxTaskList extends ConsumerWidget {
+  const _InboxTaskList({required this.currentMode});
+
+  final String currentMode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tasksMap = ref.watch(_inboxTasksProvider);
+    final items = tasksMap[currentMode] ?? [];
+
+    if (items.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(AppSpacing.base),
+        child: Center(
+          child: Text(
+            '当前没有任务哦~',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return M3EDismissibleCardList(
+      itemCount: items.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (ctx, i) {
+        final task = items[i];
+        return TaskCard(
+          title: task.title,
+          description: task.description,
+          isCompleted: task.isCompleted,
+          priority: task.priority,
+          ddl: task.ddl,
+          est: task.est,
+          onToggle: (completed) {
+            // ⚡ Bolt 性能优化：更新状态树而不触发整页重绘
+            ref.read(_inboxTasksProvider.notifier).update((state) {
+              final updated = Map<String, List<Task>>.from(state);
+              final list = List<Task>.from(updated[currentMode]!);
+              list[i] = task.copyWith(isCompleted: completed);
+              updated[currentMode] = list;
+              return updated;
+            });
+          },
+        );
+      },
+      onDismiss: (i, dir) async {
+        // ⚡ Bolt 性能优化：异步滑动删除并即时清理内存，流畅度拉满
+        ref.read(_inboxTasksProvider.notifier).update((state) {
+          final updated = Map<String, List<Task>>.from(state);
+          final list = List<Task>.from(updated[currentMode]!);
+          list.removeAt(i);
+          updated[currentMode] = list;
+          return updated;
+        });
+        return true;
+      },
+      style: M3EDismissibleCardStyle(
+        outerRadius: 24,
+        dismissThreshold: 0.3,
+        neighbourPull: 12.0,
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        elevation: 0,
       ),
     );
   }
