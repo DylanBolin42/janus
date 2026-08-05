@@ -111,7 +111,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('AiSettingPage validates Endpoint input to enforce HTTPS', (tester) async {
+  testWidgets('AiSettingPage validates Endpoint input to enforce HTTPS', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -151,7 +153,10 @@ void main() {
 
     // Error message should disappear
     expect(find.text('远程端点必须使用HTTPS协议'), findsNothing);
-    expect(container.read(appSettingsNotifierProvider).value?.endPoint, 'http://127.0.0.1:8080/v1');
+    expect(
+      container.read(appSettingsNotifierProvider).value?.endPoint,
+      'http://127.0.0.1:8080/v1',
+    );
 
     // Enter a valid HTTPS remote endpoint
     await tester.enterText(endpointField, 'https://api.deepseek.com/v1');
@@ -159,10 +164,15 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.text('远程端点必须使用HTTPS协议'), findsNothing);
-    expect(container.read(appSettingsNotifierProvider).value?.endPoint, 'https://api.deepseek.com/v1');
+    expect(
+      container.read(appSettingsNotifierProvider).value?.endPoint,
+      'https://api.deepseek.com/v1',
+    );
   });
 
-  testWidgets('AiSettingPage updates Model and obfuscates API Key on change', (tester) async {
+  testWidgets('AiSettingPage updates Model and obfuscates API Key on change', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -188,7 +198,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
-    expect(container.read(appSettingsNotifierProvider).value?.modelName, 'deepseek-chat');
+    expect(
+      container.read(appSettingsNotifierProvider).value?.modelName,
+      'deepseek-chat',
+    );
 
     // Find the API Key text field (the 2nd GlassTextField on the page)
     final apiKeyField = textFields.at(1);

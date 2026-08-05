@@ -24,7 +24,8 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
   @override
   void initState() {
     super.initState();
-    final settings = ref.read(appSettingsNotifierProvider).valueOrNull ??
+    final settings =
+        ref.read(appSettingsNotifierProvider).valueOrNull ??
         const AppSettings();
     _endpointController = TextEditingController(text: settings.endPoint);
     _modelController = TextEditingController(text: settings.modelName);
@@ -147,7 +148,10 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                         SizedBox(height: 4),
                         Text(
                           _endpointError!,
-                          style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ],

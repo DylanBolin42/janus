@@ -87,19 +87,22 @@ void main() {
       expect(key, '');
     });
 
-    test('saveApiKey and getApiKey round-trip correctly and obfuscate key on disk', () async {
-      SharedPreferences.setMockInitialValues({});
-      const testKey = 'sk-proj-test123456789';
+    test(
+      'saveApiKey and getApiKey round-trip correctly and obfuscate key on disk',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        const testKey = 'sk-proj-test123456789';
 
-      await service.saveApiKey(testKey);
-      final loaded = await service.getApiKey();
-      expect(loaded, testKey);
+        await service.saveApiKey(testKey);
+        final loaded = await service.getApiKey();
+        expect(loaded, testKey);
 
-      // Verify that the stored value is obfuscated and not stored as plaintext
-      final prefs = await SharedPreferences.getInstance();
-      final rawStored = prefs.getString('ai_api_key');
-      expect(rawStored, isNotNull);
-      expect(rawStored, isNot(testKey));
-    });
+        // Verify that the stored value is obfuscated and not stored as plaintext
+        final prefs = await SharedPreferences.getInstance();
+        final rawStored = prefs.getString('ai_api_key');
+        expect(rawStored, isNotNull);
+        expect(rawStored, isNot(testKey));
+      },
+    );
   });
 }
