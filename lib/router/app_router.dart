@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/pages/AppShell/app_shell.dart';
-import 'package:janus/pages/Inbox/inbox_page.dart';
-import 'package:janus/pages/TaskPage/task_page.dart';
-import 'package:janus/pages/SettingPage/setting_page.dart';
 import 'package:janus/pages/FocusPage/focus_page.dart';
+import 'package:janus/pages/InboxPage/inbox_page.dart';
 import 'package:janus/pages/InsightPage/insight_page.dart';
+import 'package:janus/pages/SettingPage/setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/aboutPage/about_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/aiSetting/ai_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/focusSetting/focus_setting_page.dart';
 // subsetting pages
 import 'package:janus/pages/SettingPage/subSettingPage/generalSetting/general_setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/notificationSetting/notification_setting_page.dart';
-import 'package:janus/pages/SettingPage/subSettingPage/focusSetting/focus_setting_page.dart';
+import 'package:janus/pages/SettingPage/subSettingPage/planningSetting/planning_setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/storageSetting/storage_setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/syncSetting/sync_setting_page.dart';
-import 'package:janus/pages/SettingPage/subSettingPage/aboutPage/about_page.dart';
-import 'package:janus/pages/SettingPage/subSettingPage/planningSetting/planning_setting_page.dart';
-import 'package:janus/pages/SettingPage/subSettingPage/aiSetting/ai_setting_page.dart';
+import 'package:janus/pages/TaskPage/task_page.dart';
 
 /// Centralized route path constants.
 ///

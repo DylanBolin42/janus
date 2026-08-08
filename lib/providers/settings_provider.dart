@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/services/settings_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'settings_provider.g.dart';
 
@@ -233,6 +233,15 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   Future<void> setAiPicToTask(bool enabled) async {
     await _persist(
       (state.valueOrNull ?? const AppSettings()).copyWith(aiPicToTask: enabled),
+    );
+  }
+
+  // User Preference
+  Future<void> setTaskCreationMode(TaskCreationMode mode) async {
+    await _persist(
+      (state.valueOrNull ?? const AppSettings()).copyWith(
+        taskCreationMode: mode,
+      ),
     );
   }
 }

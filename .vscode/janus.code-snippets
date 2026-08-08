@@ -1,0 +1,116 @@
+{
+    "Janus: Enum Setting (enum + extension + AppSettings field)": {
+        "prefix": "janus-enum-setting",
+        "description": "Add a new enum setting: enum definition, Chinese label extension, and @Default field in AppSettings",
+        "body": [
+            "enum ${1:SettingName} {",
+            "  @JsonValue('${2:value1}')",
+            "  ${3:value1},",
+            "  @JsonValue('${4:value2}')",
+            "  ${5:value2},",
+            "  @JsonValue('${6:value3}')",
+            "  ${7:value3},",
+            "}",
+            "",
+            "extension ${1:SettingName}Label on ${1:SettingName} {",
+            "  String get label {",
+            "    switch (this) {",
+            "      case ${1:SettingName}.${3:value1}:",
+            "        return '${8:标签1}';",
+            "      case ${1:SettingName}.${5:value2}:",
+            "        return '${9:标签2}';",
+            "      case ${1:SettingName}.${7:value3}:",
+            "        return '${10:标签3}';",
+            "    }",
+            "  }",
+            "}",
+            "",
+            "// In AppSettings factory:",
+            "@Default(${1:SettingName}.${3:value1}) ${1:SettingName} ${11:fieldName},",
+            "$0"
+        ]
+    },
+    "Janus: Bool/Primitive Setting Field": {
+        "prefix": "janus-setting-field",
+        "description": "Add a @Default field in AppSettings for bool/number/string settings",
+        "body": [
+            "@Default(${1:false}) ${2:bool} ${3:fieldName},",
+            "$0"
+        ]
+    },
+    "Janus: Setter Method in Provider": {
+        "prefix": "janus-setting-setter",
+        "description": "Add a setter method inside AppSettingsNotifier",
+        "body": [
+            "Future<void> set${1:SettingName}(${2:Type} ${3:value}) async {",
+            "  await _persist(",
+            "    (state.valueOrNull ?? const AppSettings()).copyWith(",
+            "      ${4:fieldName}: ${3:value},",
+            "    ),",
+            "  );",
+            "}",
+            "$0"
+        ]
+    },
+    "Janus: Switch UI Tile": {
+        "prefix": "janus-switch-tile",
+        "description": "Add a SettingsTile with Switch for bool settings",
+        "body": [
+            "SettingsTile(",
+            "  title: const Text('${1:标题}'),",
+            "  leading: const Icon(${2:Icons.power_settings_new_rounded}),",
+            "  trailing: Switch(",
+            "    value: settings.${3:fieldName},",
+            "    onChanged: (val) => ref",
+            "        .read(appSettingsNotifierProvider.notifier)",
+            "        .set${4:SettingName}(val),",
+            "  ),",
+            "),",
+            "$0"
+        ]
+    },
+    "Janus: Dropdown UI Tile (GlassPullDownButton)": {
+        "prefix": "janus-dropdown-tile",
+        "description": "Add a SettingsTile with GlassPullDownButton for enum settings",
+        "body": [
+            "SettingsTile(",
+            "  title: const Text('${1:标题}'),",
+            "  leading: const Icon(${2:Icons.tune_rounded}),",
+            "  trailing: GlassPullDownButton(",
+            "    label: settings.${3:fieldName}.label,",
+            "    buttonWidth: 120,",
+            "    items: ${4:EnumType}.values.map((item) {",
+            "      return GlassMenuItem(",
+            "        title: item.label,",
+            "        isSelected: settings.${3:fieldName} == item,",
+            "        onTap: () => ref",
+            "            .read(appSettingsNotifierProvider.notifier)",
+            "            .set${5:SettingName}(item),",
+            "      );",
+            "    }).toList(),",
+            "  ),",
+            "),",
+            "$0"
+        ]
+    },
+    "Janus: Navigation Tile": {
+        "prefix": "janus-nav-tile",
+        "description": "Add a SettingsTile.navigation for sub-page navigation",
+        "body": [
+            "SettingsTile.navigation(",
+            "  title: const Text('${1:标题}'),",
+            "  leading: const Icon(${2:Icons.arrow_forward_rounded}),",
+            "  onPressed: (_) => context.pushNamed('${3:routeName}'),",
+            "),",
+            "$0"
+        ]
+    },
+    "Janus: Run Code Generation": {
+        "prefix": "janus-build-runner",
+        "description": "Run build_runner to regenerate freezed/json files",
+        "body": [
+            "fvm dart run build_runner build --delete-conflicting-outputs",
+            "$0"
+        ]
+    }
+}

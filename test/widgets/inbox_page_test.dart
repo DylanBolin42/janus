@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:janus/pages/Inbox/inbox_page.dart';
+import 'package:janus/pages/InboxPage/inbox_page.dart';
 
 void main() {
   Future<void> pumpInbox(WidgetTester tester) async {

@@ -92,6 +92,12 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(
   aiAnalyseReport: json['aiAnalyseReport'] as bool? ?? false,
   aiTextToTask: json['aiTextToTask'] as bool? ?? false,
   aiPicToTask: json['aiPicToTask'] as bool? ?? false,
+  taskCreationMode:
+      $enumDecodeNullable(
+        _$TaskCreationModeEnumMap,
+        json['taskCreationMode'],
+      ) ??
+      TaskCreationMode.classic,
 );
 
 Map<String, dynamic> _$$AppSettingsImplToJson(
@@ -132,6 +138,7 @@ Map<String, dynamic> _$$AppSettingsImplToJson(
   'aiAnalyseReport': instance.aiAnalyseReport,
   'aiTextToTask': instance.aiTextToTask,
   'aiPicToTask': instance.aiPicToTask,
+  'taskCreationMode': _$TaskCreationModeEnumMap[instance.taskCreationMode]!,
 };
 
 const _$AppThemeModeEnumMap = {
@@ -234,4 +241,10 @@ const _$PlanningHorizonEnumMap = {
   PlanningHorizon.days: 'days',
   PlanningHorizon.weeks: 'weeks',
   PlanningHorizon.months: 'months',
+};
+
+const _$TaskCreationModeEnumMap = {
+  TaskCreationMode.classic: 'classic',
+  TaskCreationMode.fillInBlanks: 'fill_in_blanks',
+  TaskCreationMode.naturalLanguage: 'natural',
 };

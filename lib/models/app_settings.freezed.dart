@@ -60,7 +60,8 @@ mixin _$AppSettings {
   bool get aiDailySummary => throw _privateConstructorUsedError;
   bool get aiAnalyseReport => throw _privateConstructorUsedError;
   bool get aiTextToTask => throw _privateConstructorUsedError;
-  bool get aiPicToTask => throw _privateConstructorUsedError;
+  bool get aiPicToTask => throw _privateConstructorUsedError; // User Preference
+  TaskCreationMode get taskCreationMode => throw _privateConstructorUsedError;
 
   /// Serializes this AppSettings to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -108,6 +109,7 @@ abstract class $AppSettingsCopyWith<$Res> {
     bool aiAnalyseReport,
     bool aiTextToTask,
     bool aiPicToTask,
+    TaskCreationMode taskCreationMode,
   });
 }
 
@@ -154,6 +156,7 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
     Object? aiAnalyseReport = null,
     Object? aiTextToTask = null,
     Object? aiPicToTask = null,
+    Object? taskCreationMode = null,
   }) {
     return _then(
       _value.copyWith(
@@ -269,6 +272,10 @@ class _$AppSettingsCopyWithImpl<$Res, $Val extends AppSettings>
                 ? _value.aiPicToTask
                 : aiPicToTask // ignore: cast_nullable_to_non_nullable
                       as bool,
+            taskCreationMode: null == taskCreationMode
+                ? _value.taskCreationMode
+                : taskCreationMode // ignore: cast_nullable_to_non_nullable
+                      as TaskCreationMode,
           )
           as $Val,
     );
@@ -313,6 +320,7 @@ abstract class _$$AppSettingsImplCopyWith<$Res>
     bool aiAnalyseReport,
     bool aiTextToTask,
     bool aiPicToTask,
+    TaskCreationMode taskCreationMode,
   });
 }
 
@@ -358,6 +366,7 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
     Object? aiAnalyseReport = null,
     Object? aiTextToTask = null,
     Object? aiPicToTask = null,
+    Object? taskCreationMode = null,
   }) {
     return _then(
       _$AppSettingsImpl(
@@ -473,6 +482,10 @@ class __$$AppSettingsImplCopyWithImpl<$Res>
             ? _value.aiPicToTask
             : aiPicToTask // ignore: cast_nullable_to_non_nullable
                   as bool,
+        taskCreationMode: null == taskCreationMode
+            ? _value.taskCreationMode
+            : taskCreationMode // ignore: cast_nullable_to_non_nullable
+                  as TaskCreationMode,
       ),
     );
   }
@@ -511,6 +524,7 @@ class _$AppSettingsImpl extends _AppSettings {
     this.aiAnalyseReport = false,
     this.aiTextToTask = false,
     this.aiPicToTask = false,
+    this.taskCreationMode = TaskCreationMode.classic,
   }) : super._();
 
   factory _$AppSettingsImpl.fromJson(Map<String, dynamic> json) =>
@@ -609,10 +623,14 @@ class _$AppSettingsImpl extends _AppSettings {
   @override
   @JsonKey()
   final bool aiPicToTask;
+  // User Preference
+  @override
+  @JsonKey()
+  final TaskCreationMode taskCreationMode;
 
   @override
   String toString() {
-    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality, useLogToTrain: $useLogToTrain, syncEnabled: $syncEnabled, syncMode: $syncMode, syncTrigger: $syncTrigger, syncDurationOnInterval: $syncDurationOnInterval, rsaType: $rsaType, useAppLock: $useAppLock, workHourStart: $workHourStart, workingDayTaskDensity: $workingDayTaskDensity, restDayTaskDensity: $restDayTaskDensity, planningHorizon: $planningHorizon, endPoint: $endPoint, modelName: $modelName, aiDailySummary: $aiDailySummary, aiAnalyseReport: $aiAnalyseReport, aiTextToTask: $aiTextToTask, aiPicToTask: $aiPicToTask)';
+    return 'AppSettings(themeMode: $themeMode, glassIntensity: $glassIntensity, language: $language, tabNamingStyle: $tabNamingStyle, isNotificationEnabled: $isNotificationEnabled, urgentNotificationStyle: $urgentNotificationStyle, approachingNotificationStyle: $approachingNotificationStyle, tempLeaveDuration: $tempLeaveDuration, tempLeaveTimes: $tempLeaveTimes, focusSceneRenderMode: $focusSceneRenderMode, focusSceneRenderQuality: $focusSceneRenderQuality, useLogToTrain: $useLogToTrain, syncEnabled: $syncEnabled, syncMode: $syncMode, syncTrigger: $syncTrigger, syncDurationOnInterval: $syncDurationOnInterval, rsaType: $rsaType, useAppLock: $useAppLock, workHourStart: $workHourStart, workingDayTaskDensity: $workingDayTaskDensity, restDayTaskDensity: $restDayTaskDensity, planningHorizon: $planningHorizon, endPoint: $endPoint, modelName: $modelName, aiDailySummary: $aiDailySummary, aiAnalyseReport: $aiAnalyseReport, aiTextToTask: $aiTextToTask, aiPicToTask: $aiPicToTask, taskCreationMode: $taskCreationMode)';
   }
 
   @override
@@ -684,7 +702,9 @@ class _$AppSettingsImpl extends _AppSettings {
             (identical(other.aiTextToTask, aiTextToTask) ||
                 other.aiTextToTask == aiTextToTask) &&
             (identical(other.aiPicToTask, aiPicToTask) ||
-                other.aiPicToTask == aiPicToTask));
+                other.aiPicToTask == aiPicToTask) &&
+            (identical(other.taskCreationMode, taskCreationMode) ||
+                other.taskCreationMode == taskCreationMode));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -719,6 +739,7 @@ class _$AppSettingsImpl extends _AppSettings {
     aiAnalyseReport,
     aiTextToTask,
     aiPicToTask,
+    taskCreationMode,
   ]);
 
   /// Create a copy of AppSettings
@@ -765,6 +786,7 @@ abstract class _AppSettings extends AppSettings {
     final bool aiAnalyseReport,
     final bool aiTextToTask,
     final bool aiPicToTask,
+    final TaskCreationMode taskCreationMode,
   }) = _$AppSettingsImpl;
   const _AppSettings._() : super._();
 
@@ -828,7 +850,9 @@ abstract class _AppSettings extends AppSettings {
   @override
   bool get aiTextToTask;
   @override
-  bool get aiPicToTask;
+  bool get aiPicToTask; // User Preference
+  @override
+  TaskCreationMode get taskCreationMode;
 
   /// Create a copy of AppSettings
   /// with the given fields replaced by the non-null parameter values.

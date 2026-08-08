@@ -58,6 +58,8 @@ dependencies:
   carousel_slider: ^5.1.2
   linear_progress_bar: ^3.0.0
   m3e_buttons: ^0.0.5
+  wolt_modal_sheet: ^0.11.0
+  material_3_expressive: ^1.0.5
 
 dev_dependencies:
   flutter_test:
