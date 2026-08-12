@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:janus/models/task.dart';
+import 'package:janus/pages/Inbox/inbox_mock_data.dart';
+import 'package:janus/shared/task_card.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:m3e_dismissible/m3e_dismissible.dart';
 import 'package:reel_text/reel_text.dart';
 
 /// 首页轮播的三种模式（有序循环）
@@ -11,6 +13,11 @@ const List<String> _inboxModes = ['EMERGENCY', 'PLANNED', 'COMING'];
 
 /// 当前模式索引（Riverpod 状态）
 final _currentModeIndexProvider = StateProvider<int>((ref) => 0);
+
+/// 任务列表数据提供者（Riverpod 状态），使用 mock 数据进行初始化
+final _inboxTasksProvider = StateProvider<Map<String, List<Task>>>((ref) {
+  return buildInboxMockData();
+});
 
 class InboxPage extends ConsumerStatefulWidget {
   const InboxPage({super.key});
@@ -49,25 +56,6 @@ class _InboxPageState extends ConsumerState<InboxPage> {
     });
   }
 
-  /// 实现任务列表搭建的模块
-  Widget _buildTaskList({required List<String> items}) {
-    //TODO: 需要添加真实查询逻辑
-    return M3EDismissibleCardList(
-      itemCount: items.length,
-      itemBuilder: (ctx, i) => Text(items[i]),
-      onDismiss: (i, dir) async {
-        items.removeAt(i);
-        return true;
-      },
-      style: M3EDismissibleCardStyle(
-        outerRadius: 24,
-        dismissThreshold: 0.3,
-        neighbourPull: 12.0,
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        elevation: 0,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -268,14 +256,59 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                   ),
                   SizedBox(height: AppSpacing.base),
 
-                  // 任务卡片显示区域
-                  //TODO: 需要在接入数据库后对接
+                  // 任务卡片显示区域：使用独立的 ConsumerWidget 进行渲染以优化重绘性能
+                  const _InboxTaskList(),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 独立的任务列表组件，避免重绘上方的静态头部，实现高昂计算及重绘精细隔离。
+class _InboxTaskList extends ConsumerWidget {
+  const _InboxTaskList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final modeIndex = ref.watch(_currentModeIndexProvider);
+    final currentMode = _inboxModes[modeIndex];
+    final tasksMap = ref.watch(_inboxTasksProvider);
+    final tasks = tasksMap[currentMode] ?? [];
+
+    // 高效渲染：由于被嵌套在 parent ListView 中，必须开启 shrinkWrap 并禁用滚动，确保约束正确传递
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: tasks.length,
+      itemBuilder: (context, index) {
+        final task = tasks[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.base),
+          child: TaskCard(
+            key: ValueKey(task.id),
+            title: task.title,
+            description: task.description,
+            isCompleted: task.isCompleted,
+            priority: task.priority,
+            ddl: task.ddl,
+            est: task.est,
+            onToggle: (completed) {
+              ref.read(_inboxTasksProvider.notifier).update((state) {
+                final updatedList = List<Task>.from(state[currentMode]!);
+                updatedList[index] = task.copyWith(isCompleted: completed);
+                return {
+                  ...state,
+                  currentMode: updatedList,
+                };
+              });
+            },
+          ),
+        );
+      },
     );
   }
 }
