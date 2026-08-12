@@ -52,7 +52,6 @@ class _InboxPageState extends ConsumerState<InboxPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Riverpod 状态 → reel_text：切换时触发滚动动画
