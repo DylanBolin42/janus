@@ -2,18 +2,17 @@
 
 # Janus ⚡
 
-### A Next-Generation, Liquid Glass Productivity & Task Management Suite
+### A Next-Generation Productivity & Task Management Suite
 
 [![Flutter Version](https://img.shields.io/badge/Flutter-%5E3.10.7-blue?style=for-the-badge&logo=flutter)](https://flutter.dev)
 [![Dart SDK](https://img.shields.io/badge/Dart-%5E3.10.7-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Drift SQLite](https://img.shields.io/badge/Drift-SQLite-orange?style=for-the-badge&logo=sqlite)](https://drift.simonbinder.eu)
 [![Riverpod](https://img.shields.io/badge/State-Riverpod-purple?style=for-the-badge)](https://riverpod.dev)
-[![Linear Issue](https://img.shields.io/badge/Linear-JANUS--44-0052CC?style=for-the-badge&logo=linear)](https://linear.app/zero-task-manager/issue/JANUS-44/readme及contribution文档编写)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-*Janus is an engineering-grade, high-performance task management and personal productivity application built with Flutter, featuring modern Liquid Glass aesthetics, robust local-first SQLite persistence, and reactive state management.*
+*Janus is an engineering-grade, high-performance task management and personal productivity application built with Flutter, combining Liquid Glass aesthetics with Material 3 Expressive design, robust local-first SQLite persistence, and reactive state management.*
 
-[Getting Started](#getting-started) • [Architecture](#architecture) • [Features](#features) • [Contributing](#contributing) • [Linear Workflow](#linear-workflow)
+[Getting Started](#getting-started) • [Architecture](#architecture) • [Features](#features) • [Contributing](#contributing)
 
 </div>
 
@@ -21,7 +20,7 @@
 
 ## 🌟 Overview
 
-**Janus** is designed for power users who demand both exquisite visual aesthetics and uncompromising performance. Built using modern Flutter paradigms, Janus merges the principles of fluid glassmorphism UI design with enterprise-grade local-first data architecture. 
+**Janus** is designed for power users who demand both exquisite visual aesthetics and uncompromising performance. Built using modern Flutter paradigms, Janus merges the principles of fluid glassmorphism and Material 3 Expressive design with enterprise-grade local-first data architecture. 
 
 Whether you are managing complex multi-tiered tasks, tracking daily productivity metrics, or configuring granular notification styles, Janus provides a seamless, responsive experience across desktop and mobile platforms.
 
@@ -29,7 +28,7 @@ Whether you are managing complex multi-tiered tasks, tracking daily productivity
 
 ## ✨ Key Features
 
-- **Liquid Glassmorphism UI**: Implements advanced translucent visual effects (`liquid_glass_widgets`) with adjustable rendering intensities (Extreme, Moderate, Low) for an immersive glass-morphic experience [1].
+- **Liquid Glass & Material 3 Expressive UI**: Combines advanced translucent glass visual effects (`liquid_glass_widgets`) with Material 3 Expressive guidelines, pursuing a seamless balance between robust functionality and stunning aesthetics.
 - **Local-First & High Performance**: Powered by **Drift** (type-safe reactive SQLite database for Flutter), ensuring lightning-fast data querying, offline-first reliability, and seamless synchronization.
 - **Reactive State Management**: Built on top of **Riverpod** and **Freezed**, providing robust, immutable data models and predictable reactive state flows.
 - **Granular Notification Engine**: Supports multi-tiered notification styles for urgent and approaching tasks, including notifier, shake, ring, and full-screen alerts.
@@ -121,24 +120,10 @@ janus/
 
 ## 🤝 Contributing
 
-We welcome contributions from the community! Whether it's bug reporting, feature proposals, or code submissions, please refer to our [CONTRIBUTING.md](CONTRIBUTING.md) guide for detailed instructions on our development workflow, coding standards, and Linear issue tracking.
-
----
-
-## 📋 Linear Workflow
-
-This project tracks development progress using [Linear](https://linear.app). 
-- **Current Task / Issue:** [JANUS-44: readme及contribution文档编写](https://linear.app/zero-task-manager/issue/JANUS-44/readme及contribution文档编写)
-- All pull requests must reference their corresponding Linear issue identifier in the commit message or PR description.
+We welcome contributions from the community! Whether it's bug reporting, feature proposals, or code submissions, please refer to our [CONTRIBUTING.md](CONTRIBUTING.md) guide for detailed instructions on our development workflow and coding standards.
 
 ---
 
 ## 📄 License
 
 This project is licensed under the terms of the [MIT License](LICENSE).
-
----
-
-## 📚 References
-
-- [1] Janus App Settings Documentation (`docs/SETTINGS.md`)

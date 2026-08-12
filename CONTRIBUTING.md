@@ -11,21 +11,13 @@ To ensure a smooth collaboration process and maintain engineering excellence, pl
 By participating in this project, you agree to abide by our core values:
 - Be respectful, welcoming, and inclusive in all discussions and code reviews.
 - Prioritize high code quality, readability, and testability.
-- Maintain transparent communication linked with our project management tools.
+- Maintain transparent communication during development.
 
 ---
 
-## 🎫 Linear Workflow Integration
+## ⚠️ Development Status & Workflow Note
 
-We use [Linear](https://linear.app) for issue tracking and project management.
-- **Tasks & Issues:** Every pull request should ideally be tied to a Linear issue (e.g., `JANUS-44`).
-- **Branch Naming:** Name your feature or fix branches following the pattern:
-  `[username]/[issue-id]-[short-description]`
-  *Example:* `dylanbolin09/janus-44-readme-and-contributing`
-- **Commit Messages:** Reference the Linear issue ID in your commit messages:
-  ```bash
-  git commit -m "docs: add comprehensive readme and contributing guidelines [JANUS-44]"
-  ```
+*Note: The Janus project is currently in its **early development stage**. At this moment, external developer integration with internal project management tools (such as Linear) is temporarily **not accepted**.*
 
 ---
 
@@ -40,7 +32,7 @@ Before creating a bug report, please check existing issues to avoid duplicates. 
 - Operating system and Flutter SDK version.
 
 ### 2. Suggesting Enhancements
-Enhancement suggestions are tracked via Linear and GitHub issues. Please provide:
+Enhancement suggestions are welcome via GitHub issues. Please provide:
 - A detailed description of the proposed feature or improvement.
 - The use case or problem it solves.
 - Mockups or architectural suggestions if UI/UX changes are involved.
@@ -48,7 +40,7 @@ Enhancement suggestions are tracked via Linear and GitHub issues. Please provide
 ### 3. Pull Request Process
 
 1. **Fork & Clone:** Fork the repository and clone your fork locally.
-2. **Create a Branch:** Create a dedicated branch from `main` following our branch naming convention.
+2. **Create a Branch:** Create a dedicated branch from `main` for your feature or bug fix.
 3. **Make Changes:** Implement your feature or bug fix adhering to our coding standards.
 4. **Run Code Generation:** If you modified data models (`Freezed`), database schema (`Drift`), or Riverpod providers, run:
    ```bash
@@ -59,7 +51,7 @@ Enhancement suggestions are tracked via Linear and GitHub issues. Please provide
    flutter test
    flutter analyze
    ```
-6. **Commit & Push:** Commit your changes using descriptive messages referencing the Linear issue. Push to your fork and open a Pull Request against the main repository.
+6. **Commit & Push:** Commit your changes using descriptive messages. Push to your fork and open a Pull Request against the main repository.
 
 ---
 
@@ -68,7 +60,7 @@ Enhancement suggestions are tracked via Linear and GitHub issues. Please provide
 - **Flutter & Dart Conventions:** Follow the official [Effective Dart](https://dart.dev/effective-dart) guidelines and ensure compliance with `analysis_options.yaml`.
 - **State Management:** Use **Riverpod** for state management. Avoid global mutable state.
 - **Data Persistence:** Use **Drift** for local database operations and maintain schema migration integrity.
-- **UI & Styling:** Maintain consistency with the Liquid Glass design system. Avoid hardcoded magic numbers; use design tokens and theme extensions.
+- **UI & Styling:** Maintain consistency with the Liquid Glass and Material 3 Expressive design system. Avoid hardcoded magic numbers; use design tokens and theme extensions.
 
 ---
 
@@ -79,6 +71,5 @@ Before submitting your PR, make sure you have completed the following:
 - [ ] Static analysis passes with zero warnings (`flutter analyze`).
 - [ ] Unit or widget tests added/updated for new functionality (`flutter test`).
 - [ ] Documentation updated (e.g., `README.md`, `docs/`, or code comments).
-- [ ] Linear issue reference included in the PR title/description (e.g., `[JANUS-44]`).
 
 Thank you once again for contributing to Janus! 🚀
