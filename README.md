@@ -12,7 +12,7 @@
 
 *Janus is an engineering-grade, high-performance task management and personal productivity application built with Flutter, combining Liquid Glass aesthetics with Material 3 Expressive design, robust local-first SQLite persistence, and reactive state management.*
 
-[Getting Started](#getting-started) • [Architecture](#architecture) • [Features](#features) • [Contributing](#contributing)
+[Getting Started](#getting-started) • [Tech Stack](#tech-stack--architecture) • [Features](#features) • [Contributing](#contributing)
 
 </div>
 
@@ -49,14 +49,6 @@ Janus adheres to strict engineering standards, separating concerns cleanly acros
 | **Immutability & Models** | [Freezed](https://pub.dev/packages/freezed) & JSON Serializable | Code generation for immutable classes and JSON serialization |
 | **Routing** | [GoRouter](https://pub.dev/packages/go_router) | Declarative routing package for Flutter |
 | **UI Enhancements** | `liquid_glass_widgets`, `flutter_card_swiper`, `google_fonts` | Modern visual components and glassmorphism styling |
-
-```mermaid
-graph TD
-    A[UI Layer: Widgets & GoRouter] --> B[State Management: Riverpod Notifiers]
-    B --> C[Service Layer: SettingsService & Business Logic]
-    C --> D[Data Layer: Drift SQLite & SharedPreferences]
-    D --> E[(Local SQLite Database)]
-```
 
 ---
 
