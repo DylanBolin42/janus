@@ -56,7 +56,6 @@ class _InboxPageState extends ConsumerState<InboxPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Riverpod 状态 → reel_text：切换时触发滚动动画
@@ -300,10 +299,7 @@ class _InboxTaskList extends ConsumerWidget {
               ref.read(_inboxTasksProvider.notifier).update((state) {
                 final updatedList = List<Task>.from(state[currentMode]!);
                 updatedList[index] = task.copyWith(isCompleted: completed);
-                return {
-                  ...state,
-                  currentMode: updatedList,
-                };
+                return {...state, currentMode: updatedList};
               });
             },
           ),
