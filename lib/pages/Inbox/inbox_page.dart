@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:janus/models/task.dart';
+import 'package:janus/pages/Inbox/inbox_mock_data.dart';
+import 'package:janus/shared/task_card.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
@@ -49,25 +52,6 @@ class _InboxPageState extends ConsumerState<InboxPage> {
     });
   }
 
-  /// 实现任务列表搭建的模块
-  Widget _buildTaskList({required List<String> items}) {
-    //TODO: 需要添加真实查询逻辑
-    return M3EDismissibleCardList(
-      itemCount: items.length,
-      itemBuilder: (ctx, i) => Text(items[i]),
-      onDismiss: (i, dir) async {
-        items.removeAt(i);
-        return true;
-      },
-      style: M3EDismissibleCardStyle(
-        outerRadius: 24,
-        dismissThreshold: 0.3,
-        neighbourPull: 12.0,
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        elevation: 0,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -269,12 +253,82 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                   SizedBox(height: AppSpacing.base),
 
                   // 任务卡片显示区域
-                  //TODO: 需要在接入数据库后对接
+                  const _InboxTaskList(),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 任务列表数据提供者（Riverpod 状态），使用 mock 数据进行初始化
+final _inboxTasksProvider = StateProvider<Map<String, List<Task>>>((ref) {
+  return buildInboxMockData();
+});
+
+class _InboxTaskList extends ConsumerWidget {
+  const _InboxTaskList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final modeIndex = ref.watch(_currentModeIndexProvider);
+    final modeName = _inboxModes[modeIndex];
+    final tasksMap = ref.watch(_inboxTasksProvider);
+    final tasks = tasksMap[modeName] ?? [];
+
+    if (tasks.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32.0),
+        child: Center(
+          child: Text(
+            '没有任务',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return M3EDismissibleCardList(
+      itemCount: tasks.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (ctx, i) {
+        final task = tasks[i];
+        return TaskCard(
+          title: task.title,
+          description: task.description,
+          isCompleted: task.isCompleted,
+          priority: task.priority,
+          ddl: task.ddl,
+          est: task.est,
+          compact: true,
+          onToggle: (completed) {
+            ref.read(_inboxTasksProvider.notifier).update((state) {
+              final list = List<Task>.from(state[modeName]!);
+              list[i] = list[i].copyWith(isCompleted: completed);
+              return {...state, modeName: list};
+            });
+          },
+        );
+      },
+      onDismiss: (i, dir) async {
+        ref.read(_inboxTasksProvider.notifier).update((state) {
+          final list = List<Task>.from(state[modeName]!)..removeAt(i);
+          return {...state, modeName: list};
+        });
+        return true;
+      },
+      style: M3EDismissibleCardStyle(
+        outerRadius: 24,
+        dismissThreshold: 0.3,
+        neighbourPull: 12.0,
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        elevation: 0,
       ),
     );
   }

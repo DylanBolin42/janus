@@ -5,7 +5,6 @@ import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:liquid_glass_widgets/widgets/surfaces/glass_scaffold.dart';
 import 'package:janus/shared/custom_appbar.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
