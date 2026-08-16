@@ -22,8 +22,7 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
   @override
   Widget build(BuildContext context) {
     final settings =
-        ref.watch(appSettingsNotifierProvider).valueOrNull ??
-        const AppSettings();
+        ref.watch(appSettingsProvider).value ?? const AppSettings();
     final tt = Theme.of(context).textTheme;
     return GlassScaffold(
       topEdgeFade: false,
@@ -93,7 +92,7 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                     value: settings.useLogToTrain,
                     onChanged: (status) {
                       ref
-                          .read(appSettingsNotifierProvider.notifier)
+                          .read(appSettingsProvider.notifier)
                           .setUseLogToTrain(status);
                     },
                   ),

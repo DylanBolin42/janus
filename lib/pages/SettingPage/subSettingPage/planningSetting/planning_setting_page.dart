@@ -21,8 +21,7 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
   @override
   Widget build(BuildContext context) {
     final settings =
-        ref.watch(appSettingsNotifierProvider).valueOrNull ??
-        const AppSettings();
+        ref.watch(appSettingsProvider).value ?? const AppSettings();
     final tt = Theme.of(context).textTheme;
     return GlassScaffold(
       topEdgeFade: false,
@@ -97,7 +96,7 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setWorkingDayTaskDensity(density);
                         },
                       );
@@ -121,7 +120,7 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setRestDayTaskDensity(density);
                         },
                       );
@@ -152,7 +151,7 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setPlanningHorizon(horizon);
                         },
                       );

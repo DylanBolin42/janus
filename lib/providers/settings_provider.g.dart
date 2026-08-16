@@ -6,66 +6,163 @@ part of 'settings_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$settingsServiceHash() => r'95f01e6a33f7fbafdcb42b6855a64b0fd7eb39f7';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Provides the singleton [SettingsService] instance.
+
+@ProviderFor(settingsService)
+final settingsServiceProvider = SettingsServiceProvider._();
 
 /// Provides the singleton [SettingsService] instance.
-///
-/// Copied from [settingsService].
-@ProviderFor(settingsService)
-final settingsServiceProvider = AutoDisposeProvider<SettingsService>.internal(
-  settingsService,
-  name: r'settingsServiceProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$settingsServiceHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SettingsServiceRef = AutoDisposeProviderRef<SettingsService>;
-String _$themeModeHash() => r'693a142363301131a896240439e91c2326a7ee52';
+final class SettingsServiceProvider
+    extends
+        $FunctionalProvider<SettingsService, SettingsService, SettingsService>
+    with $Provider<SettingsService> {
+  /// Provides the singleton [SettingsService] instance.
+  SettingsServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'settingsServiceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
-/// without watching the full [AppSettings] in main.dart.
-///
-/// Copied from [themeMode].
-@ProviderFor(themeMode)
-final themeModeProvider = AutoDisposeProvider<ThemeMode>.internal(
-  themeMode,
-  name: r'themeModeProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$themeModeHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+  @override
+  String debugGetCreateSourceHash() => _$settingsServiceHash();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ThemeModeRef = AutoDisposeProviderRef<ThemeMode>;
-String _$appSettingsNotifierHash() =>
-    r'5728099ab6b1b79150d6639e9498cf70cd6d8715';
+  @$internal
+  @override
+  $ProviderElement<SettingsService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SettingsService create(Ref ref) {
+    return settingsService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SettingsService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SettingsService>(value),
+    );
+  }
+}
+
+String _$settingsServiceHash() => r'626173756d1be84bec56f4e54c791f6675823426';
 
 /// Async notifier that loads, exposes, and persists [AppSettings].
 ///
 /// Every mutation calls [_persist] which saves to [shared_preferences]
 /// then updates [state] so all watchers rebuild.
-///
-/// Copied from [AppSettingsNotifier].
-@ProviderFor(AppSettingsNotifier)
-final appSettingsNotifierProvider =
-    AutoDisposeAsyncNotifierProvider<AppSettingsNotifier, AppSettings>.internal(
-      AppSettingsNotifier.new,
-      name: r'appSettingsNotifierProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$appSettingsNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
 
-typedef _$AppSettingsNotifier = AutoDisposeAsyncNotifier<AppSettings>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+@ProviderFor(AppSettingsNotifier)
+final appSettingsProvider = AppSettingsNotifierProvider._();
+
+/// Async notifier that loads, exposes, and persists [AppSettings].
+///
+/// Every mutation calls [_persist] which saves to [shared_preferences]
+/// then updates [state] so all watchers rebuild.
+final class AppSettingsNotifierProvider
+    extends $AsyncNotifierProvider<AppSettingsNotifier, AppSettings> {
+  /// Async notifier that loads, exposes, and persists [AppSettings].
+  ///
+  /// Every mutation calls [_persist] which saves to [shared_preferences]
+  /// then updates [state] so all watchers rebuild.
+  AppSettingsNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'appSettingsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$appSettingsNotifierHash();
+
+  @$internal
+  @override
+  AppSettingsNotifier create() => AppSettingsNotifier();
+}
+
+String _$appSettingsNotifierHash() =>
+    r'aee37325e7e6bc8c8596c178399903c982d2d0d6';
+
+/// Async notifier that loads, exposes, and persists [AppSettings].
+///
+/// Every mutation calls [_persist] which saves to [shared_preferences]
+/// then updates [state] so all watchers rebuild.
+
+abstract class _$AppSettingsNotifier extends $AsyncNotifier<AppSettings> {
+  FutureOr<AppSettings> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<AppSettings>, AppSettings>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<AppSettings>, AppSettings>,
+              AsyncValue<AppSettings>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
+/// without watching the full [AppSettings] in main.dart.
+
+@ProviderFor(themeMode)
+final themeModeProvider = ThemeModeProvider._();
+
+/// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
+/// without watching the full [AppSettings] in main.dart.
+
+final class ThemeModeProvider
+    extends $FunctionalProvider<ThemeMode, ThemeMode, ThemeMode>
+    with $Provider<ThemeMode> {
+  /// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
+  /// without watching the full [AppSettings] in main.dart.
+  ThemeModeProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'themeModeProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$themeModeHash();
+
+  @$internal
+  @override
+  $ProviderElement<ThemeMode> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ThemeMode create(Ref ref) {
+    return themeMode(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ThemeMode value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ThemeMode>(value),
+    );
+  }
+}
+
+String _$themeModeHash() => r'68ad0531a0102027031313f7c314f74c05c932c4';

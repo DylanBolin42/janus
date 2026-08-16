@@ -20,8 +20,7 @@ class _NotificationSettingPageState
   @override
   Widget build(BuildContext context) {
     final settings =
-        ref.watch(appSettingsNotifierProvider).valueOrNull ??
-        const AppSettings();
+        ref.watch(appSettingsProvider).value ?? const AppSettings();
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
@@ -40,7 +39,7 @@ class _NotificationSettingPageState
                     value: settings.isNotificationEnabled,
                     onChanged: (status) {
                       ref
-                          .read(appSettingsNotifierProvider.notifier)
+                          .read(appSettingsProvider.notifier)
                           .setNotificationEnabled(status);
                     },
                   ),
@@ -69,7 +68,7 @@ class _NotificationSettingPageState
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setUrgentNotificationStyle(mode);
                         },
                       );
@@ -95,7 +94,7 @@ class _NotificationSettingPageState
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setApproachingNotificationStyle(mode);
                         },
                       );

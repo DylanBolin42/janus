@@ -90,7 +90,8 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RoutePath.setting,
       name: 'setting',
-      builder: (context, state) => const Settingpage(),
+      builder: (context, state) =>
+          const Settingpage(), //TODO: 存在多端渲染策略问题，移动端动画正常，但是桌面端出现短暂背景渲染失败问题，需要解决或抑制
       routes: [
         GoRoute(
           path: RoutePath.generalSetting,

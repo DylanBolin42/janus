@@ -17,8 +17,7 @@ class GeneralSettingPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch the async settings — use defaults while loading
     final settings =
-        ref.watch(appSettingsNotifierProvider).valueOrNull ??
-        const AppSettings();
+        ref.watch(appSettingsProvider).value ?? const AppSettings();
     // define text style
     final tt = Theme.of(context).textTheme;
 
@@ -63,7 +62,7 @@ class GeneralSettingPage extends ConsumerWidget {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setThemeMode(mode);
                         },
                       );
@@ -92,7 +91,7 @@ class GeneralSettingPage extends ConsumerWidget {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setGlassIntensity(intensity);
                         },
                       );
@@ -126,7 +125,7 @@ class GeneralSettingPage extends ConsumerWidget {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setLanguage(lang);
                         },
                       );
@@ -159,7 +158,7 @@ class GeneralSettingPage extends ConsumerWidget {
                         isSelected: isSelected,
                         onTap: () {
                           ref
-                              .read(appSettingsNotifierProvider.notifier)
+                              .read(appSettingsProvider.notifier)
                               .setTabNamingStyle(style);
                         },
                       );

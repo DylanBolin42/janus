@@ -6,9 +6,7 @@ part of 'app_settings.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$AppSettingsImpl _$$AppSettingsImplFromJson(
-  Map<String, dynamic> json,
-) => _$AppSettingsImpl(
+_AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
   themeMode:
       $enumDecodeNullable(_$AppThemeModeEnumMap, json['themeMode']) ??
       AppThemeMode.system,
@@ -100,8 +98,8 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(
       TaskCreationMode.classic,
 );
 
-Map<String, dynamic> _$$AppSettingsImplToJson(
-  _$AppSettingsImpl instance,
+Map<String, dynamic> _$AppSettingsToJson(
+  _AppSettings instance,
 ) => <String, dynamic>{
   'themeMode': _$AppThemeModeEnumMap[instance.themeMode]!,
   'glassIntensity': _$GlassIntensityEnumMap[instance.glassIntensity]!,
