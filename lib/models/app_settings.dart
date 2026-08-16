@@ -512,6 +512,42 @@ extension PlanningHorizonLabel on PlanningHorizon {
   }
 }
 
+// 用户操作偏好设置
+enum TaskCreationMode {
+  @JsonValue('classic')
+  classic,
+  @JsonValue('fill_in_blanks')
+  fillInBlanks,
+  @JsonValue('natural')
+  naturalLanguage,
+}
+
+extension TaskCreationModeLabel on TaskCreationMode {
+  String get label {
+    switch (this) {
+      case TaskCreationMode.classic:
+        return '经典';
+      case TaskCreationMode.fillInBlanks:
+        return '填空式';
+      case TaskCreationMode.naturalLanguage:
+        return '自然语言';
+    }
+  }
+}
+
+extension TaskCreationModeIcon on TaskCreationMode {
+  IconData get icon {
+    switch (this) {
+      case TaskCreationMode.classic:
+        return Icons.edit_rounded;
+      case TaskCreationMode.fillInBlanks:
+        return Icons.text_fields_rounded;
+      case TaskCreationMode.naturalLanguage:
+        return Icons.chat_bubble_rounded;
+    }
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // JSON Converters
 // ─────────────────────────────────────────────────────────────────────────────
@@ -540,7 +576,7 @@ class TimeOfDayConverter implements JsonConverter<TimeOfDay, String> {
 /// All fields have sensible defaults. Serializes to/from JSON
 /// for persistence via [shared_preferences].
 @freezed
-class AppSettings with _$AppSettings {
+abstract class AppSettings with _$AppSettings {
   const factory AppSettings({
     // Gereral settings
     @Default(AppThemeMode.system) AppThemeMode themeMode,
@@ -590,6 +626,9 @@ class AppSettings with _$AppSettings {
     @Default(false) bool aiAnalyseReport,
     @Default(false) bool aiTextToTask,
     @Default(false) bool aiPicToTask,
+
+    // User Preference
+    @Default(TaskCreationMode.classic) TaskCreationMode taskCreationMode,
   }) = _AppSettings;
 
   const AppSettings._();

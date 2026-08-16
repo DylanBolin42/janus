@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:janus/pages/Inbox/inbox_page.dart';
+import 'package:janus/pages/InboxPage/inbox_page.dart';
 
 void main() {
   Future<void> pumpInbox(WidgetTester tester) async {
@@ -21,7 +21,8 @@ void main() {
 
   /// 点击右侧箭头切换到下一个模式
   Future<void> nextMode(WidgetTester tester) async {
-    await tester.tap(find.byIcon(Icons.keyboard_arrow_right_rounded));
+    // M3EButtonGroup 会渲染两份箭头图标（动画层），点第一份即可
+    await tester.tap(find.byIcon(Icons.keyboard_arrow_right_rounded).first);
     await tester.pumpAndSettle();
   }
 
@@ -32,33 +33,38 @@ void main() {
     expect(find.text('BRO'), findsOneWidget);
   });
 
-  testWidgets('默认显示 EMERGENCY 模式任务', (tester) async {
+  // ReelText 将模式标签拆成单字符 Text（滚动动画），故用模式特有字符断言当前模式。
+  // 每份 reel 文本渲染两份副本（滚动用）。
+
+  testWidgets('默认显示 EMERGENCY 模式（空任务列表）', (tester) async {
     await pumpInbox(tester);
 
-    expect(find.text('修复登录页闪退'), findsOneWidget);
-    expect(find.text('上线支付网关补丁'), findsOneWidget);
-    // 不应显示其他模式的任务
-    expect(find.text('整理 Q3 需求文档'), findsNothing);
-  });
-
-  testWidgets('切换到 PLANNED 模式显示计划任务', (tester) async {
-    await pumpInbox(tester);
-
-    await nextMode(tester);
-
-    expect(find.text('整理 Q3 需求文档'), findsOneWidget);
-    expect(find.text('准备团队周会'), findsOneWidget);
+    // 'Y' 是 EMERGENCY 特有字符（reel 两份副本）
+    expect(find.text('Y'), findsNWidgets(2));
+    // 任务列表尚未接入数据库，不渲染 mock 任务
     expect(find.text('修复登录页闪退'), findsNothing);
   });
 
-  testWidgets('切换到 COMING 模式显示即将到来任务', (tester) async {
+  testWidgets('切换到 PLANNED 模式', (tester) async {
+    await pumpInbox(tester);
+
+    await nextMode(tester);
+
+    // EMERGENCY 字符消失，'P' 是 PLANNED 特有字符（两份）
+    expect(find.text('Y'), findsNothing);
+    expect(find.text('P'), findsNWidgets(2));
+    expect(find.text('修复登录页闪退'), findsNothing);
+  });
+
+  testWidgets('切换到 COMING 模式', (tester) async {
     await pumpInbox(tester);
 
     await nextMode(tester);
     await nextMode(tester);
 
-    expect(find.text('年度技术分享 PPT'), findsOneWidget);
-    expect(find.text('规划年末旅行'), findsOneWidget);
-    expect(find.text('整理 Q3 需求文档'), findsNothing);
+    // PLANNED 字符消失，页面正常渲染
+    expect(find.text('P'), findsNothing);
+    expect(find.text('GOOD MORNING'), findsOneWidget);
+    expect(find.text('修复登录页闪退'), findsNothing);
   });
 }

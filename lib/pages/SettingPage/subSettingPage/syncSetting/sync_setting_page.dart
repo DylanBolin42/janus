@@ -37,8 +37,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
   @override
   Widget build(BuildContext context) {
     final settings =
-        ref.watch(appSettingsNotifierProvider).valueOrNull ??
-        const AppSettings();
+        ref.watch(appSettingsProvider).value ?? const AppSettings();
     final tt = Theme.of(context).textTheme;
     return GlassScaffold(
       topEdgeFade: false,
@@ -65,7 +64,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                     value: settings.syncEnabled,
                     onChanged: (val) {
                       ref
-                          .read(appSettingsNotifierProvider.notifier)
+                          .read(appSettingsProvider.notifier)
                           .setSyncEnabled(val);
                     },
                   ),
@@ -136,7 +135,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                           isSelected: isSelected,
                           onTap: () {
                             ref
-                                .read(appSettingsNotifierProvider.notifier)
+                                .read(appSettingsProvider.notifier)
                                 .setSyncMode(mode);
                           },
                         );
@@ -203,7 +202,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                           isSelected: isSelected,
                           onTap: () {
                             ref
-                                .read(appSettingsNotifierProvider.notifier)
+                                .read(appSettingsProvider.notifier)
                                 .setSyncTrigger(trigger);
                           },
                         );
@@ -255,7 +254,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                       onCompleted: (timeOfDay) {
                         if (timeOfDay == null) return;
                         ref
-                            .read(appSettingsNotifierProvider.notifier)
+                            .read(appSettingsProvider.notifier)
                             .setSyncDurationOnInterval(
                               Duration(
                                 hours: timeOfDay.hour,
@@ -318,7 +317,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                           isSelected: isSelected,
                           onTap: () {
                             ref
-                                .read(appSettingsNotifierProvider.notifier)
+                                .read(appSettingsProvider.notifier)
                                 .setRsaType(type);
                           },
                         );
@@ -355,7 +354,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                     value: settings.useAppLock,
                     onChanged: (status) {
                       ref
-                          .read(appSettingsNotifierProvider.notifier)
+                          .read(appSettingsProvider.notifier)
                           .setUseAppLock(status);
                     },
                   ),

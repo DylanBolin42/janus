@@ -27,6 +27,7 @@ class AppSpacing {
 
   /// Base spacing unit (8px scale)
   static const double base = 8.0;
+  static const double contentInterval = 16.0;
 
   /// Maximum content width on desktop
   static const double containerMax = 1280.0;

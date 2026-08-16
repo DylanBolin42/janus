@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/services/settings_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'settings_provider.g.dart';
 
@@ -11,7 +11,7 @@ part 'settings_provider.g.dart';
 
 /// Provides the singleton [SettingsService] instance.
 @riverpod
-SettingsService settingsService(SettingsServiceRef ref) {
+SettingsService settingsService(Ref ref) {
   return SettingsService();
 }
 
@@ -42,29 +42,25 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   Future<void> setThemeMode(AppThemeMode mode) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(themeMode: mode),
+      (state.value ?? const AppSettings()).copyWith(themeMode: mode),
     );
   }
 
   Future<void> setGlassIntensity(GlassIntensity intensity) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        glassIntensity: intensity,
-      ),
+      (state.value ?? const AppSettings()).copyWith(glassIntensity: intensity),
     );
   }
 
   Future<void> setLanguage(AppLanguage language) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(language: language),
+      (state.value ?? const AppSettings()).copyWith(language: language),
     );
   }
 
   Future<void> setTabNamingStyle(TabNamingStyle style) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        tabNamingStyle: style,
-      ),
+      (state.value ?? const AppSettings()).copyWith(tabNamingStyle: style),
     );
   }
 
@@ -72,7 +68,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   Future<void> setNotificationEnabled(bool enabled) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
+      (state.value ?? const AppSettings()).copyWith(
         isNotificationEnabled: enabled,
       ),
     );
@@ -80,7 +76,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   Future<void> setUrgentNotificationStyle(UrgentNotificationStyle style) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
+      (state.value ?? const AppSettings()).copyWith(
         urgentNotificationStyle: style,
       ),
     );
@@ -90,7 +86,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     ApproachingNotificationStyle style,
   ) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
+      (state.value ?? const AppSettings()).copyWith(
         approachingNotificationStyle: style,
       ),
     );
@@ -100,7 +96,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   Future<void> setTempLeaveDuration(TempLeaveDuration duration) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
+      (state.value ?? const AppSettings()).copyWith(
         tempLeaveDuration: duration,
       ),
     );
@@ -108,17 +104,13 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   Future<void> setTempLeaveTimes(TempLeaveTimes times) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        tempLeaveTimes: times,
-      ),
+      (state.value ?? const AppSettings()).copyWith(tempLeaveTimes: times),
     );
   }
 
   Future<void> setFocusSceneRenderMode(FocusSceneRenderMode mode) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        focusSceneRenderMode: mode,
-      ),
+      (state.value ?? const AppSettings()).copyWith(focusSceneRenderMode: mode),
     );
   }
 
@@ -126,7 +118,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     FocusSceneRenderQuality quality,
   ) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
+      (state.value ?? const AppSettings()).copyWith(
         focusSceneRenderQuality: quality,
       ),
     );
@@ -135,34 +127,32 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   // Set Storage Settings
   Future<void> setUseLogToTrain(bool enabled) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        useLogToTrain: enabled,
-      ),
+      (state.value ?? const AppSettings()).copyWith(useLogToTrain: enabled),
     );
   }
 
   // Set Sync Settings
   Future<void> setSyncEnabled(bool enabled) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(syncEnabled: enabled),
+      (state.value ?? const AppSettings()).copyWith(syncEnabled: enabled),
     );
   }
 
   Future<void> setSyncMode(SyncMode mode) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(syncMode: mode),
+      (state.value ?? const AppSettings()).copyWith(syncMode: mode),
     );
   }
 
   Future<void> setSyncTrigger(SyncTrigger trigger) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(syncTrigger: trigger),
+      (state.value ?? const AppSettings()).copyWith(syncTrigger: trigger),
     );
   }
 
   Future<void> setSyncDurationOnInterval(Duration duration) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
+      (state.value ?? const AppSettings()).copyWith(
         syncDurationOnInterval: duration,
       ),
     );
@@ -170,20 +160,20 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   Future<void> setRsaType(RsaType type) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(rsaType: type),
+      (state.value ?? const AppSettings()).copyWith(rsaType: type),
     );
   }
 
   Future<void> setUseAppLock(bool enabled) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(useAppLock: enabled),
+      (state.value ?? const AppSettings()).copyWith(useAppLock: enabled),
     );
   }
 
   // Planning settings
   Future<void> setWorkingDayTaskDensity(WorkingDayTaskDensity type) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
+      (state.value ?? const AppSettings()).copyWith(
         workingDayTaskDensity: type,
       ),
     );
@@ -191,48 +181,45 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 
   Future<void> setRestDayTaskDensity(RestDayTaskDensity type) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        restDayTaskDensity: type,
-      ),
+      (state.value ?? const AppSettings()).copyWith(restDayTaskDensity: type),
     );
   }
 
   Future<void> setPlanningHorizon(PlanningHorizon horizon) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        planningHorizon: horizon,
-      ),
+      (state.value ?? const AppSettings()).copyWith(planningHorizon: horizon),
     );
   }
 
   // AI settings
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        aiDailySummary: enabled,
-      ),
+      (state.value ?? const AppSettings()).copyWith(aiDailySummary: enabled),
     );
   }
 
   Future<void> setAiAnalyseReport(bool enabled) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        aiAnalyseReport: enabled,
-      ),
+      (state.value ?? const AppSettings()).copyWith(aiAnalyseReport: enabled),
     );
   }
 
   Future<void> setAiTextToTask(bool enabled) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(
-        aiTextToTask: enabled,
-      ),
+      (state.value ?? const AppSettings()).copyWith(aiTextToTask: enabled),
     );
   }
 
   Future<void> setAiPicToTask(bool enabled) async {
     await _persist(
-      (state.valueOrNull ?? const AppSettings()).copyWith(aiPicToTask: enabled),
+      (state.value ?? const AppSettings()).copyWith(aiPicToTask: enabled),
+    );
+  }
+
+  // User Preference
+  Future<void> setTaskCreationMode(TaskCreationMode mode) async {
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(taskCreationMode: mode),
     );
   }
 }
@@ -243,7 +230,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
 /// Exposes the resolved [ThemeMode] so [MaterialApp] can react to changes
 /// without watching the full [AppSettings] in main.dart.
 @riverpod
-ThemeMode themeMode(ThemeModeRef ref) {
-  final settingsAsync = ref.watch(appSettingsNotifierProvider);
-  return settingsAsync.valueOrNull?.themeMode.toFlutter() ?? ThemeMode.system;
+ThemeMode themeMode(Ref ref) {
+  final settingsAsync = ref.watch(appSettingsProvider);
+  return settingsAsync.value?.themeMode.toFlutter() ?? ThemeMode.system;
 }

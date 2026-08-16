@@ -6,9 +6,7 @@ part of 'app_settings.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$AppSettingsImpl _$$AppSettingsImplFromJson(
-  Map<String, dynamic> json,
-) => _$AppSettingsImpl(
+_AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
   themeMode:
       $enumDecodeNullable(_$AppThemeModeEnumMap, json['themeMode']) ??
       AppThemeMode.system,
@@ -92,10 +90,16 @@ _$AppSettingsImpl _$$AppSettingsImplFromJson(
   aiAnalyseReport: json['aiAnalyseReport'] as bool? ?? false,
   aiTextToTask: json['aiTextToTask'] as bool? ?? false,
   aiPicToTask: json['aiPicToTask'] as bool? ?? false,
+  taskCreationMode:
+      $enumDecodeNullable(
+        _$TaskCreationModeEnumMap,
+        json['taskCreationMode'],
+      ) ??
+      TaskCreationMode.classic,
 );
 
-Map<String, dynamic> _$$AppSettingsImplToJson(
-  _$AppSettingsImpl instance,
+Map<String, dynamic> _$AppSettingsToJson(
+  _AppSettings instance,
 ) => <String, dynamic>{
   'themeMode': _$AppThemeModeEnumMap[instance.themeMode]!,
   'glassIntensity': _$GlassIntensityEnumMap[instance.glassIntensity]!,
@@ -132,6 +136,7 @@ Map<String, dynamic> _$$AppSettingsImplToJson(
   'aiAnalyseReport': instance.aiAnalyseReport,
   'aiTextToTask': instance.aiTextToTask,
   'aiPicToTask': instance.aiPicToTask,
+  'taskCreationMode': _$TaskCreationModeEnumMap[instance.taskCreationMode]!,
 };
 
 const _$AppThemeModeEnumMap = {
@@ -234,4 +239,10 @@ const _$PlanningHorizonEnumMap = {
   PlanningHorizon.days: 'days',
   PlanningHorizon.weeks: 'weeks',
   PlanningHorizon.months: 'months',
+};
+
+const _$TaskCreationModeEnumMap = {
+  TaskCreationMode.classic: 'classic',
+  TaskCreationMode.fillInBlanks: 'fill_in_blanks',
+  TaskCreationMode.naturalLanguage: 'natural',
 };

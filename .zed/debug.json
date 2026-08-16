@@ -1,0 +1,81 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+//
+// 本文件为 janus 的多端 Flutter 调试配置（基于 Dart 扩展的 debug adapter）。
+// 项目使用 FVM 锁定 Flutter 3.44.4，因此所有任务均开启 useFvm。
+// 在 "New Debug Session"（debugger: start）中选择对应任务即可调试。
+[
+  {
+    // Linux 桌面端 —— 当前机器可直接运行
+    "label": "Flutter: Linux 桌面",
+    "adapter": "Dart",
+    "type": "flutter",
+    "request": "launch",
+    "program": "lib/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "useFvm": true,
+    "flutterMode": "debug",
+    "deviceId": "linux"
+  },
+  {
+    // Chrome（Web）—— 当前机器可直接运行
+    "label": "Flutter: Chrome (Web)",
+    "adapter": "Dart",
+    "type": "flutter",
+    "request": "launch",
+    "program": "lib/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "useFvm": true,
+    "flutterMode": "debug",
+    "deviceId": "chrome"
+  },
+  {
+    // Android —— 不写死 deviceId，Flutter 自动选择已连接的模拟器/真机；
+    // 同时连接多个设备时会在调试终端里提示选择
+    "label": "Flutter: Android (自动选择设备)",
+    "adapter": "Dart",
+    "type": "flutter",
+    "request": "launch",
+    "program": "lib/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "useFvm": true,
+    "flutterMode": "debug"
+  },
+  {
+    // iOS 模拟器 —— 仅 macOS 宿主机可用；自动选择已启动的模拟器
+    "label": "Flutter: iOS (自动选择模拟器)",
+    "adapter": "Dart",
+    "type": "flutter",
+    "request": "launch",
+    "program": "lib/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "useFvm": true,
+    "flutterMode": "debug"
+  },
+  {
+    // macOS 桌面端 —— 仅 macOS 宿主机可用
+    "label": "Flutter: macOS",
+    "adapter": "Dart",
+    "type": "flutter",
+    "request": "launch",
+    "program": "lib/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "useFvm": true,
+    "flutterMode": "debug",
+    "deviceId": "macos"
+  },
+  {
+    // Windows 桌面端 —— 仅 Windows 宿主机可用
+    "label": "Flutter: Windows",
+    "adapter": "Dart",
+    "type": "flutter",
+    "request": "launch",
+    "program": "lib/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "useFvm": true,
+    "flutterMode": "debug",
+    "deviceId": "windows"
+  }
+]
