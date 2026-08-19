@@ -25,17 +25,17 @@ class GeneralSettingPage extends ConsumerWidget {
     );
     final glassIntensity = ref.watch(
       appSettingsProvider.select(
-        (s) => s.value?.glassIntensity ?? GlassIntensity.balanced,
+        (s) => s.value?.glassIntensity ?? GlassIntensity.moderate,
       ),
     );
     final language = ref.watch(
       appSettingsProvider.select(
-        (s) => s.value?.language ?? AppLanguage.system,
+        (s) => s.value?.language ?? AppLanguage.chinese,
       ),
     );
     final tabNamingStyle = ref.watch(
       appSettingsProvider.select(
-        (s) => s.value?.tabNamingStyle ?? TabNamingStyle.standard,
+        (s) => s.value?.tabNamingStyle ?? TabNamingStyle.classic,
       ),
     );
 
