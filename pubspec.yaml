@@ -62,6 +62,7 @@ dependencies:
   material_3_expressive: ^1.0.5
   path_provider: ^2.1.6
   logger: ^2.7.0
+  expandable_richtext: ^1.0.7
 
 dev_dependencies:
   flutter_test:

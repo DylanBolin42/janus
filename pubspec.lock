@@ -30,7 +30,7 @@ packages:
     description:
       name: animated_checkmark
       sha256: "978d1a685b2c6d5d61d5e9957e018fc1bac3de9ccc4c9c54f7ad0b01d962885c"
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.1.0"
   args:
@@ -54,7 +54,7 @@ packages:
     description:
       name: blurrycontainer
       sha256: ceb51f5bf0c746509a64fec43988a482adbcdf8bc5e0a11f3cc49b9ed35ff230
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
   boolean_selector:
@@ -86,17 +86,9 @@ packages:
     description:
       name: build_daemon
       sha256: "79e05eaf15a48d7230b053a4363b8eaac0cc234bbd0134c3229455481f55cbc6"
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.1.5"
-  build_resolvers:
-    dependency: transitive
-    description:
-      name: build_resolvers
-      sha256: ee4257b3f20c0c90e72ed2b57ad637f694ccba48839a821e87db762548c22a62
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.5.4"
   build_runner:
     dependency: "direct dev"
     description:
@@ -134,7 +126,7 @@ packages:
     description:
       name: carousel_slider
       sha256: febf4b0163e0242adc13d7a863b04965351f59e7dfea56675c7c2caa7bcd7476
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.1.2"
   characters:
@@ -297,6 +289,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
+  expandable_richtext:
+    dependency: "direct main"
+    description:
+      name: expandable_richtext
+      sha256: "446c5f921e9459e96752352a1d07214bca65031961ce5fef6812a4096d0742a2"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.7"
   fake_async:
     dependency: transitive
     description:
@@ -334,7 +334,7 @@ packages:
     description:
       name: flip_card_swiper
       sha256: "2a376ae21d4aef17fcf3b529456ef96397de867bb54398a57cbb8920f1187852"
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
   flutter:
@@ -347,7 +347,7 @@ packages:
     description:
       name: flutter_card_swiper
       sha256: "895c6974729b51cf73a35f1b58ab57a0af3293131319e2cbccac3bc57ffcd69f"
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "7.2.0"
   flutter_lints:
@@ -562,7 +562,7 @@ packages:
     description:
       name: linear_progress_bar
       sha256: ea796a63477323cc7018f4d241175db167fd4066a268db06ecece4d61093bbab
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.0"
   lint:
@@ -570,7 +570,7 @@ packages:
     description:
       name: lint
       sha256: "4a539aa34ec5721a2c7574ae2ca0336738ea4adc2a34887d54b7596310b33c85"
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.10.0"
   lints:
@@ -610,7 +610,7 @@ packages:
     description:
       name: m3e_buttons
       sha256: ab3508570a374a971ca414d30c12a9208bda37f67682dc746872bf3440caa634
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.0.6"
   m3e_dismissible:
@@ -618,7 +618,7 @@ packages:
     description:
       name: m3e_dismissible
       sha256: "1c5db463bf8367e5507225e2bcb2644209b9b2edc12eb652984d1169649f3bac"
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.2"
   matcher:
@@ -682,7 +682,7 @@ packages:
     description:
       name: motor
       sha256: cbd49f21b00e568c2b1a55f134ed803614a107782f4fea7769693bca32940c58
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
   native_toolchain_c:
@@ -834,7 +834,7 @@ packages:
     description:
       name: reel_text
       sha256: "1417a58e994dd494eab4163030f40b3111065b45e09c376b5e6ec16159eee6d7"
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.4.4"
   riverpod:
@@ -1079,7 +1079,7 @@ packages:
     description:
       name: styled_widget
       sha256: "4d439802919b6ccf10d1488798656da8804633b03012682dd1c8ca70a084aa84"
-      url: "https://pub.dev"
+      url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.4.1"
   term_glyph:
@@ -1211,5 +1211,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.11.1 <4.0.0"
+  dart: ">=3.12.0 <4.0.0"
   flutter: ">=3.44.0"
