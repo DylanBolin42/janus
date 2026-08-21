@@ -15,9 +15,30 @@ class GeneralSettingPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch the async settings — use defaults while loading
-    final settings =
-        ref.watch(appSettingsProvider).value ?? const AppSettings();
+    // Performance optimization: watch specific fields via granular .select()
+    // instead of watching the entire appSettingsProvider. This prevents
+    // unnecessary full-page rebuilds when unrelated settings (e.g. sync, AI) change.
+    final themeMode = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.themeMode ?? AppThemeMode.system,
+      ),
+    );
+    final glassIntensity = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.glassIntensity ?? GlassIntensity.moderate,
+      ),
+    );
+    final language = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.language ?? AppLanguage.chinese,
+      ),
+    );
+    final tabNamingStyle = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.tabNamingStyle ?? TabNamingStyle.classic,
+      ),
+    );
+
     // define text style
     final tt = Theme.of(context).textTheme;
 
@@ -47,12 +68,12 @@ class GeneralSettingPage extends ConsumerWidget {
                   title: const Text('显示模式'),
                   description: const Text('选择明暗模式或者根跟随系统'),
                   trailing: GlassPullDownButton(
-                    icon: Icon(settings.themeMode.icon),
-                    label: settings.themeMode.label,
+                    icon: Icon(themeMode.icon),
+                    label: themeMode.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: AppThemeMode.values.map((mode) {
-                      final isSelected = settings.themeMode == mode;
+                      final isSelected = themeMode == mode;
                       return GlassMenuItem(
                         title: mode.label,
                         icon: Icon(
@@ -76,12 +97,12 @@ class GeneralSettingPage extends ConsumerWidget {
                   title: const Text('液态玻璃渲染强度'),
                   description: const Text('根据设备性能，请理性选择'),
                   trailing: GlassPullDownButton(
-                    icon: Icon(settings.glassIntensity.icon),
-                    label: settings.glassIntensity.label,
+                    icon: Icon(glassIntensity.icon),
+                    label: glassIntensity.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: GlassIntensity.values.map((intensity) {
-                      final isSelected = settings.glassIntensity == intensity;
+                      final isSelected = glassIntensity == intensity;
                       return GlassMenuItem(
                         title: intensity.label,
                         icon: Icon(
@@ -110,12 +131,12 @@ class GeneralSettingPage extends ConsumerWidget {
                   leading: const Icon(Icons.language_rounded),
                   description: const Text('配置显示语言'),
                   trailing: GlassPullDownButton(
-                    icon: Icon(settings.language.icon),
-                    label: settings.language.label,
+                    icon: Icon(language.icon),
+                    label: language.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: AppLanguage.values.map((lang) {
-                      final isSelected = settings.language == lang;
+                      final isSelected = language == lang;
                       return GlassMenuItem(
                         title: lang.label,
                         icon: Icon(
@@ -143,12 +164,12 @@ class GeneralSettingPage extends ConsumerWidget {
                   title: const Text('Tab命名风格'),
                   leading: const Icon(Icons.tab_rounded),
                   trailing: GlassPullDownButton(
-                    icon: Icon(settings.tabNamingStyle.icon),
-                    label: settings.tabNamingStyle.label,
+                    icon: Icon(tabNamingStyle.icon),
+                    label: tabNamingStyle.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: TabNamingStyle.values.map((style) {
-                      final isSelected = settings.tabNamingStyle == style;
+                      final isSelected = tabNamingStyle == style;
                       return GlassMenuItem(
                         title: style.label,
                         icon: Icon(
