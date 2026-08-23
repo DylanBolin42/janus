@@ -59,7 +59,11 @@ dependencies:
   linear_progress_bar: ^3.0.0
   m3e_buttons: ^0.0.5
   wolt_modal_sheet: ^0.11.0
+  # 注意：material_3_expressive 1.0.8+ 内部改用 material_ui（Material fork）
+  # 实现下拉菜单等组件，需要应用注册 material_ui 的本地化委托（见 lib/main.dart）。
+  # 镜像（pub.flutter-io.cn）暂未收录 1.0.8，保持 ^1.0.5 由 pub 自行解析。
   material_3_expressive: ^1.0.5
+  material_ui: ^1.0.0
   path_provider: ^2.1.6
   logger: ^2.7.0
   expandable_richtext: ^1.0.7
