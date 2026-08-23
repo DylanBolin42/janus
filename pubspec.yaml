@@ -149,3 +149,6 @@ flutter:
     - family: boldonse
       fonts:
         - asset: assets/fonts/en/boldonse/Boldonse-Regular.ttf
+    - family: elms
+      fonts:
+        - asset: assets/fonts/en/elms/ElmsSans-VariableFont_wght.ttf

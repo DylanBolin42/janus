@@ -139,52 +139,84 @@ class _InboxPageState extends ConsumerState<InboxPage> {
             // 「BoxConstraints forces an infinite width/height」）
             Row(
               children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(64),
-                    ),
-                    padding: EdgeInsets.all(AppSpacing.containerPadding),
-                    child: Row(
-                      children: [
-                        Icon(Icons.calendar_month_rounded),
-                        SizedBox(width: AppSpacing.base),
-                        Text(
-                          items[i].ddl.toString(),
-                          style: tt.labelLarge?.copyWith(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSecondaryContainer,
+                Container(
+                  height: 80,
+                  width: 120,
+                  alignment: AlignmentGeometry.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(64),
+                  ),
+                  padding: EdgeInsets.all(AppSpacing.base * 2),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(Icons.calendar_month_rounded),
+                      SizedBox(width: AppSpacing.base),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Transform.scale(
+                            // 纵向拉伸文字（拉长字形高度）
+                            scaleY: 1.5,
+                            child: Text(
+                              '${items[i].ddl.month}/${items[i].ddl.day}',
+                              style: tt.labelLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondaryContainer,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                          Transform.scale(
+                            scaleY: 1.5,
+                            child: Text(
+                              '${items[i].ddl.hour}:${items[i].ddl.minute}',
+                              style: tt.labelLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
                 SizedBox(width: AppSpacing.base),
                 // EST 构建
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(64),
-                    ),
-                    padding: EdgeInsets.all(AppSpacing.containerPadding),
-                    child: Row(
-                      children: [
-                        Icon(Icons.timer_rounded),
-                        SizedBox(width: AppSpacing.base),
-                        Text(
-                          items[i].ddl.toString(),
+                Container(
+                  width: 120,
+                  height: 80,
+                  alignment: AlignmentGeometry.center,
+
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(64),
+                  ),
+                  padding: EdgeInsets.all(AppSpacing.base * 2),
+                  child: Row(
+                    children: [
+                      Icon(Icons.timer_rounded),
+                      SizedBox(width: AppSpacing.base),
+                      Transform.scale(
+                        scaleY: 1.5,
+                        child: Text(
+                          '${items[i].estHour}:${items[i].estMinute}',
                           style: tt.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
                             color: Theme.of(
                               context,
                             ).colorScheme.onSecondaryContainer,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -228,7 +260,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
           label: '完成',
           stripColor: Theme.of(context).colorScheme.primaryContainer,
           capsuleColor: Theme.of(context).colorScheme.primary,
-          foreground: Theme.of(context).colorScheme.onPrimary,
+          foreground: Theme.of(context).colorScheme.onPrimaryContainer,
           alignment: Alignment.centerRight,
         ),
         // 左滑 → 更多
@@ -237,7 +269,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
           label: '更多',
           stripColor: Theme.of(context).colorScheme.secondaryContainer,
           capsuleColor: Theme.of(context).colorScheme.secondary,
-          foreground: Theme.of(context).colorScheme.onSecondary,
+          foreground: Theme.of(context).colorScheme.onSecondaryContainer,
           alignment: Alignment.centerLeft,
         ),
       ),
