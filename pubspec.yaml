@@ -63,7 +63,7 @@ dependencies:
   # 实现下拉菜单等组件，需要应用注册 material_ui 的本地化委托（见 lib/main.dart）。
   # 镜像（pub.flutter-io.cn）暂未收录 1.0.8，保持 ^1.0.5 由 pub 自行解析。
   material_3_expressive: ^1.0.8
-  material_ui: ^1.0.0
+  material_ui: ^1.0.1
   path_provider: ^2.1.6
   logger: ^2.7.0
 
