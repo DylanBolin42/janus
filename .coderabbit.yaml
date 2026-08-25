@@ -5,7 +5,7 @@ version: "2"
 language: "zh-CN"
 
 reviews:
-  profile: "chill"
+  profile: "assertive"
   request_tools:
     enabled: true
   auto_review:
