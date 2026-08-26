@@ -393,7 +393,7 @@ class _AgileCardStackState extends State<AgileCardStack>
       // Equilibrium deflection ratio: aEff / (1 + aEff).
       final double eqRatio = aEff / (1.0 + aEff); // 0.5, 0.31, 0.20, 0.14
 
-      // Nonlinear approach to the 16 px / 5° bound.
+      // Nonlinear approach to the 16 px / 5° bound.
       // exp approach gives a smooth asymptotic feel (stiffer near limit).
       final double raw = (t * eqRatio * 4.0).clamp(0.0, 8.0);
       final double approach = 1.0 - math.exp(-raw);
@@ -404,11 +404,8 @@ class _AgileCardStackState extends State<AgileCardStack>
       _lowerOffsets[d] = _softClampOffset(_lowerOffsets[d], _maxLowerOffset);
 
       // Angular influence: rotate card in the plane toward the drag direction.
-      // Simple model: angle is proportional to tangential component of drag.
-      _lowerAngles[d] =
-          (dragMag / _maxDragDistance).clamp(0.0, 1.0) *
-          eqRatio *
-          _maxLowerAngle;
+      // Performance optimization: reuse normalized drag magnitude `t` directly.
+      _lowerAngles[d] = t * eqRatio * _maxLowerAngle;
     }
 
     // Clear remaining slots.
