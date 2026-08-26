@@ -37,12 +37,15 @@ class SettingsService {
   static bool isValidEndpointUrl(String url) {
     if (url.trim().isEmpty) return true;
     final uri = Uri.tryParse(url.trim());
-    if (uri == null || !uri.hasScheme || (uri.scheme != 'http' && uri.scheme != 'https')) {
+    if (uri == null ||
+        !uri.hasScheme ||
+        (uri.scheme != 'http' && uri.scheme != 'https')) {
       return false;
     }
     if (uri.scheme == 'http') {
       final host = uri.host.toLowerCase();
-      final isLoopback = host == 'localhost' || host == '127.0.0.1' || host == '::1';
+      final isLoopback =
+          host == 'localhost' || host == '127.0.0.1' || host == '::1';
       if (!isLoopback) return false;
     }
     return true;
