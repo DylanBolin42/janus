@@ -1,6 +1,6 @@
-// 回归测试：验证 material_ui 依赖版本从 1.0.0 升级到 1.0.1 后，
-// pubspec.yaml 的版本约束与 pubspec.lock 的解析结果保持一致，
-// 避免出现 lock 文件未同步更新、或误回退到旧版本/旧哈希的问题。
+// 回归测试：验证 pubspec.yaml 中 material_ui 的版本约束与
+// pubspec.lock 的解析结果保持一致，避免出现 lock 文件未同步更新、
+// 或版本/哈希与声明的约束不匹配的问题。
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -29,16 +29,10 @@ void main() {
       );
     });
 
-    test('pins material_ui to the ^1.0.1 constraint', () {
+    test('pins material_ui to the ^1.0.0 constraint', () {
       final match = constraintPattern.firstMatch(pubspecYamlContent);
       expect(match, isNotNull);
-      expect(match!.group(1), '^1.0.1');
-    });
-
-    test('no longer uses the previous ^1.0.0 constraint', () {
-      final match = constraintPattern.firstMatch(pubspecYamlContent);
-      expect(match, isNotNull);
-      expect(match!.group(1), isNot('^1.0.0'));
+      expect(match!.group(1), '^1.0.0');
     });
   });
 
@@ -67,26 +61,16 @@ void main() {
       return match!;
     }
 
-    test('resolves material_ui to version 1.0.1', () {
+    test('resolves material_ui to version 1.0.0', () {
       final match = matchEntry();
-      expect(match.group(5), '1.0.1');
+      expect(match.group(5), '1.0.0');
     });
 
-    test('records the expected sha256 checksum for the 1.0.1 release', () {
+    test('records the expected sha256 checksum for the 1.0.0 release', () {
       final match = matchEntry();
       expect(
         match.group(2),
-        '4f3f38b9953df0a87d6bf5f21880029f77c47048487d5339410c39936be4683b',
-      );
-    });
-
-    test('sha256 checksum differs from the previous 1.0.0 release', () {
-      final match = matchEntry();
-      expect(
-        match.group(2),
-        isNot(
-          'd9b4f6c69b80bc83d0a14357c86e4c14c8076e807ae73cf2960c8560f623995f',
-        ),
+        'd9b4f6c69b80bc83d0a14357c86e4c14c8076e807ae73cf2960c8560f623995f',
       );
     });
 
@@ -104,7 +88,7 @@ void main() {
 
   group('pubspec.yaml and pubspec.lock consistency', () {
     test(
-      'locked material_ui version satisfies the ^1.0.1 caret constraint',
+      'locked material_ui version satisfies the declared caret constraint',
       () {
         final yamlMatch = RegExp(
           r'^\s*material_ui:\s*\^([\d.]+)\s*$',
@@ -126,7 +110,7 @@ void main() {
             .map(int.parse)
             .toList();
 
-        // Caret syntax ^1.0.1 allows >=1.0.1 <2.0.0.
+        // Caret syntax ^x.y.z allows >=x.y.z <(x+1).0.0.
         expect(lockedParts[0], constraintParts[0]);
         final lockedGteConstraint =
             lockedParts[1] > constraintParts[1] ||
