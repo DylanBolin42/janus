@@ -141,7 +141,11 @@ class _TaskCardState extends ConsumerState<TaskCard> {
                       ),
                     ),
                     child: _completed
-                        ? Icon(Icons.check_rounded, size: 14, color: cs.onPrimary)
+                        ? Icon(
+                            Icons.check_rounded,
+                            size: 14,
+                            color: cs.onPrimary,
+                          )
                         : null,
                   ),
                 ),
