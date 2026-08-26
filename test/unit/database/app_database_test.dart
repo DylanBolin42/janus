@@ -125,4 +125,99 @@ void main() {
       expect(converter.fromSql(converter.toSql(tags)), tags);
     });
   });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TaskDao.seedSampleData / deleteAllData（开发调试用）
+  // ─────────────────────────────────────────────────────────────────────────
+  group('TaskDao.seedSampleData / deleteAllData', () {
+    test('填充示例数据：插入标签与任务并返回任务数', () async {
+      final count = await dao.seedSampleData();
+
+      expect(count, 6);
+
+      final tags = await dao.getAllTags();
+      expect(tags.map((t) => t.name).toSet(), {'工作', '生活', '学习', '健康', '家庭'});
+
+      final tasks = await dao.getAllTasks();
+      expect(tasks, hasLength(6));
+      expect(tasks.map((t) => t.title), contains('买牛奶'));
+      expect(tasks.map((t) => t.priority), contains(3));
+      expect(tasks.map((t) => t.status).toSet(), {0, 1, 2});
+    });
+
+    test('重复填充：标签自动跳过（唯一约束），任务会追加', () async {
+      await dao.seedSampleData();
+      final count = await dao.seedSampleData();
+
+      expect(count, 6); // 再次插入 6 条任务
+      expect(await dao.getAllTags(), hasLength(5)); // 标签不重复
+      expect(await dao.getAllTasks(), hasLength(12));
+    });
+
+    test('deleteAllData 清空任务与标签', () async {
+      await dao.seedSampleData();
+
+      await dao.deleteAllData();
+
+      expect(await dao.getAllTasks(), isEmpty);
+      expect(await dao.getAllTags(), isEmpty);
+    });
+
+    test('deleteAllTasks / deleteAllTags 可单独清空', () async {
+      await dao.seedSampleData();
+
+      expect(await dao.deleteAllTasks(), 6);
+      expect(await dao.getAllTasks(), isEmpty);
+      // 任务清空不影响标签
+      expect(await dao.getAllTags(), hasLength(5));
+
+      expect(await dao.deleteAllTags(), 5);
+      expect(await dao.getAllTags(), isEmpty);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TaskDao.watchIncompleteTasks（首页任务流：滑动完成即从列表消失）
+  // ─────────────────────────────────────────────────────────────────────────
+  group('TaskDao.watchIncompleteTasks', () {
+    test('默认排除已完成任务（status=1）', () async {
+      await dao.seedSampleData();
+
+      // 示例数据里 6 条任务，其中「整理桌面文件」已完成
+      final all = await dao.getAllTasks();
+      expect(all.where((t) => t.status == 1).map((t) => t.title), ['整理桌面文件']);
+
+      final streamTasks = await dao.watchIncompleteTasks().first;
+      expect(streamTasks, hasLength(5));
+      expect(streamTasks.map((t) => t.title), isNot(contains('整理桌面文件')));
+    });
+
+    test('任务被标记完成后自动从流中消失', () async {
+      await dao.seedSampleData();
+
+      final before = await dao.watchIncompleteTasks().first;
+      expect(before, hasLength(5));
+      final target = before.first;
+
+      // 模拟首页右滑完成：把 status 置为 1
+      await dao.editTask(
+        TaskDraft(
+          id: target.id,
+          status: 1,
+          title: target.title,
+          description: target.description,
+          ddl: target.ddl,
+          est: (target.estHour != null && target.estMinute != null)
+              ? TimeOfDay(hour: target.estHour!, minute: target.estMinute!)
+              : null,
+          priority: target.priority,
+          tags: target.tags ?? const [],
+        ),
+      );
+
+      final after = await dao.watchIncompleteTasks().first;
+      expect(after.map((t) => t.id), isNot(contains(target.id)));
+      expect(after, hasLength(4));
+    });
+  });
 }

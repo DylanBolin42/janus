@@ -1,9 +1,9 @@
+import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/shared/custom_appbar.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:card_settings_ui/card_settings_ui.dart';
 
 class Settingpage extends StatefulWidget {
   const Settingpage({super.key});
@@ -118,6 +118,17 @@ class _SettingpageState extends State<Settingpage> {
                     leading: const Icon(Icons.lightbulb_rounded),
                     description: const Text('针对一些复杂功能的辅助性说明'),
                     onPressed: (_) {},
+                  ),
+                ],
+              ),
+              //TODO: This should NOT appear in the RELEASE
+              SettingsSection(
+                tiles: [
+                  SettingsTile(
+                    title: Text('Developer'),
+                    onPressed: (_) {
+                      context.pushNamed('developer');
+                    },
                   ),
                 ],
               ),

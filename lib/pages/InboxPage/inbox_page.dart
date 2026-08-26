@@ -93,11 +93,21 @@ class _InboxPageState extends ConsumerState<InboxPage> {
         //),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(icon, color: foreground, size: 26),
+            // 胶囊宽度随拖拽位移变化：宽度不足时图标等比缩小，避免 RenderFlex 溢出
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Icon(icon, color: foreground, size: 26),
+            ),
             SizedBox(height: AppSpacing.base * 0.5),
             Text(
               label,
+              // 宽度不足时保持单行、边缘淡出，而不是被拆成竖排（每字一行）
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.fade,
               style: TextStyle(
                 color: foreground,
                 fontSize: 13,
@@ -122,8 +132,13 @@ class _InboxPageState extends ConsumerState<InboxPage> {
       itemBuilder: (ctx, i) {
         final task = items[i];
         return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(task.title, style: tt.bodyLarge),
+            Text(
+              task.title,
+              style: tt.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: AppSpacing.base),
             if (task.description != null)
               ExpandableRichText(
@@ -133,15 +148,15 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                 maxLines: 2,
                 style: tt.bodySmall,
               ),
-            SizedBox(height: AppSpacing.base),
+            SizedBox(height: AppSpacing.base * 2),
             // DDL 构建（Expanded 等分宽度；勿用 double.infinity，
             // 否则在 shrinkWrap 列表的无界测量约束下会触发
             // 「BoxConstraints forces an infinite width/height」）
             Row(
               children: [
                 Container(
-                  height: 80,
-                  width: 120,
+                  height: 60,
+                  width: 100,
                   alignment: AlignmentGeometry.center,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.secondaryContainer,
@@ -152,7 +167,12 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Icon(Icons.calendar_month_rounded),
+                      Icon(
+                        Icons.calendar_month_rounded,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
+                      ),
                       SizedBox(width: AppSpacing.base),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -164,6 +184,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                             child: Text(
                               '${items[i].ddl.month}/${items[i].ddl.day}',
                               style: tt.labelLarge?.copyWith(
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(
                                   context,
@@ -176,6 +197,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                             child: Text(
                               '${items[i].ddl.hour}:${items[i].ddl.minute}',
                               style: tt.labelLarge?.copyWith(
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 color: Theme.of(
                                   context,
@@ -191,8 +213,8 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                 SizedBox(width: AppSpacing.base),
                 // EST 构建
                 Container(
-                  width: 120,
-                  height: 80,
+                  width: 110,
+                  height: 60,
                   alignment: AlignmentGeometry.center,
 
                   decoration: BoxDecoration(
@@ -202,7 +224,12 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                   padding: EdgeInsets.all(AppSpacing.base * 2),
                   child: Row(
                     children: [
-                      Icon(Icons.timer_rounded),
+                      Icon(
+                        Icons.timer_rounded,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
+                      ),
                       SizedBox(width: AppSpacing.base),
                       Transform.scale(
                         scaleY: 1.5,
@@ -231,10 +258,21 @@ class _InboxPageState extends ConsumerState<InboxPage> {
           return false;
         }
         if (dir == DismissDirection.startToEnd) {
-          // 确认任务完成
-          final updated = t.copyWith(status: 1);
+          // 确认任务完成：Task → TaskDraft（两者无继承关系，不能强转）
+          final updated = TaskDraft(
+            id: t.id,
+            status: 1,
+            title: t.title,
+            description: t.description,
+            ddl: t.ddl,
+            est: (t.estHour != null && t.estMinute != null)
+                ? TimeOfDay(hour: t.estHour!, minute: t.estMinute!)
+                : null,
+            priority: t.priority,
+            tags: t.tags ?? const [],
+          );
           try {
-            await ref.read(taskDaoProvider).editTask(updated as TaskDraft);
+            await ref.read(taskDaoProvider).editTask(updated);
           } catch (e, stack) {
             AppLogger.e('任务属性：Status变更失败', error: e, stackTrace: stack);
             return false;
@@ -247,13 +285,14 @@ class _InboxPageState extends ConsumerState<InboxPage> {
       },
       style: M3EDismissibleCardStyle(
         outerRadius: 24,
-        dismissThreshold: 0.3,
-        neighbourPull: 12.0,
+        dismissThreshold: 0.4,
+        // 加大周围卡片被拖拽卡片的黏滞拉扯
+        neighbourPull: 32.0,
         color: Theme.of(context).colorScheme.surfaceContainer,
         elevation: 0,
-        // 色带圆角与卡片一致，滑动时视觉更整体
-        backgroundBorderRadius: 24,
-        secondaryBackgroundBorderRadius: 24,
+        // 左右滑胶囊加大为胶囊形圆角
+        backgroundBorderRadius: 128,
+        secondaryBackgroundBorderRadius: 128,
         // 右滑 → 完成
         background: _buildSwipeAction(
           icon: Icons.check_rounded,
@@ -261,7 +300,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
           stripColor: Theme.of(context).colorScheme.primaryContainer,
           capsuleColor: Theme.of(context).colorScheme.primary,
           foreground: Theme.of(context).colorScheme.onPrimaryContainer,
-          alignment: Alignment.centerRight,
+          alignment: Alignment.center,
         ),
         // 左滑 → 更多
         secondaryBackground: _buildSwipeAction(
@@ -270,7 +309,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
           stripColor: Theme.of(context).colorScheme.secondaryContainer,
           capsuleColor: Theme.of(context).colorScheme.secondary,
           foreground: Theme.of(context).colorScheme.onSecondaryContainer,
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.center,
         ),
       ),
     );
@@ -410,6 +449,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
 
                     // 任务显示切换器（M3E ButtonGroup）
                     Container(
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
                       width: double.infinity,
                       height: 100,
                       padding: EdgeInsets.symmetric(
@@ -506,7 +546,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                     // 任务卡片显示区域（实时监听数据库，增删改后自动刷新）
                     //TODO: 根据优先级计算选择性传参
                     ref
-                        .watch(allTasksProvider)
+                        .watch(inboxTasksProvider)
                         .when(
                           data: (tasks) => _buildTaskList(items: tasks),
                           loading: () => const M3ELoadingIndicator(),
@@ -515,6 +555,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                             return const SizedBox(height: 200);
                           },
                         ),
+                    SizedBox(height: AppSpacing.bottomSafeArea),
                   ],
                 ),
               ),

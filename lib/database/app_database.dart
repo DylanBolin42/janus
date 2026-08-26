@@ -65,10 +65,21 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     return (select(tasks)..orderBy([(t) => OrderingTerm.asc(t.ddl)])).get();
   }
 
-  /// 实时监听全部任务（按截止时间升序），增删改后自动推送
+  /// 实时监听全部任务（含已完成，按截止时间升序），增删改后自动推送
   /// 输出： Stream<List<Task>>
   Stream<List<Task>> watchAllTasks() {
     return (select(tasks)..orderBy([(t) => OrderingTerm.asc(t.ddl)])).watch();
+  }
+
+  /// 实时监听未完成任务（status != 1，即排除已完成），按截止时间升序，增删改后自动推送。
+  ///
+  /// 首页任务列表使用此流：任务被滑动标记为完成后（status 变为 1）会自动从流中消失。
+  /// 输出： `Stream<List<Task>>`
+  Stream<List<Task>> watchIncompleteTasks() {
+    return (select(tasks)
+          ..where((t) => t.status.isNotValue(1))
+          ..orderBy([(t) => OrderingTerm.asc(t.ddl)]))
+        .watch();
   }
 
   /// 按优先级查询任务
@@ -111,6 +122,131 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
   /// 查询全部标签（按名称升序），供任务表单的标签下拉框使用。
   Future<List<Tag>> getAllTags() {
     return (select(tags)..orderBy([(t) => OrderingTerm.asc(t.name)])).get();
+  }
+
+  // ------------------------- Utility Zone (开发调试) -------------------------
+  /// 清空全部任务
+  Future<int> deleteAllTasks() => delete(tasks).go();
+
+  /// 清空全部标签
+  Future<int> deleteAllTags() => delete(tags).go();
+
+  /// 清空全部数据（任务 + 标签），开发调试用
+  Future<void> deleteAllData() async {
+    await transaction(() async {
+      await delete(tasks).go();
+      await delete(tags).go();
+    });
+  }
+
+  /// 填充示例数据（开发调试用）
+  /// 返回本次插入的任务数；标签已存在时自动跳过（name 唯一约束）。
+  Future<int> seedSampleData() async {
+    // 以当前时间为基准生成相对 DDL，保证首页展示鲜活
+    final now = DateTime.now();
+    final today9 = DateTime(now.year, now.month, now.day, 9, 0);
+
+    final sampleTags = const ['工作', '生活', '学习', '健康', '家庭'];
+    final sampleTasks =
+        <
+          ({
+            String title,
+            String? description,
+            DateTime ddl,
+            int? estHour,
+            int? estMinute,
+            int priority,
+            List<String> tags,
+            int status,
+          })
+        >[
+          (
+            title: '完成项目答辩 PPT',
+            description: '下午 3 点前交给导师终审',
+            ddl: today9.add(const Duration(hours: 6)),
+            estHour: 2,
+            estMinute: 30,
+            priority: 3,
+            tags: const ['工作'],
+            status: 0,
+          ),
+          (
+            title: '买牛奶',
+            description: '记得买两盒鲜牛奶',
+            ddl: today9.add(const Duration(hours: 3)),
+            estHour: 0,
+            estMinute: 30,
+            priority: 2,
+            tags: const ['生活'],
+            status: 0,
+          ),
+          (
+            title: '阅读《思考，快与慢》30 分钟',
+            description: null,
+            ddl: today9.add(const Duration(days: 1)),
+            estHour: 0,
+            estMinute: 30,
+            priority: 1,
+            tags: const ['学习'],
+            status: 2, // 已规划
+          ),
+          (
+            title: '预约年度体检',
+            description: '选一家离公司近的体检中心',
+            ddl: today9.add(const Duration(days: 2)),
+            estHour: 1,
+            estMinute: 0,
+            priority: 1,
+            tags: const ['健康'],
+            status: 0,
+          ),
+          (
+            title: '给妈妈打电话',
+            description: null,
+            ddl: today9.add(const Duration(days: 3)),
+            estHour: 0,
+            estMinute: 15,
+            priority: 0,
+            tags: const ['家庭'],
+            status: 0,
+          ),
+          (
+            title: '整理桌面文件',
+            description: '归档旧项目，清理回收站',
+            ddl: today9.subtract(const Duration(days: 1)),
+            estHour: 1,
+            estMinute: 0,
+            priority: 0,
+            tags: const ['工作'],
+            status: 1, // 已完成，展示完成态样式
+          ),
+        ];
+
+    var inserted = 0;
+    await transaction(() async {
+      for (final name in sampleTags) {
+        await into(tags).insert(
+          TagsCompanion.insert(name: name),
+          mode: InsertMode.insertOrIgnore,
+        );
+      }
+      for (final t in sampleTasks) {
+        await into(tasks).insert(
+          TasksCompanion.insert(
+            title: t.title,
+            ddl: t.ddl,
+            status: Value(t.status),
+            description: Value(t.description),
+            estHour: Value(t.estHour),
+            estMinute: Value(t.estMinute),
+            priority: Value(t.priority),
+            tags: Value(t.tags),
+          ),
+        );
+        inserted++;
+      }
+    });
+    return inserted;
   }
 }
 
