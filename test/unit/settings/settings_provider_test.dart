@@ -454,6 +454,42 @@ void main() {
       expect(container.read(appSettingsProvider).value!.aiPicToTask, true);
     });
 
+    test('setEndPoint accepts HTTPS and local HTTP, rejects insecure remote HTTP', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      final notifier = notifierOf(container);
+
+      // HTTPS URL should be accepted
+      await notifier.setEndPoint('https://api.openai.com/v1');
+      expect(container.read(appSettingsProvider).value!.endPoint, 'https://api.openai.com/v1');
+
+      // Localhost HTTP should be accepted
+      await notifier.setEndPoint('http://localhost:8080/v1');
+      expect(container.read(appSettingsProvider).value!.endPoint, 'http://localhost:8080/v1');
+
+      // Loopback IP HTTP should be accepted
+      await notifier.setEndPoint('http://127.0.0.1:11434/v1');
+      expect(container.read(appSettingsProvider).value!.endPoint, 'http://127.0.0.1:11434/v1');
+
+      // Empty endpoint should be accepted
+      await notifier.setEndPoint('');
+      expect(container.read(appSettingsProvider).value!.endPoint, '');
+
+      // Insecure remote HTTP URL should throw ArgumentError
+      expect(
+        () => notifier.setEndPoint('http://insecure-api.example.com/v1'),
+        throwsArgumentError,
+      );
+
+      // Invalid format URL should throw ArgumentError
+      expect(
+        () => notifier.setEndPoint('not-a-valid-url'),
+        throwsArgumentError,
+      );
+    });
+
     // 用户偏好
     test('setTaskCreationMode 更新任务创建模式', () async {
       final container = ProviderContainer();
