@@ -444,7 +444,11 @@ TextTheme _buildTextTheme(ColorScheme cs) {
     bodyMedium: _TypographyTokens.bodyMedium.copyWith(color: cs.onSurface),
 
     // ── Labels ──────────────────────────────────────────────────────────
-    labelLarge: _TypographyTokens.labelLarge.copyWith(color: cs.onSurface),
+    labelLarge: _TypographyTokens.labelLarge.copyWith(
+      color: cs.onSurface,
+      fontFamily: 'elms',
+      fontWeight: FontWeight.normal,
+    ),
     labelSmall: _TypographyTokens.labelSmall.copyWith(color: cs.onSurface),
   );
 }

@@ -54,10 +54,8 @@ dependencies:
   flip_card_swiper: ^2.1.0
   reel_text: ^0.4.4
   blurrycontainer: ^2.1.0
-  m3e_dismissible: ^1.0.0
   carousel_slider: ^5.1.2
   linear_progress_bar: ^3.0.0
-  m3e_buttons: ^1.0.0
   wolt_modal_sheet: ^0.11.0
   # 注意：material_3_expressive 1.0.8+ 内部改用 material_ui（Material fork）
   # 实现下拉菜单等组件，需要应用注册 material_ui 的本地化委托（见 lib/main.dart）。
@@ -66,6 +64,8 @@ dependencies:
   material_ui: ^1.0.0
   path_provider: ^2.1.6
   logger: ^2.7.0
+  expandable_richtext: ^1.0.7
+  m3e_dismissible: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -85,10 +85,6 @@ dev_dependencies:
 
 dependency_overrides:
   meta: ^1.19.0
-  # sqlparser 0.44.6 是被撤回的坏版本（breaking change 误发为 patch，
-  # DartPlaceholder 被改成 sealed class，移除了 .when 方法）。
-  # drift_dev 2.34.0 仅支持 ^0.44.0，钉到 0.44.5 以跳过坏版本。
-  sqlparser: 0.44.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -99,6 +95,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Additional license files bundled into the application's legal notices
+  # (e.g. third-party font licenses).
+  licenses:
+    - assets/fonts/en/elms/OFL.txt
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -152,3 +153,6 @@ flutter:
     - family: boldonse
       fonts:
         - asset: assets/fonts/en/boldonse/Boldonse-Regular.ttf
+    - family: elms
+      fonts:
+        - asset: assets/fonts/en/elms/ElmsSans-VariableFont_wght.ttf

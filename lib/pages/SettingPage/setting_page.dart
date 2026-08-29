@@ -1,9 +1,10 @@
+import 'package:card_settings_ui/card_settings_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/shared/custom_appbar.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:card_settings_ui/card_settings_ui.dart';
 
 class Settingpage extends StatefulWidget {
   const Settingpage({super.key});
@@ -121,6 +122,20 @@ class _SettingpageState extends State<Settingpage> {
                   ),
                 ],
               ),
+              // This section only appears in debug builds, never in RELEASE.
+              // The developer route must be guarded with the same condition in
+              // lib/router/app_router.dart to prevent direct navigation in release.
+              if (kDebugMode)
+                SettingsSection(
+                  tiles: [
+                    SettingsTile(
+                      title: Text('Developer'),
+                      onPressed: (_) {
+                        context.pushNamed('developer');
+                      },
+                    ),
+                  ],
+                ),
             ],
           ),
         ),

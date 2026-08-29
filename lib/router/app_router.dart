@@ -4,6 +4,7 @@ import 'package:janus/pages/AppShell/app_shell.dart';
 import 'package:janus/pages/FocusPage/focus_page.dart';
 import 'package:janus/pages/InboxPage/inbox_page.dart';
 import 'package:janus/pages/InsightPage/insight_page.dart';
+import 'package:janus/pages/SettingPage/developer_entrance.dart';
 import 'package:janus/pages/SettingPage/setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/aboutPage/about_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/aiSetting/ai_setting_page.dart';
@@ -36,6 +37,7 @@ class RoutePath {
   static const String aboutPage = 'about';
   static const String planningSetting = 'planning';
   static const String aiSetting = 'ai';
+  static const String developer = 'developer';
 }
 
 /// Display names for each route, used in AppBars.
@@ -132,6 +134,11 @@ final GoRouter appRouter = GoRouter(
           path: RoutePath.aiSetting,
           name: 'aiSetting',
           builder: (context, state) => const AiSettingPage(),
+        ),
+        GoRoute(
+          path: RoutePath.developer,
+          name: 'developer',
+          builder: (context, state) => const DeveloperEntrance(),
         ),
       ],
     ),

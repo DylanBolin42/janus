@@ -6,8 +6,6 @@ language: "zh-CN"
 
 reviews:
   profile: "assertive"
-  request_tools:
-    enabled: true
   auto_review:
     enabled: true
     drafts: false

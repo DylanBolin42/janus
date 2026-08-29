@@ -8,7 +8,7 @@ inputs:
   version:
     description: "Flutter version (e.g. 3.x.x, or 'latest')"
     required: false
-    default: "3.44.4"
+    default: "3.47.0"
   cache-key-suffix:
     description: "Suffix to bust cache when needed"
     required: false
