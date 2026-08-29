@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,7 +33,7 @@ void main() {
   group('TaskDao.createTask', () {
     test('插入任务并返回自增 id', () async {
       final id = await dao.createTask(
-        TaskDraft(title: '买牛奶', ddl: DateTime(2026, 8, 18, 20)),
+        TaskDraft(status: 0, title: '买牛奶', ddl: DateTime(2026, 8, 18, 20)),
       );
 
       expect(id, isPositive);
@@ -46,6 +47,7 @@ void main() {
     test('可插入全字段任务并读回', () async {
       await dao.createTask(
         TaskDraft(
+          status: 0,
           title: '写周报',
           description: '汇总本周进展',
           ddl: DateTime(2026, 8, 20, 9, 30),
@@ -66,7 +68,7 @@ void main() {
 
     test('description / est / tags 缺省时保存为空', () async {
       await dao.createTask(
-        TaskDraft(title: '极简任务', ddl: DateTime(2026, 8, 18)),
+        TaskDraft(title: '极简任务', ddl: DateTime(2026, 8, 18), status: 0),
       );
 
       final row = (await db.select(db.tasks).get()).single;
@@ -78,7 +80,7 @@ void main() {
     });
 
     test('空标题插入会触发长度约束', () async {
-      final draft = TaskDraft(title: '', ddl: DateTime(2026, 8, 18));
+      final draft = TaskDraft(title: '', ddl: DateTime(2026, 8, 18), status: 0);
 
       await expectLater(dao.createTask(draft), throwsA(anything));
     });
@@ -177,6 +179,75 @@ void main() {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
+  // TaskDao.editTask（增量更新：只改显式传入的字段）
+  // ─────────────────────────────────────────────────────────────────────────
+  group('TaskDao.editTask', () {
+    test('只更新传入字段，其余字段保持原值', () async {
+      await dao.seedSampleData();
+      final target = (await dao.getAllTasks()).firstWhere(
+        (t) => t.title == '完成项目答辩 PPT',
+      );
+
+      // 只传入 status，其余字段一律不动
+      await dao.editTask(id: target.id, status: const Value(1));
+
+      final after = await (db.select(
+        db.tasks,
+      )..where((t) => t.id.equals(target.id))).getSingle();
+      expect(after.status, 1);
+      expect(after.title, target.title);
+      expect(after.description, target.description);
+      expect(after.ddl, target.ddl);
+      expect(after.estHour, target.estHour);
+      expect(after.estMinute, target.estMinute);
+      expect(after.priority, target.priority);
+      expect(after.tags, target.tags);
+    });
+
+    test('不传任何字段时数据库行完全不变', () async {
+      await dao.seedSampleData();
+      final target = (await dao.getAllTasks()).first;
+
+      await dao.editTask(id: target.id);
+
+      final after = await (db.select(
+        db.tasks,
+      )..where((t) => t.id.equals(target.id))).getSingle();
+      expect(after.title, target.title);
+      expect(after.description, target.description);
+      expect(after.ddl, target.ddl);
+      expect(after.estHour, target.estHour);
+      expect(after.estMinute, target.estMinute);
+      expect(after.priority, target.priority);
+      expect(after.status, target.status);
+      expect(after.tags, target.tags);
+    });
+
+    test('可显式清空可空列（description）', () async {
+      await dao.seedSampleData();
+      final target = (await dao.getAllTasks()).firstWhere(
+        (t) => t.title == '完成项目答辩 PPT',
+      );
+      expect(target.description, isNotNull);
+
+      await dao.editTask(
+        id: target.id,
+        title: const Value('改后标题'),
+        description: const Value(null),
+      );
+
+      final after = await (db.select(
+        db.tasks,
+      )..where((t) => t.id.equals(target.id))).getSingle();
+      expect(after.title, '改后标题');
+      expect(after.description, isNull);
+      // 未传的字段保持原值
+      expect(after.status, target.status);
+      expect(after.priority, target.priority);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
   // TaskDao.watchIncompleteTasks（首页任务流：滑动完成即从列表消失）
   // ─────────────────────────────────────────────────────────────────────────
   group('TaskDao.watchIncompleteTasks', () {
@@ -199,21 +270,8 @@ void main() {
       expect(before, hasLength(5));
       final target = before.first;
 
-      // 模拟首页右滑完成：把 status 置为 1
-      await dao.editTask(
-        TaskDraft(
-          id: target.id,
-          status: 1,
-          title: target.title,
-          description: target.description,
-          ddl: target.ddl,
-          est: (target.estHour != null && target.estMinute != null)
-              ? TimeOfDay(hour: target.estHour!, minute: target.estMinute!)
-              : null,
-          priority: target.priority,
-          tags: target.tags ?? const [],
-        ),
-      );
+      // 模拟首页右滑完成：增量更新，只把 status 置为 1
+      await dao.editTask(id: target.id, status: const Value(1));
 
       final after = await dao.watchIncompleteTasks().first;
       expect(after.map((t) => t.id), isNot(contains(target.id)));

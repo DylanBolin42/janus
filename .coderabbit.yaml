@@ -1,0 +1,15 @@
+# CodeRabbit Configuration File
+# https://docs.coderabbit.ai/configure-coderabbit/about-coderabbit-yml/
+
+version: "2"
+language: "zh-CN"
+
+reviews:
+  profile: "assertive"
+  request_tools:
+    enabled: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "main"

@@ -9,6 +9,7 @@
 [![Drift SQLite](https://img.shields.io/badge/Drift-SQLite-orange?style=for-the-badge&logo=sqlite)](https://drift.simonbinder.eu)
 [![Riverpod](https://img.shields.io/badge/State-Riverpod-purple?style=for-the-badge)](https://riverpod.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/DylanBolin42/janus?utm_source=oss&utm_medium=github&utm_campaign=DylanBolin42%2Fjanus&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews&style=for-the-badge)
 
 *Janus is an engineering-grade, high-performance task management and personal productivity application built with Flutter, combining Liquid Glass aesthetics with Material 3 Expressive design, robust local-first SQLite persistence, and reactive state management.*
 

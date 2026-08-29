@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'app_settings.dart';
@@ -9,6 +9,7 @@ part of 'app_settings.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$AppSettingsCopyWithImpl<$Res>
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? themeMode = null,Object? glassIntensity = null,Object? language = null,Object? tabNamingStyle = null,Object? isNotificationEnabled = null,Object? urgentNotificationStyle = null,Object? approachingNotificationStyle = null,Object? tempLeaveDuration = null,Object? tempLeaveTimes = null,Object? focusSceneRenderMode = null,Object? focusSceneRenderQuality = null,Object? useLogToTrain = null,Object? syncEnabled = null,Object? syncMode = null,Object? syncTrigger = null,Object? syncDurationOnInterval = null,Object? rsaType = null,Object? useAppLock = null,Object? workHourStart = null,Object? workingDayTaskDensity = null,Object? restDayTaskDensity = null,Object? planningHorizon = null,Object? endPoint = null,Object? modelName = null,Object? aiDailySummary = null,Object? aiAnalyseReport = null,Object? aiTextToTask = null,Object? aiPicToTask = null,Object? taskCreationMode = null,}) {
-  return _then(_self.copyWith(
+  return _then(AppSettings(
 themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
 as AppThemeMode,glassIntensity: null == glassIntensity ? _self.glassIntensity : glassIntensity // ignore: cast_nullable_to_non_nullable
 as GlassIntensity,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable

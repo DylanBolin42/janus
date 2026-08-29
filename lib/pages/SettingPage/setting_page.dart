@@ -1,4 +1,5 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/shared/custom_appbar.dart';
@@ -121,17 +122,20 @@ class _SettingpageState extends State<Settingpage> {
                   ),
                 ],
               ),
-              //TODO: This should NOT appear in the RELEASE
-              SettingsSection(
-                tiles: [
-                  SettingsTile(
-                    title: Text('Developer'),
-                    onPressed: (_) {
-                      context.pushNamed('developer');
-                    },
-                  ),
-                ],
-              ),
+              // This section only appears in debug builds, never in RELEASE.
+              // The developer route must be guarded with the same condition in
+              // lib/router/app_router.dart to prevent direct navigation in release.
+              if (kDebugMode)
+                SettingsSection(
+                  tiles: [
+                    SettingsTile(
+                      title: Text('Developer'),
+                      onPressed: (_) {
+                        context.pushNamed('developer');
+                      },
+                    ),
+                  ],
+                ),
             ],
           ),
         ),

@@ -41,8 +41,9 @@ class _DeveloperEntranceState extends ConsumerState<DeveloperEntrance> {
       await ref.read(taskDaoProvider).deleteAllData();
       if (!mounted) return;
       GlassToast.show(
-        position: GlassToastPosition.top,
         context,
+        position: GlassToastPosition.top,
+
         message: '已清空全部数据',
         type: GlassToastType.success,
       );
@@ -50,8 +51,8 @@ class _DeveloperEntranceState extends ConsumerState<DeveloperEntrance> {
       AppLogger.e('删除所有数据失败', error: e, stackTrace: stack);
       if (!mounted) return;
       GlassToast.show(
-        position: GlassToastPosition.top,
         context,
+        position: GlassToastPosition.top,
         message: '删除数据失败，请重试',
         type: GlassToastType.error,
       );

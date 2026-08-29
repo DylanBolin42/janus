@@ -1,16 +1,14 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:expandable_richtext/expandable_rich_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:janus/database/app_database.dart';
-import 'package:janus/models/task.dart';
 import 'package:janus/providers/database_provider.dart';
 import 'package:janus/services/logger_service.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:m3e_dismissible/m3e_dismissible.dart';
-import 'package:material_3_expressive/components/buttons/enums/m3e_button_enums.dart';
-import 'package:material_3_expressive/components/toggle_button_group/models/m3e_button_group_action.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:reel_text/reel_text.dart';
 
@@ -195,7 +193,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                           Transform.scale(
                             scaleY: 1.5,
                             child: Text(
-                              '${items[i].ddl.hour}:${items[i].ddl.minute}',
+                              '${task.ddl.hour}:${task.ddl.minute.toString().padLeft(2, '0')}',
                               style: tt.labelLarge?.copyWith(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -234,7 +232,9 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                       Transform.scale(
                         scaleY: 1.5,
                         child: Text(
-                          '${items[i].estHour}:${items[i].estMinute}',
+                          task.estHour != null && task.estMinute != null
+                              ? '${task.estHour}:${task.estMinute.toString().padLeft(2, '0')}'
+                              : '—',
                           style: tt.labelLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(
@@ -258,21 +258,11 @@ class _InboxPageState extends ConsumerState<InboxPage> {
           return false;
         }
         if (dir == DismissDirection.startToEnd) {
-          // 确认任务完成：Task → TaskDraft（两者无继承关系，不能强转）
-          final updated = TaskDraft(
-            id: t.id,
-            status: 1,
-            title: t.title,
-            description: t.description,
-            ddl: t.ddl,
-            est: (t.estHour != null && t.estMinute != null)
-                ? TimeOfDay(hour: t.estHour!, minute: t.estMinute!)
-                : null,
-            priority: t.priority,
-            tags: t.tags ?? const [],
-          );
+          // 增量更新：只把 status 置为 1（已完成），其余字段保持数据库原值
           try {
-            await ref.read(taskDaoProvider).editTask(updated);
+            await ref
+                .read(taskDaoProvider)
+                .editTask(id: t.id, status: const Value(1));
           } catch (e, stack) {
             AppLogger.e('任务属性：Status变更失败', error: e, stackTrace: stack);
             return false;

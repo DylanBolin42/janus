@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' hide Table;
 import 'package:janus/models/task.dart';
 
 import 'tag_tables.dart';
@@ -47,7 +47,7 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     return into(tasks).insert(
       TasksCompanion.insert(
         //TODO: 给所有相关方法添加Status字段
-        status: const Value(0),
+        status: Value(draft.status),
         title: draft.title,
         ddl: draft.ddl!,
         description: Value(draft.description),
@@ -93,20 +93,46 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
         .get();
   }
 
-  /// 修改一个任务的某一属性或某些属性
-  /// 输入： 一个带有不同值的Task，但是包含相同的id
-  /// 输出： 无输出
-  Future<int> editTask(TaskDraft newVer) {
-    return (update(tasks)..where((t) => t.id.equals(newVer.id!))).write(
+  /// 增量修改任务：只更新显式传入的字段，其余字段保持数据库原值不变。
+  ///
+  /// 输入：
+  /// - [id]：目标任务 id（必填，定位行）
+  /// - 其余参数默认 [Value.absent]（表示不修改该字段）
+  /// - 可空列（description / est / tags）可传 `Value(null)` 显式清空
+  /// 输出： 受影响行数；未传任何字段时为 0（空操作）
+  Future<int> editTask({
+    required int id,
+    Value<int> status = const Value.absent(),
+    Value<String> title = const Value.absent(),
+    Value<String?> description = const Value.absent(),
+    Value<DateTime> ddl = const Value.absent(),
+    Value<TimeOfDay?> est = const Value.absent(),
+    Value<int> priority = const Value.absent(),
+    Value<List<String>?> tags = const Value.absent(),
+  }) {
+    // 没有任何字段需要修改时直接返回 0，避免生成空 SET 的 UPDATE 语句
+    if (!status.present &&
+        !title.present &&
+        !description.present &&
+        !ddl.present &&
+        !est.present &&
+        !priority.present &&
+        !tags.present) {
+      return Future.value(0);
+    }
+    return (update(tasks)..where((t) => t.id.equals(id))).write(
       TasksCompanion(
-        title: Value(newVer.title),
-        status: Value(newVer.status),
-        description: Value(newVer.description),
-        ddl: Value(newVer.ddl!),
-        estHour: Value(newVer.est?.hour),
-        estMinute: Value(newVer.est?.minute),
-        priority: Value(newVer.priority),
-        tags: Value(newVer.tags),
+        status: status,
+        title: title,
+        description: description,
+        ddl: ddl,
+        // est 由「小时 + 分钟」两列组成，必须同时写入或同时保持原值
+        estHour: est.present ? Value(est.value?.hour) : const Value.absent(),
+        estMinute: est.present
+            ? Value(est.value?.minute)
+            : const Value.absent(),
+        priority: priority,
+        tags: tags,
       ),
     );
   }

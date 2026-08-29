@@ -107,7 +107,7 @@ class TaskCreationPage {
 
     final dao = ref.read(taskDaoProvider);
     try {
-      await dao.createTask(draft.copyWith(title: title));
+      await dao.createTask(draft.copyWith(title: title, status: 0));
       AppLogger.i('创建任务成功：${draft.title}');
       ref.read(taskDraftProvider.notifier).reset();
       if (!context.mounted) return;
