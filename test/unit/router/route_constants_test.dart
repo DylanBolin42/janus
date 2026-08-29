@@ -5,7 +5,7 @@ void main() {
   group('RoutePath', () {
     test('top-level route paths are defined', () {
       expect(RoutePath.inbox, '/inbox');
-      expect(RoutePath.task, '/task');
+      expect(RoutePath.timeline, '/timeline');
       expect(RoutePath.setting, '/setting');
       expect(RoutePath.focus, '/focus');
       expect(RoutePath.insights, '/insights');

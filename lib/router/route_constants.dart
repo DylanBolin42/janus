@@ -10,7 +10,7 @@ class RoutePath {
   RoutePath._();
   // 一级目录
   static const String inbox = '/inbox';
-  static const String task = '/task';
+  static const String timeline = '/timeline';
   static const String setting = '/setting';
   static const String focus = '/focus';
   static const String insights = '/insights';
@@ -26,7 +26,7 @@ class RouteDisplayName {
   RouteDisplayName._();
   static const Map<String, String> names = {
     'inbox': 'Inbox',
-    'task': '任务',
+    'timeline': '时间线',
     'setting': '设置',
     'focus': '专注',
     'insights': '洞察',

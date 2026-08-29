@@ -89,7 +89,7 @@ class AppShell extends StatelessWidget {
           unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
           tabs: [
             GlassTab(icon: Icon(Icons.inbox_rounded), label: 'Inbox'),
-            GlassTab(icon: Icon(Icons.task_rounded), label: 'Tasks'),
+            GlassTab(icon: Icon(Icons.timeline_rounded), label: 'Timeline'),
             GlassTab(icon: Icon(Icons.lock_clock_rounded), label: 'Focus'),
             GlassTab(icon: Icon(Icons.insights_rounded), label: 'Insights'),
           ],
@@ -103,7 +103,7 @@ class AppShell extends StatelessWidget {
   static int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.toString();
     if (location.startsWith(RoutePath.inbox)) return 0;
-    if (location.startsWith(RoutePath.task)) return 1;
+    if (location.startsWith(RoutePath.timeline)) return 1;
     if (location.startsWith(RoutePath.focus)) return 2;
     if (location.startsWith(RoutePath.insights)) return 3;
     return 0;
@@ -114,7 +114,7 @@ class AppShell extends StatelessWidget {
       case 0:
         context.goNamed('inbox');
       case 1:
-        context.goNamed('task');
+        context.goNamed('timeline');
       case 2:
         context.goNamed('focus');
       case 3:

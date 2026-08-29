@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:janus/router/route_constants.dart';
 import 'package:janus/router/app_router.dart' hide RoutePath, RouteDisplayName;
+import 'package:janus/router/route_constants.dart';
 
 void main() {
   group('RoutePath', () {
@@ -9,7 +9,7 @@ void main() {
     });
 
     test('task route path', () {
-      expect(RoutePath.task, '/task');
+      expect(RoutePath.timeline, '/timeline');
     });
 
     test('focus route path', () {

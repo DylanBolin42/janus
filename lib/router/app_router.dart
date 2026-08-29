@@ -15,7 +15,7 @@ import 'package:janus/pages/SettingPage/subSettingPage/notificationSetting/notif
 import 'package:janus/pages/SettingPage/subSettingPage/planningSetting/planning_setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/storageSetting/storage_setting_page.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/syncSetting/sync_setting_page.dart';
-import 'package:janus/pages/TaskPage/task_page.dart';
+import 'package:janus/pages/TimelinePage/timeline_page.dart';
 
 /// Centralized route path constants.
 ///
@@ -23,7 +23,7 @@ import 'package:janus/pages/TaskPage/task_page.dart';
 class RoutePath {
   RoutePath._();
   static const String inbox = '/inbox';
-  static const String task = '/task';
+  static const String timeline = '/timeline';
   static const String setting = '/setting'; // full-screen, no shell
   static const String focus = '/focus';
   static const String insights = '/insights';
@@ -47,7 +47,7 @@ class RouteDisplayName {
   RouteDisplayName._();
   static const Map<String, String> names = {
     'inbox': 'Inbox',
-    'task': '任务',
+    'timeline': '时间线',
     'setting': '设置',
     'focus': '专注',
     'insights': '洞察',
@@ -69,9 +69,9 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) => const InboxPage(),
         ),
         GoRoute(
-          path: RoutePath.task,
-          name: 'task',
-          builder: (context, state) => const TaskPage(),
+          path: RoutePath.timeline,
+          name: 'timeline',
+          builder: (context, state) => const TimelinePage(),
         ),
         GoRoute(
           path: RoutePath.focus,
