@@ -192,19 +192,6 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
-  /// Sets the AI endpoint URL after validating security constraints.
-  /// Enforces HTTPS for remote connections to prevent MITM leaks,
-  /// but permits HTTP on loopback hosts for local development.
-  Future<bool> setEndPoint(String endPoint) async {
-    if (!isValidAiEndpoint(endPoint)) {
-      return false;
-    }
-    await _persist(
-      (state.value ?? const AppSettings()).copyWith(endPoint: endPoint),
-    );
-    return true;
-  }
-
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.value ?? const AppSettings()).copyWith(aiDailySummary: enabled),
@@ -236,23 +223,6 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     );
   }
 }
-
-/// Security helper: Validates AI endpoint URL to enforce HTTPS and prevent MITM attacks,
-/// while permitting HTTP for local development on loopback hosts (localhost / 127.0.0.1 / ::1).
-bool isValidAiEndpoint(String url) {
-  final trimmed = url.trim();
-  if (trimmed.isEmpty) return true;
-  final uri = Uri.tryParse(trimmed);
-  if (uri == null || !uri.hasScheme) return false;
-  if (uri.scheme == 'https') return true;
-  if (uri.scheme == 'http') {
-    return uri.host == 'localhost' ||
-        uri.host == '127.0.0.1' ||
-        uri.host == '::1';
-  }
-  return false;
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)
 // ─────────────────────────────────────────────────────────────────────────────
