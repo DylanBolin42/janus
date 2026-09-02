@@ -454,43 +454,53 @@ void main() {
       expect(container.read(appSettingsProvider).value!.aiPicToTask, true);
     });
 
-    test('isValidAiEndpoint validates HTTPS requirement and loopback exceptions', () {
-      expect(isValidAiEndpoint(''), isTrue);
-      expect(isValidAiEndpoint('https://api.openai.com/v1'), isTrue);
-      expect(isValidAiEndpoint('http://localhost:8080/v1'), isTrue);
-      expect(isValidAiEndpoint('http://127.0.0.1:11434'), isTrue);
-      expect(isValidAiEndpoint('http://[::1]:11434'), isTrue);
+    test(
+      'isValidAiEndpoint validates HTTPS requirement and loopback exceptions',
+      () {
+        expect(isValidAiEndpoint(''), isTrue);
+        expect(isValidAiEndpoint('https://api.openai.com/v1'), isTrue);
+        expect(isValidAiEndpoint('http://localhost:8080/v1'), isTrue);
+        expect(isValidAiEndpoint('http://127.0.0.1:11434'), isTrue);
+        expect(isValidAiEndpoint('http://[::1]:11434'), isTrue);
 
-      // Insecure remote HTTP endpoints should fail validation
-      expect(isValidAiEndpoint('http://api.openai.com/v1'), isFalse);
-      expect(isValidAiEndpoint('http://192.168.1.100:8080'), isFalse);
-      expect(isValidAiEndpoint('not-a-valid-url'), isFalse);
-    });
+        // Insecure remote HTTP endpoints should fail validation
+        expect(isValidAiEndpoint('http://api.openai.com/v1'), isFalse);
+        expect(isValidAiEndpoint('http://192.168.1.100:8080'), isFalse);
+        expect(isValidAiEndpoint('not-a-valid-url'), isFalse);
+      },
+    );
 
-    test('setEndPoint enforces HTTPS security rule for remote endpoints', () async {
-      final container = ProviderContainer();
-      addTearDown(() => container.dispose());
-      await waitForInit(container);
+    test(
+      'setEndPoint enforces HTTPS security rule for remote endpoints',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(() => container.dispose());
+        await waitForInit(container);
 
-      final notifier = notifierOf(container);
+        final notifier = notifierOf(container);
 
-      // Secure HTTPS endpoint should succeed
-      final successHttps = await notifier.setEndPoint('https://api.openai.com/v1');
-      expect(successHttps, isTrue);
-      expect(
-        container.read(appSettingsProvider).value!.endPoint,
-        'https://api.openai.com/v1',
-      );
+        // Secure HTTPS endpoint should succeed
+        final successHttps = await notifier.setEndPoint(
+          'https://api.openai.com/v1',
+        );
+        expect(successHttps, isTrue);
+        expect(
+          container.read(appSettingsProvider).value!.endPoint,
+          'https://api.openai.com/v1',
+        );
 
-      // Insecure HTTP endpoint for remote host should be rejected
-      final successHttp = await notifier.setEndPoint('http://insecure-api.com');
-      expect(successHttp, isFalse);
-      // Value should remain unchanged
-      expect(
-        container.read(appSettingsProvider).value!.endPoint,
-        'https://api.openai.com/v1',
-      );
-    });
+        // Insecure HTTP endpoint for remote host should be rejected
+        final successHttp = await notifier.setEndPoint(
+          'http://insecure-api.com',
+        );
+        expect(successHttp, isFalse);
+        // Value should remain unchanged
+        expect(
+          container.read(appSettingsProvider).value!.endPoint,
+          'https://api.openai.com/v1',
+        );
+      },
+    );
 
     // 用户偏好
     test('setTaskCreationMode 更新任务创建模式', () async {

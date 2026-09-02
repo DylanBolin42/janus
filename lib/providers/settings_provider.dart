@@ -236,6 +236,7 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     );
   }
 }
+
 /// Security helper: Validates AI endpoint URL to enforce HTTPS and prevent MITM attacks,
 /// while permitting HTTP for local development on loopback hosts (localhost / 127.0.0.1 / ::1).
 bool isValidAiEndpoint(String url) {
