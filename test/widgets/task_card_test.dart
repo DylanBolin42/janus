@@ -5,7 +5,9 @@ import 'package:janus/shared/task_card.dart';
 import 'package:janus/theme/theme.dart';
 
 void main() {
-  testWidgets('TaskCard exposes correct Semantics for checkbox', (tester) async {
+  testWidgets('TaskCard exposes correct Semantics for checkbox', (
+    tester,
+  ) async {
     bool toggledState = false;
 
     await tester.pumpWidget(
