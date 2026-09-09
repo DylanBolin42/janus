@@ -230,7 +230,8 @@ class _AgileCardStackState extends State<AgileCardStack>
                   opacity = 1.0;
                 } else {
                   // Lower card – has its rest offset + drag influence.
-                  final int lowerIdx = depth - 1; // 0‑based index into _lowerOffsets
+                  final int lowerIdx =
+                      depth - 1; // 0‑based index into _lowerOffsets
                   baseOffset =
                       Offset(vs.offsetX, vs.offsetY) +
                       (lowerIdx < _lowerOffsets.length
@@ -238,7 +239,9 @@ class _AgileCardStackState extends State<AgileCardStack>
                           : Offset.zero);
                   baseRotation =
                       vs.rotationDeg +
-                      (lowerIdx < _lowerAngles.length ? _lowerAngles[lowerIdx] : 0.0);
+                      (lowerIdx < _lowerAngles.length
+                          ? _lowerAngles[lowerIdx]
+                          : 0.0);
                   opacity = _opacityForDepth(depth);
                 }
 
