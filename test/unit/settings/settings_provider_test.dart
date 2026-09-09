@@ -414,6 +414,36 @@ void main() {
     });
 
     // AI
+    test('setEndPoint 安全更新 Endpoint', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      // HTTPS endpoint accepted
+      final res1 = await notifierOf(container).setEndPoint('https://api.openai.com/v1');
+      expect(res1, isTrue);
+      expect(container.read(appSettingsProvider).value!.endPoint, 'https://api.openai.com/v1');
+
+      // Localhost HTTP accepted
+      final res2 = await notifierOf(container).setEndPoint('http://localhost:8080/v1');
+      expect(res2, isTrue);
+      expect(container.read(appSettingsProvider).value!.endPoint, 'http://localhost:8080/v1');
+
+      // Loopback 127.0.0.1 HTTP accepted
+      final res3 = await notifierOf(container).setEndPoint('http://127.0.0.1:8080/v1');
+      expect(res3, isTrue);
+      expect(container.read(appSettingsProvider).value!.endPoint, 'http://127.0.0.1:8080/v1');
+
+      // Insecure remote HTTP rejected
+      final res4 = await notifierOf(container).setEndPoint('http://api.openai.com/v1');
+      expect(res4, isFalse);
+      expect(container.read(appSettingsProvider).value!.endPoint, 'http://127.0.0.1:8080/v1');
+
+      // Invalid scheme or URL rejected
+      final res5 = await notifierOf(container).setEndPoint('not-a-valid-url');
+      expect(res5, isFalse);
+    });
+
     test('setUseAiDailySummary 更新 AI 日报开关', () async {
       final container = ProviderContainer();
       addTearDown(() => container.dispose());
