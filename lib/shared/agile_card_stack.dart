@@ -38,25 +38,6 @@ class _CardVisualState {
 /// Widget phase.
 enum _Phase { idle, dragging, returningToTop, centeringNewTop }
 
-/// Holds positioned card layout data used during build.
-class _CardPositioned {
-  const _CardPositioned({
-    required this.offset,
-    required this.rotation,
-    required this.opacity,
-    required this.cardWidth,
-    required this.cardHeight,
-    required this.child,
-  });
-
-  final Offset offset;
-  final double rotation;
-  final double opacity;
-  final double cardWidth;
-  final double cardHeight;
-  final Widget child;
-}
-
 // ---------------------------------------------------------------------------
 //  AgileCardStack widget
 // ---------------------------------------------------------------------------
@@ -107,6 +88,7 @@ class _AgileCardStackState extends State<AgileCardStack>
   static const double _maxLowerOffset = 16.0; // px
   static const double _maxLowerAngle = 5.0; // degrees
   static const double _releaseThreshold = 80.0; // px radius for snap-back zone
+  static const double _degToRad = math.pi / 180.0; // deg to rad factor
 
   /// Soft‑clamp [offset]’s magnitude so that values ≤ 75 % of [limit] pass
   /// linearly; beyond that they approach [limit] asymptotically (no hard wall).
@@ -203,56 +185,8 @@ class _AgileCardStackState extends State<AgileCardStack>
     final visible = _visibleCount;
     if (visible == 0) return const SizedBox.shrink();
 
-    final List<_CardPositioned> stackChildren = [];
-
-    // Build from bottom-most (last visible) to top-most (first visible).
-    for (int depth = visible - 1; depth >= 0; depth--) {
-      final int cardIdx = _cardOrder[depth];
-      final vs = _visualStates[cardIdx];
-
-      Offset baseOffset;
-      double baseRotation;
-      double opacity;
-
-      if (depth == 0) {
-        // Top card – always centered and level except during drag/animation.
-        if (_phase == _Phase.dragging) {
-          baseOffset = _topCardOffset;
-          baseRotation = 0.0;
-        } else if (_phase == _Phase.returningToTop ||
-            _phase == _Phase.centeringNewTop) {
-          baseOffset = _posAnim!.value;
-          baseRotation = _rotAnim!.value;
-        } else {
-          baseOffset = Offset.zero;
-          baseRotation = 0.0;
-        }
-        opacity = 1.0;
-      } else {
-        // Lower card – has its rest offset + drag influence.
-        final int lowerIdx = depth - 1; // 0‑based index into _lowerOffsets
-        baseOffset =
-            Offset(vs.offsetX, vs.offsetY) +
-            (lowerIdx < _lowerOffsets.length
-                ? _lowerOffsets[lowerIdx]
-                : Offset.zero);
-        baseRotation =
-            vs.rotationDeg +
-            (lowerIdx < _lowerAngles.length ? _lowerAngles[lowerIdx] : 0.0);
-        opacity = _opacityForDepth(depth);
-      }
-
-      stackChildren.add(
-        _CardPositioned(
-          offset: baseOffset,
-          rotation: baseRotation * math.pi / 180.0,
-          opacity: opacity,
-          cardWidth: widget.cardSize.width,
-          cardHeight: widget.cardSize.height,
-          child: widget.children[cardIdx],
-        ),
-      );
-    }
+    final cardWidth = widget.cardSize.width;
+    final cardHeight = widget.cardSize.height;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -264,26 +198,66 @@ class _AgileCardStackState extends State<AgileCardStack>
           builder: (context, constraints) {
             final double cx = constraints.maxWidth / 2;
             final double cy = constraints.maxHeight / 2;
+
+            // [Bolt Performance Optimization]: Build Positioned children directly
+            // inside Stack to avoid intermediate List allocations and wrapper
+            // class instantiations on every drag/animation tick at 60/120fps.
             return Stack(
               clipBehavior: Clip.none,
-              children: [
-                for (final card in stackChildren)
-                  Positioned(
-                    left: cx + card.offset.dx - card.cardWidth / 2,
-                    top: cy + card.offset.dy - card.cardHeight / 2,
-                    child: Transform.rotate(
-                      angle: card.rotation,
-                      child: Opacity(
-                        opacity: card.opacity,
-                        child: SizedBox(
-                          width: card.cardWidth,
-                          height: card.cardHeight,
-                          child: card.child,
-                        ),
+              children: List.generate(visible, (i) {
+                // Build from bottom-most (last visible) to top-most (first visible).
+                final depth = visible - 1 - i;
+                final int cardIdx = _cardOrder[depth];
+                final vs = _visualStates[cardIdx];
+
+                Offset baseOffset;
+                double baseRotation;
+                double opacity;
+
+                if (depth == 0) {
+                  // Top card – always centered and level except during drag/animation.
+                  if (_phase == _Phase.dragging) {
+                    baseOffset = _topCardOffset;
+                    baseRotation = 0.0;
+                  } else if (_phase == _Phase.returningToTop ||
+                      _phase == _Phase.centeringNewTop) {
+                    baseOffset = _posAnim!.value;
+                    baseRotation = _rotAnim!.value;
+                  } else {
+                    baseOffset = Offset.zero;
+                    baseRotation = 0.0;
+                  }
+                  opacity = 1.0;
+                } else {
+                  // Lower card – has its rest offset + drag influence.
+                  final int lowerIdx = depth - 1; // 0‑based index into _lowerOffsets
+                  baseOffset =
+                      Offset(vs.offsetX, vs.offsetY) +
+                      (lowerIdx < _lowerOffsets.length
+                          ? _lowerOffsets[lowerIdx]
+                          : Offset.zero);
+                  baseRotation =
+                      vs.rotationDeg +
+                      (lowerIdx < _lowerAngles.length ? _lowerAngles[lowerIdx] : 0.0);
+                  opacity = _opacityForDepth(depth);
+                }
+
+                return Positioned(
+                  left: cx + baseOffset.dx - cardWidth / 2,
+                  top: cy + baseOffset.dy - cardHeight / 2,
+                  child: Transform.rotate(
+                    angle: baseRotation * _degToRad,
+                    child: Opacity(
+                      opacity: opacity,
+                      child: SizedBox(
+                        width: cardWidth,
+                        height: cardHeight,
+                        child: widget.children[cardIdx],
                       ),
                     ),
                   ),
-              ],
+                );
+              }),
             );
           },
         ),
