@@ -28,10 +28,13 @@ class TaskCreationPage {
                 onPrimary: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            child: M3EIconButton(
-              icon: Icon(Icons.close_rounded),
-              variant: M3EIconButtonVariant.filled,
-              onPressed: () => Navigator.of(context).pop(),
+            child: Tooltip(
+              message: '关闭',
+              child: M3EIconButton(
+                icon: const Icon(Icons.close_rounded),
+                variant: M3EIconButtonVariant.filled,
+                onPressed: () => Navigator.of(context).pop(),
+              ),
             ),
           ),
         ),
@@ -46,13 +49,16 @@ class TaskCreationPage {
                     onPrimary: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
-                child: M3EIconButton(
-                  icon: Icon(
-                    Icons.add_rounded,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                child: Tooltip(
+                  message: '创建任务',
+                  child: M3EIconButton(
+                    icon: Icon(
+                      Icons.add_rounded,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                    variant: M3EIconButtonVariant.filled,
+                    onPressed: () => _handleCreate(context, ref),
                   ),
-                  variant: M3EIconButtonVariant.filled,
-                  onPressed: () => _handleCreate(context, ref),
                 ),
               ),
             );
