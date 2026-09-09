@@ -192,26 +192,6 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
-  /// Securely sets the AI endpoint, enforcing HTTPS for remote hosts
-  /// while permitting local development tools on loopback hosts (localhost, 127.0.0.1).
-  Future<bool> setEndPoint(String url) async {
-    final trimmed = url.trim();
-    if (trimmed.isNotEmpty) {
-      final uri = Uri.tryParse(trimmed);
-      if (uri == null || !uri.hasScheme) return false;
-      if (uri.scheme == 'http') {
-        final host = uri.host.toLowerCase();
-        if (host != 'localhost' && host != '127.0.0.1') return false;
-      } else if (uri.scheme != 'https') {
-        return false;
-      }
-    }
-    await _persist(
-      (state.value ?? const AppSettings()).copyWith(endPoint: trimmed),
-    );
-    return true;
-  }
-
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.value ?? const AppSettings()).copyWith(aiDailySummary: enabled),
