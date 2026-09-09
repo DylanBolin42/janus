@@ -82,7 +82,8 @@ jobs:
       - name: Generate Coverage Report
         if: always() && hashFiles('coverage/lcov.info') != ''
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq lcov
+          sudo apt-get update -qq || true
+          sudo apt-get install -y -qq lcov
           genhtml coverage/lcov.info --output-directory coverage/html
           COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep lines | grep -oP '\d+\.\d+%' | head -1 || echo "N/A")
           echo "### ✅ Test Coverage: $COVERAGE" >> "$GITHUB_STEP_SUMMARY"
