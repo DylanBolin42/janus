@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:janus/shared/custom_appbar.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:janus/models/app_settings.dart';
@@ -10,11 +10,26 @@ import 'package:janus/providers/settings_provider.dart';
 ///
 /// All state is managed via riverpod providers and persisted
 /// to [shared_preferences] automatically.
-class GeneralSettingPage extends ConsumerWidget {
+class GeneralSettingPage extends ConsumerStatefulWidget {
   const GeneralSettingPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _GeneralSettingPageState();
+}
+
+class _GeneralSettingPageState extends ConsumerState<GeneralSettingPage> {
+  final GlassLargeTitleController _titleController =
+      GlassLargeTitleController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Performance optimization: watch specific fields via granular .select()
     // instead of watching the entire appSettingsProvider. This prevents
     // unnecessary full-page rebuilds when unrelated settings (e.g. sync, AI) change.
@@ -43,181 +58,208 @@ class GeneralSettingPage extends ConsumerWidget {
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
-      topEdgeFade: false,
-      appBar: const CustomAppbar(title: '通用', showBack: true),
-      body: CustomAppbar.wrapBody(
-        context,
-        SettingsList(
-          maxWidth: 800,
-          sections: [
-            // ── 外观 ────────────────────────────────────────────────
-            SettingsSection(
-              title: Text('外观', style: tt.titleMedium),
-              tiles: [
-                SettingsTile.navigation(
-                  title: const Text('主题色'),
-                  leading: const Icon(Icons.color_lens_rounded),
-                  description: const Text('选择属于你的主题色'),
-                  trailing: const Icon(Icons.navigate_next_rounded),
-                  onPressed: (_) {},
-                ),
-
-                // 显示模式 — 明暗/跟随系统
-                SettingsTile(
-                  leading: const Icon(Icons.light_mode_rounded),
-                  title: const Text('显示模式'),
-                  description: const Text('选择明暗模式或者根跟随系统'),
-                  trailing: GlassPullDownButton(
-                    icon: Icon(themeMode.icon),
-                    label: themeMode.label,
-                    buttonWidth: 120,
-                    buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
-                    items: AppThemeMode.values.map((mode) {
-                      final isSelected = themeMode == mode;
-                      return GlassMenuItem(
-                        title: mode.label,
-                        icon: Icon(
-                          isSelected ? Icons.check_rounded : mode.icon,
-                          size: 20,
-                        ),
-                        isSelected: isSelected,
-                        onTap: () {
-                          ref
-                              .read(appSettingsProvider.notifier)
-                              .setThemeMode(mode);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-                // 液态玻璃渲染强度
-                SettingsTile(
-                  leading: const Icon(Icons.computer_rounded),
-                  title: const Text('液态玻璃渲染强度'),
-                  description: const Text('根据设备性能，请理性选择'),
-                  trailing: GlassPullDownButton(
-                    icon: Icon(glassIntensity.icon),
-                    label: glassIntensity.label,
-                    buttonWidth: 120,
-                    buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
-                    items: GlassIntensity.values.map((intensity) {
-                      final isSelected = glassIntensity == intensity;
-                      return GlassMenuItem(
-                        title: intensity.label,
-                        icon: Icon(
-                          isSelected ? Icons.check_rounded : intensity.icon,
-                          size: 20,
-                        ),
-                        isSelected: isSelected,
-                        onTap: () {
-                          ref
-                              .read(appSettingsProvider.notifier)
-                              .setGlassIntensity(intensity);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-
-            // ── 语言 ────────────────────────────────────────────────
-            SettingsSection(
-              title: Text('语言', style: tt.titleMedium),
-              tiles: [
-                SettingsTile(
-                  title: const Text('语言'),
-                  leading: const Icon(Icons.language_rounded),
-                  description: const Text('配置显示语言'),
-                  trailing: GlassPullDownButton(
-                    icon: Icon(language.icon),
-                    label: language.label,
-                    buttonWidth: 120,
-                    buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
-                    items: AppLanguage.values.map((lang) {
-                      final isSelected = language == lang;
-                      return GlassMenuItem(
-                        title: lang.label,
-                        icon: Icon(
-                          isSelected ? Icons.check_rounded : lang.icon,
-                          size: 20,
-                        ),
-                        isSelected: isSelected,
-                        onTap: () {
-                          ref
-                              .read(appSettingsProvider.notifier)
-                              .setLanguage(lang);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-
-            // ── 命名风格 ────────────────────────────────────────────
-            SettingsSection(
-              title: Text('命名风格', style: tt.titleMedium),
-              tiles: [
-                SettingsTile(
-                  title: const Text('Tab命名风格'),
-                  leading: const Icon(Icons.tab_rounded),
-                  trailing: GlassPullDownButton(
-                    icon: Icon(tabNamingStyle.icon),
-                    label: tabNamingStyle.label,
-                    buttonWidth: 120,
-                    buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
-                    items: TabNamingStyle.values.map((style) {
-                      final isSelected = tabNamingStyle == style;
-                      return GlassMenuItem(
-                        title: style.label,
-                        icon: Icon(
-                          isSelected ? Icons.check_rounded : style.icon,
-                          size: 20,
-                        ),
-                        isSelected: isSelected,
-                        onTap: () {
-                          ref
-                              .read(appSettingsProvider.notifier)
-                              .setTabNamingStyle(style);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-
-            // ── 权限 ────────────────────────────────────────────────
-            SettingsSection(
-              title: Text('权限', style: tt.titleMedium),
-              tiles: [
-                SettingsTile.navigation(
-                  title: const Text('电池优化'),
-                  description: const Text('该服务需要保持后台运行以实现定时提醒等'),
-                  leading: const Icon(Icons.battery_full_rounded),
-                  trailing: const Icon(Icons.navigate_next_rounded),
-                  onPressed: (_) {},
-                ),
-                SettingsTile.navigation(
-                  title: const Text('自启动'),
-                  description: const Text('该服务需要保证每次重启设备后仍能够正常运行'),
-                  leading: const Icon(Icons.start_rounded),
-                  trailing: const Icon(Icons.navigate_next_rounded),
-                  onPressed: (_) {},
-                ),
-                SettingsTile.navigation(
-                  title: const Text('无障碍服务'),
-                  description: const Text('该权限为敏感权限！！！用于在专注时屏蔽其他可能干扰专注进程的应用程序'),
-                  leading: const Icon(Icons.accessibility_new_rounded),
-                  trailing: const Icon(Icons.navigate_next_rounded),
-                  onPressed: (_) {},
-                ),
-              ],
-            ),
-          ],
+      topEdgeFadeExtent: -44,
+      appBar: GlassAppBar(
+        title: const Text('通用'),
+        largeTitleController: _titleController,
+        leading: GlassButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onTap: () => context.pop(),
         ),
+      ),
+      body: CustomScrollView(
+        controller: _titleController.scrollController,
+        slivers: [
+          SliverToBoxAdapter(
+            child: SizedBox(height: MediaQuery.paddingOf(context).top),
+          ),
+          GlassLargeTitle(text: '通用', controller: _titleController),
+          SliverToBoxAdapter(
+            child: SettingsList(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              maxWidth: 800,
+              sections: [
+                // ── 外观 ────────────────────────────────────────────────
+                SettingsSection(
+                  title: Text('外观', style: tt.titleMedium),
+                  tiles: [
+                    SettingsTile.navigation(
+                      title: const Text('主题色'),
+                      leading: const Icon(Icons.color_lens_rounded),
+                      description: const Text('选择属于你的主题色'),
+                      trailing: const Icon(Icons.navigate_next_rounded),
+                      onPressed: (_) {},
+                    ),
+
+                    // 显示模式 — 明暗/跟随系统
+                    SettingsTile(
+                      leading: const Icon(Icons.light_mode_rounded),
+                      title: const Text('显示模式'),
+                      description: const Text('选择明暗模式或者根跟随系统'),
+                      trailing: GlassPullDownButton(
+                        icon: Icon(themeMode.icon),
+                        label: themeMode.label,
+                        buttonWidth: 120,
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 64,
+                        ),
+                        items: AppThemeMode.values.map((mode) {
+                          final isSelected = themeMode == mode;
+                          return GlassMenuItem(
+                            title: mode.label,
+                            icon: Icon(
+                              isSelected ? Icons.check_rounded : mode.icon,
+                              size: 20,
+                            ),
+                            isSelected: isSelected,
+                            onTap: () {
+                              ref
+                                  .read(appSettingsProvider.notifier)
+                                  .setThemeMode(mode);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+
+                    // 液态玻璃渲染强度
+                    SettingsTile(
+                      leading: const Icon(Icons.computer_rounded),
+                      title: const Text('液态玻璃渲染强度'),
+                      description: const Text('根据设备性能，请理性选择'),
+                      trailing: GlassPullDownButton(
+                        icon: Icon(glassIntensity.icon),
+                        label: glassIntensity.label,
+                        buttonWidth: 120,
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 64,
+                        ),
+                        items: GlassIntensity.values.map((intensity) {
+                          final isSelected = glassIntensity == intensity;
+                          return GlassMenuItem(
+                            title: intensity.label,
+                            icon: Icon(
+                              isSelected ? Icons.check_rounded : intensity.icon,
+                              size: 20,
+                            ),
+                            isSelected: isSelected,
+                            onTap: () {
+                              ref
+                                  .read(appSettingsProvider.notifier)
+                                  .setGlassIntensity(intensity);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // ── 语言 ────────────────────────────────────────────────
+                SettingsSection(
+                  title: Text('语言', style: tt.titleMedium),
+                  tiles: [
+                    SettingsTile(
+                      title: const Text('语言'),
+                      leading: const Icon(Icons.language_rounded),
+                      description: const Text('配置显示语言'),
+                      trailing: GlassPullDownButton(
+                        icon: Icon(language.icon),
+                        label: language.label,
+                        buttonWidth: 120,
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 64,
+                        ),
+                        items: AppLanguage.values.map((lang) {
+                          final isSelected = language == lang;
+                          return GlassMenuItem(
+                            title: lang.label,
+                            icon: Icon(
+                              isSelected ? Icons.check_rounded : lang.icon,
+                              size: 20,
+                            ),
+                            isSelected: isSelected,
+                            onTap: () {
+                              ref
+                                  .read(appSettingsProvider.notifier)
+                                  .setLanguage(lang);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // ── 命名风格 ────────────────────────────────────────────
+                SettingsSection(
+                  title: Text('命名风格', style: tt.titleMedium),
+                  tiles: [
+                    SettingsTile(
+                      title: const Text('Tab命名风格'),
+                      leading: const Icon(Icons.tab_rounded),
+                      trailing: GlassPullDownButton(
+                        icon: Icon(tabNamingStyle.icon),
+                        label: tabNamingStyle.label,
+                        buttonWidth: 120,
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 64,
+                        ),
+                        items: TabNamingStyle.values.map((style) {
+                          final isSelected = tabNamingStyle == style;
+                          return GlassMenuItem(
+                            title: style.label,
+                            icon: Icon(
+                              isSelected ? Icons.check_rounded : style.icon,
+                              size: 20,
+                            ),
+                            isSelected: isSelected,
+                            onTap: () {
+                              ref
+                                  .read(appSettingsProvider.notifier)
+                                  .setTabNamingStyle(style);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // ── 权限 ────────────────────────────────────────────────
+                SettingsSection(
+                  title: Text('权限', style: tt.titleMedium),
+                  tiles: [
+                    SettingsTile.navigation(
+                      title: const Text('电池优化'),
+                      description: const Text('该服务需要保持后台运行以实现定时提醒等'),
+                      leading: const Icon(Icons.battery_full_rounded),
+                      trailing: const Icon(Icons.navigate_next_rounded),
+                      onPressed: (_) {},
+                    ),
+                    SettingsTile.navigation(
+                      title: const Text('自启动'),
+                      description: const Text('该服务需要保证每次重启设备后仍能够正常运行'),
+                      leading: const Icon(Icons.start_rounded),
+                      trailing: const Icon(Icons.navigate_next_rounded),
+                      onPressed: (_) {},
+                    ),
+                    SettingsTile.navigation(
+                      title: const Text('无障碍服务'),
+                      description: const Text(
+                        '该权限为敏感权限！！！用于在专注时屏蔽其他可能干扰专注进程的应用程序',
+                      ),
+                      leading: const Icon(Icons.accessibility_new_rounded),
+                      trailing: const Icon(Icons.navigate_next_rounded),
+                      onPressed: (_) {},
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

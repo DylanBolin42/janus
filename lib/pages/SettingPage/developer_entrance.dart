@@ -3,9 +3,9 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:janus/providers/database_provider.dart';
 import 'package:janus/services/logger_service.dart';
-import 'package:janus/shared/custom_appbar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class DeveloperEntrance extends ConsumerStatefulWidget {
@@ -19,6 +19,15 @@ class DeveloperEntrance extends ConsumerStatefulWidget {
 class _DeveloperEntranceState extends ConsumerState<DeveloperEntrance> {
   /// 正在执行数据库操作，防止连点
   bool _busy = false;
+
+  final GlassLargeTitleController _titleController =
+      GlassLargeTitleController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
 
   /// 填充示例数据
   Future<void> _fillSampleData() async {
@@ -64,34 +73,54 @@ class _DeveloperEntranceState extends ConsumerState<DeveloperEntrance> {
   @override
   Widget build(BuildContext context) {
     return GlassScaffold(
-      edgeFade: false,
-      appBar: CustomAppbar(title: 'Hello, Developer', showBack: true),
-      body: CustomAppbar.wrapBody(
-        context,
-        SettingsList(
-          sections: [
-            SettingsSection(
-              title: Text('数据库操作'),
-              tiles: [
-                SettingsTile(
-                  title: Text('填充示例数据'),
-                  trailing: _busy
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : null,
-                  onPressed: _busy ? null : (_) => _fillSampleData(),
-                ),
-                SettingsTile(
-                  title: Text('删除所有数据'),
-                  onPressed: _busy ? null : (_) => _deleteAllData(),
+      topEdgeFade: false,
+      appBar: GlassAppBar(
+        title: const Text('Hello, Developer'),
+        largeTitleController: _titleController,
+        leading: GlassButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onTap: () => context.pop(),
+        ),
+      ),
+      body: CustomScrollView(
+        controller: _titleController.scrollController,
+        slivers: [
+          SliverToBoxAdapter(
+            child: SizedBox(height: MediaQuery.paddingOf(context).top),
+          ),
+          GlassLargeTitle(
+            text: 'Hello, Developer',
+            controller: _titleController,
+          ),
+          SliverToBoxAdapter(
+            child: SettingsList(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              sections: [
+                SettingsSection(
+                  title: Text('数据库操作'),
+                  tiles: [
+                    SettingsTile(
+                      title: Text('填充示例数据'),
+                      trailing: _busy
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : null,
+                      onPressed: _busy ? null : (_) => _fillSampleData(),
+                    ),
+                    SettingsTile(
+                      title: Text('删除所有数据'),
+                      onPressed: _busy ? null : (_) => _deleteAllData(),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

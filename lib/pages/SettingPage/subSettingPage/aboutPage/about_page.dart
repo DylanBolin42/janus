@@ -1,8 +1,8 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
-import 'package:janus/shared/custom_appbar.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
@@ -17,102 +17,128 @@ class AboutPage extends ConsumerStatefulWidget {
 }
 
 class _AboutPageState extends ConsumerState<AboutPage> {
+  final GlassLargeTitleController _titleController =
+      GlassLargeTitleController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GlassScaffold(
-      edgeFade: false,
-      appBar: CustomAppbar(title: '关于', showBack: true),
-      body: CustomAppbar.wrapBody(
-        context,
-        SettingsList(
-          sections: [
-            SettingsSection(
-              tiles: [
-                CustomAppSettingsTile(child: Text('Janus')),
-                SettingsTile(
-                  title: Text('版本检测'),
-                  leading: Icon(Icons.update_rounded),
-                  description: Text('检测最新版本并自动更新'),
-                  trailing: Icon(Icons.navigate_next_rounded),
-                ),
-              ],
-            ),
-            SettingsSection(
-              tiles: [
-                SettingsTile(
-                  title: Text('Issue报告'),
-                  leading: Icon(Icons.bug_report_rounded),
-                  trailing: Icon(Icons.navigate_next_rounded),
-                ),
-                SettingsTile(
-                  title: Text('功能建议'),
-                  leading: Icon(Icons.mail_rounded),
-                  trailing: Icon(Icons.navigate_next_rounded),
-                ),
-                SettingsTile(
-                  title: Text('Github主页'),
-                  leading: FaIcon(FontAwesomeIcons.github),
-                  trailing: Icon(Icons.navigate_next_rounded),
-                ),
-                SettingsTile(
-                  title: Text('开源许可证'),
-                  leading: Icon(MdiIcons.license),
-                  trailing: Icon(Icons.navigate_next_rounded),
-                ),
-              ],
-            ),
-            SettingsSection(
-              tiles: [
-                SettingsTile(
-                  title: Text('开源项目引用清单'),
-                  leading: Icon(MdiIcons.import),
-                  trailing: Icon(Icons.navigate_next_rounded),
-                ),
-                SettingsTile(
-                  title: Text('AIGC声明清单'),
-                  leading: Icon(MdiIcons.robot),
-                  trailing: Icon(Icons.navigate_next_rounded),
-                ),
-              ],
-            ),
-            FlexSettingSection(
-              tiles: [
-                FlexRow(
-                  children: [
-                    FlexTile(
-                      child: Center(
-                        child: Row(
-                          children: [
-                            Icon(Icons.star_rounded),
-                            SizedBox(width: AppSpacing.base),
-                            Text(
-                              'Github star',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
+      topEdgeFade: false,
+      appBar: GlassAppBar(
+        title: const Text('关于'),
+        largeTitleController: _titleController,
+        leading: GlassButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onTap: () => context.pop(),
+        ),
+      ),
+      body: CustomScrollView(
+        controller: _titleController.scrollController,
+        slivers: [
+          SliverToBoxAdapter(
+            child: SizedBox(height: MediaQuery.paddingOf(context).top),
+          ),
+          GlassLargeTitle(text: '关于', controller: _titleController),
+          SliverToBoxAdapter(
+            child: SettingsList(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              sections: [
+                SettingsSection(
+                  tiles: [
+                    CustomAppSettingsTile(child: Text('Janus')),
+                    SettingsTile(
+                      title: Text('版本检测'),
+                      leading: Icon(Icons.update_rounded),
+                      description: Text('检测最新版本并自动更新'),
+                      trailing: Icon(Icons.navigate_next_rounded),
                     ),
-                    FlexTile(
-                      child: Center(
-                        child: Row(
-                          children: [
-                            Icon(MdiIcons.coffeeToGo),
-                            SizedBox(width: AppSpacing.base),
-                            Text(
-                              '捐赠',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                  ],
+                ),
+                SettingsSection(
+                  tiles: [
+                    SettingsTile(
+                      title: Text('Issue报告'),
+                      leading: Icon(Icons.bug_report_rounded),
+                      trailing: Icon(Icons.navigate_next_rounded),
+                    ),
+                    SettingsTile(
+                      title: Text('功能建议'),
+                      leading: Icon(Icons.mail_rounded),
+                      trailing: Icon(Icons.navigate_next_rounded),
+                    ),
+                    SettingsTile(
+                      title: Text('Github主页'),
+                      leading: FaIcon(FontAwesomeIcons.github),
+                      trailing: Icon(Icons.navigate_next_rounded),
+                    ),
+                    SettingsTile(
+                      title: Text('开源许可证'),
+                      leading: Icon(MdiIcons.license),
+                      trailing: Icon(Icons.navigate_next_rounded),
+                    ),
+                  ],
+                ),
+                SettingsSection(
+                  tiles: [
+                    SettingsTile(
+                      title: Text('开源项目引用清单'),
+                      leading: Icon(MdiIcons.import),
+                      trailing: Icon(Icons.navigate_next_rounded),
+                    ),
+                    SettingsTile(
+                      title: Text('AIGC声明清单'),
+                      leading: Icon(MdiIcons.robot),
+                      trailing: Icon(Icons.navigate_next_rounded),
+                    ),
+                  ],
+                ),
+                FlexSettingSection(
+                  tiles: [
+                    FlexRow(
+                      children: [
+                        FlexTile(
+                          child: Center(
+                            child: Row(
+                              children: [
+                                Icon(Icons.star_rounded),
+                                SizedBox(width: AppSpacing.base),
+                                Text(
+                                  'Github star',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                        FlexTile(
+                          child: Center(
+                            child: Row(
+                              children: [
+                                Icon(MdiIcons.coffeeToGo),
+                                SizedBox(width: AppSpacing.base),
+                                Text(
+                                  '捐赠',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

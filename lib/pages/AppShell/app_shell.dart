@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/pages/TaskCreationPage/task_creation_page.dart';
 import 'package:janus/router/route_constants.dart';
-import 'package:janus/shared/custom_appbar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
@@ -21,8 +20,8 @@ class AppShell extends StatelessWidget {
     return Material(
       child: GlassScaffold(
         topEdgeFade: true,
-        appBar: CustomAppbar(
-          title: title,
+        appBar: GlassAppBar(
+          title: Text(title),
           actions: [
             GlassButtonGroup.icons(
               borderRadius: 64,

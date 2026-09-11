@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
-import 'package:janus/shared/custom_appbar.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
 
@@ -17,6 +17,15 @@ class NotificationSettingPage extends ConsumerStatefulWidget {
 
 class _NotificationSettingPageState
     extends ConsumerState<NotificationSettingPage> {
+  final GlassLargeTitleController _titleController =
+      GlassLargeTitleController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings =
@@ -24,108 +33,129 @@ class _NotificationSettingPageState
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
-      topEdgeFade: false,
-      appBar: const CustomAppbar(title: '通知', showBack: true),
-      body: CustomAppbar.wrapBody(
-        context,
-        SettingsList(
-          sections: [
-            SettingsSection(
-              tiles: [
-                SettingsTile(
-                  title: Text('是否通知'),
-                  leading: Icon(Icons.notifications_rounded),
-                  trailing: GlassSwitch(
-                    value: settings.isNotificationEnabled,
-                    onChanged: (status) {
-                      ref
-                          .read(appSettingsProvider.notifier)
-                          .setNotificationEnabled(status);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SettingsSection(
-              title: Text('通知强度', style: tt.titleMedium),
-              tiles: [
-                SettingsTile(
-                  title: Text('紧迫通知方式'),
-                  trailing: GlassPullDownButton(
-                    icon: Icon(settings.urgentNotificationStyle.icon),
-                    label: settings.urgentNotificationStyle.label,
-                    buttonWidth: 160,
-                    buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
-                    items: UrgentNotificationStyle.values.map((mode) {
-                      final isSelected =
-                          settings.urgentNotificationStyle == mode;
-                      return GlassMenuItem(
-                        title: mode.label,
-                        icon: Icon(
-                          isSelected ? Icons.check_rounded : mode.icon,
-                          size: 20,
-                        ),
-                        isSelected: isSelected,
-                        onTap: () {
-                          ref
-                              .read(appSettingsProvider.notifier)
-                              .setUrgentNotificationStyle(mode);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-                SettingsTile(
-                  title: Text('临近通知方式'),
-                  trailing: GlassPullDownButton(
-                    icon: Icon(settings.approachingNotificationStyle.icon),
-                    label: settings.approachingNotificationStyle.label,
-                    buttonWidth: 160,
-                    buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
-                    items: ApproachingNotificationStyle.values.map((mode) {
-                      final isSelected =
-                          settings.approachingNotificationStyle == mode;
-                      return GlassMenuItem(
-                        title: mode.label,
-                        icon: Icon(
-                          isSelected ? Icons.check_rounded : mode.icon,
-                          size: 20,
-                        ),
-                        isSelected: isSelected,
-                        onTap: () {
-                          ref
-                              .read(appSettingsProvider.notifier)
-                              .setApproachingNotificationStyle(mode);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-            SettingsSection(
-              title: Text('每日简报', style: tt.titleMedium),
-              tiles: [
-                SettingsTile(
-                  title: Text('早晨发送时间'),
-                  trailing: CupertinoTimePickerButton(
-                    use24hFormat: true,
-                  ), //TODO: 这里需要绑定时间
-                ),
-                SettingsTile(
-                  title: Text('晚上发送时间'),
-                  trailing: CupertinoTimePickerButton(
-                    use24hFormat: true,
-                  ), //TODO: 这里需要绑定时间
-                ),
-              ],
-            ),
-            SettingsSection(
-              tiles: [SettingsTile(title: Text('🚧开发中🚧'))],
-              title: Text('通知音效', style: tt.titleMedium),
-            ),
-          ],
+      topEdgeFadeExtent: -44,
+      appBar: GlassAppBar(
+        title: const Text('通知'),
+        largeTitleController: _titleController,
+        leading: GlassButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onTap: () => context.pop(),
         ),
+      ),
+      body: CustomScrollView(
+        controller: _titleController.scrollController,
+        slivers: [
+          SliverToBoxAdapter(
+            child: SizedBox(height: MediaQuery.paddingOf(context).top),
+          ),
+          GlassLargeTitle(text: '通知', controller: _titleController),
+          SliverToBoxAdapter(
+            child: SettingsList(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              sections: [
+                SettingsSection(
+                  tiles: [
+                    SettingsTile(
+                      title: Text('是否通知'),
+                      leading: Icon(Icons.notifications_rounded),
+                      trailing: GlassSwitch(
+                        value: settings.isNotificationEnabled,
+                        onChanged: (status) {
+                          ref
+                              .read(appSettingsProvider.notifier)
+                              .setNotificationEnabled(status);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SettingsSection(
+                  title: Text('通知强度', style: tt.titleMedium),
+                  tiles: [
+                    SettingsTile(
+                      title: Text('紧迫通知方式'),
+                      trailing: GlassPullDownButton(
+                        icon: Icon(settings.urgentNotificationStyle.icon),
+                        label: settings.urgentNotificationStyle.label,
+                        buttonWidth: 160,
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 64,
+                        ),
+                        items: UrgentNotificationStyle.values.map((mode) {
+                          final isSelected =
+                              settings.urgentNotificationStyle == mode;
+                          return GlassMenuItem(
+                            title: mode.label,
+                            icon: Icon(
+                              isSelected ? Icons.check_rounded : mode.icon,
+                              size: 20,
+                            ),
+                            isSelected: isSelected,
+                            onTap: () {
+                              ref
+                                  .read(appSettingsProvider.notifier)
+                                  .setUrgentNotificationStyle(mode);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    SettingsTile(
+                      title: Text('临近通知方式'),
+                      trailing: GlassPullDownButton(
+                        icon: Icon(settings.approachingNotificationStyle.icon),
+                        label: settings.approachingNotificationStyle.label,
+                        buttonWidth: 160,
+                        buttonShape: const LiquidRoundedRectangle(
+                          borderRadius: 64,
+                        ),
+                        items: ApproachingNotificationStyle.values.map((mode) {
+                          final isSelected =
+                              settings.approachingNotificationStyle == mode;
+                          return GlassMenuItem(
+                            title: mode.label,
+                            icon: Icon(
+                              isSelected ? Icons.check_rounded : mode.icon,
+                              size: 20,
+                            ),
+                            isSelected: isSelected,
+                            onTap: () {
+                              ref
+                                  .read(appSettingsProvider.notifier)
+                                  .setApproachingNotificationStyle(mode);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+                SettingsSection(
+                  title: Text('每日简报', style: tt.titleMedium),
+                  tiles: [
+                    SettingsTile(
+                      title: Text('早晨发送时间'),
+                      trailing: CupertinoTimePickerButton(
+                        use24hFormat: true,
+                      ), //TODO: 这里需要绑定时间
+                    ),
+                    SettingsTile(
+                      title: Text('晚上发送时间'),
+                      trailing: CupertinoTimePickerButton(
+                        use24hFormat: true,
+                      ), //TODO: 这里需要绑定时间
+                    ),
+                  ],
+                ),
+                SettingsSection(
+                  tiles: [SettingsTile(title: Text('🚧开发中🚧'))],
+                  title: Text('通知音效', style: tt.titleMedium),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
