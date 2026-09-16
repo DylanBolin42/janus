@@ -419,8 +419,9 @@ void main() {
       addTearDown(() => container.dispose());
       await waitForInit(container);
 
-      final success =
-          await notifierOf(container).setEndPoint('https://api.openai.com/v1');
+      final success = await notifierOf(
+        container,
+      ).setEndPoint('https://api.openai.com/v1');
       expect(success, isTrue);
       expect(
         container.read(appSettingsProvider).value!.endPoint,

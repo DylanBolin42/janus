@@ -34,10 +34,7 @@ void main() {
         AiEndpointValidator.isValidEndpoint('http://127.0.0.1:8080/v1'),
         isTrue,
       );
-      expect(
-        AiEndpointValidator.isValidEndpoint('http://[::1]:11434'),
-        isTrue,
-      );
+      expect(AiEndpointValidator.isValidEndpoint('http://[::1]:11434'), isTrue);
     });
 
     test('rejects empty, invalid, or non-http/https URIs', () {
