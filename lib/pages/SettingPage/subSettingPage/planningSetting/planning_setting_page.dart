@@ -20,8 +20,25 @@ class PlanningSettingPage extends ConsumerStatefulWidget {
 class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
   @override
   Widget build(BuildContext context) {
-    final settings =
-        ref.watch(appSettingsProvider).value ?? const AppSettings();
+    // Performance optimization: watch specific fields via granular .select()
+    // instead of watching the entire appSettingsProvider. This prevents
+    // unnecessary full-page rebuilds when unrelated settings change.
+    final workingDayTaskDensity = ref.watch(
+      appSettingsProvider.select(
+        (s) =>
+            s.value?.workingDayTaskDensity ?? WorkingDayTaskDensity.medium,
+      ),
+    );
+    final restDayTaskDensity = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.restDayTaskDensity ?? RestDayTaskDensity.loose,
+      ),
+    );
+    final planningHorizon = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.planningHorizon ?? PlanningHorizon.weeks,
+      ),
+    );
     final tt = Theme.of(context).textTheme;
     return GlassScaffold(
       topEdgeFade: false,
@@ -81,12 +98,11 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                 SettingsTile(
                   title: Text('工作日'),
                   trailing: GlassPullDownButton(
-                    label: settings.workingDayTaskDensity.label,
+                    label: workingDayTaskDensity.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: WorkingDayTaskDensity.values.map((density) {
-                      final isSelected =
-                          settings.workingDayTaskDensity == density;
+                      final isSelected = workingDayTaskDensity == density;
                       return GlassMenuItem(
                         title: density.label,
                         icon: Icon(
@@ -106,11 +122,11 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                 SettingsTile(
                   title: Text('休息日'),
                   trailing: GlassPullDownButton(
-                    label: settings.restDayTaskDensity.label,
+                    label: restDayTaskDensity.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: RestDayTaskDensity.values.map((density) {
-                      final isSelected = settings.restDayTaskDensity == density;
+                      final isSelected = restDayTaskDensity == density;
                       return GlassMenuItem(
                         title: density.label,
                         icon: Icon(
@@ -137,11 +153,11 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                   title: Text('跨度'),
                   description: Text('规划跨度越长，安排越详细，但用户需要更提前输入足够多的日程以供计算。'),
                   trailing: GlassPullDownButton(
-                    label: settings.planningHorizon.label,
+                    label: planningHorizon.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: PlanningHorizon.values.map((horizon) {
-                      final isSelected = settings.planningHorizon == horizon;
+                      final isSelected = planningHorizon == horizon;
                       return GlassMenuItem(
                         title: horizon.label,
                         icon: Icon(
