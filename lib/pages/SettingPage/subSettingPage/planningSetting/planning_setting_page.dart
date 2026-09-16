@@ -25,8 +25,7 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
     // unnecessary full-page rebuilds when unrelated settings change.
     final workingDayTaskDensity = ref.watch(
       appSettingsProvider.select(
-        (s) =>
-            s.value?.workingDayTaskDensity ?? WorkingDayTaskDensity.medium,
+        (s) => s.value?.workingDayTaskDensity ?? WorkingDayTaskDensity.medium,
       ),
     );
     final restDayTaskDensity = ref.watch(
