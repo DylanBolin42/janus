@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:janus/models/app_settings.dart';
+import 'package:janus/services/ai_endpoint_validator.dart';
 import 'package:janus/services/settings_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -192,6 +193,17 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
+  Future<bool> setEndPoint(String endPoint) async {
+    final trimmed = endPoint.trim();
+    if (trimmed.isNotEmpty && !AiEndpointValidator.isValidEndpoint(trimmed)) {
+      return false;
+    }
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(endPoint: trimmed),
+    );
+    return true;
+  }
+
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.value ?? const AppSettings()).copyWith(aiDailySummary: enabled),
