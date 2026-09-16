@@ -17,8 +17,30 @@ class FocusSettingPage extends ConsumerStatefulWidget {
 class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
   @override
   Widget build(BuildContext context) {
-    final settings =
-        ref.watch(appSettingsProvider).value ?? const AppSettings();
+    // Performance optimization: watch specific fields via granular .select()
+    // instead of watching the entire appSettingsProvider. This prevents
+    // unnecessary full-page rebuilds when unrelated settings change.
+    final tempLeaveDuration = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.tempLeaveDuration ?? TempLeaveDuration.tenM,
+      ),
+    );
+    final tempLeaveTimes = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.tempLeaveTimes ?? TempLeaveTimes.twice,
+      ),
+    );
+    final focusSceneRenderMode = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.focusSceneRenderMode ?? FocusSceneRenderMode.rive,
+      ),
+    );
+    final focusSceneRenderQuality = ref.watch(
+      appSettingsProvider.select(
+        (s) =>
+            s.value?.focusSceneRenderQuality ?? FocusSceneRenderQuality.medium,
+      ),
+    );
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
@@ -73,11 +95,11 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                 SettingsTile(
                   title: Text('单次暂离时长'),
                   trailing: GlassPullDownButton(
-                    label: settings.tempLeaveDuration.label,
+                    label: tempLeaveDuration.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: TempLeaveDuration.values.map((duration) {
-                      final isSelected = settings.tempLeaveDuration == duration;
+                      final isSelected = tempLeaveDuration == duration;
                       return GlassMenuItem(
                         title: duration.label,
                         icon: Icon(
@@ -97,11 +119,11 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                 SettingsTile(
                   title: Text('单次专注最大暂离次数'),
                   trailing: GlassPullDownButton(
-                    label: settings.tempLeaveTimes.label,
+                    label: tempLeaveTimes.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: TempLeaveTimes.values.map((times) {
-                      final isSelected = settings.tempLeaveTimes == times;
+                      final isSelected = tempLeaveTimes == times;
                       return GlassMenuItem(
                         title: times.label,
                         icon: Icon(
@@ -128,11 +150,11 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                   trailing: GlassPullDownButton(
                     //TODO: 添加渲染引擎描述和建议
                     // TODO: 可以适当添加商标icon
-                    label: settings.focusSceneRenderMode.label,
+                    label: focusSceneRenderMode.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: FocusSceneRenderMode.values.map((mode) {
-                      final isSelected = settings.focusSceneRenderMode == mode;
+                      final isSelected = focusSceneRenderMode == mode;
                       return GlassMenuItem(
                         title: mode.label,
                         icon: Icon(
@@ -152,12 +174,11 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
                 SettingsTile(
                   title: Text('场景渲染质量'),
                   trailing: GlassPullDownButton(
-                    label: settings.focusSceneRenderQuality.label,
+                    label: focusSceneRenderQuality.label,
                     buttonWidth: 120,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: FocusSceneRenderQuality.values.map((quality) {
-                      final isSelected =
-                          settings.focusSceneRenderQuality == quality;
+                      final isSelected = focusSceneRenderQuality == quality;
                       return GlassMenuItem(
                         title: quality.label,
                         icon: Icon(
