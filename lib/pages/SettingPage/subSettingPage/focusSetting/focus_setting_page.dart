@@ -31,21 +31,14 @@ class _FocusSettingPageState extends ConsumerState<FocusSettingPage> {
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
-      topEdgeFadeExtent: -44,
-      appBar: GlassAppBar(
+      appBar: GlassAppBar.pinned(
         title: const Text('专注'),
         largeTitleController: _titleController,
-        leading: GlassButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onTap: () => context.pop(),
-        ),
+        onBack: () => context.pop(),
       ),
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
-          SliverToBoxAdapter(
-            child: SizedBox(height: MediaQuery.paddingOf(context).top),
-          ),
           GlassLargeTitle(text: '专注', controller: _titleController),
           SliverToBoxAdapter(
             child: SettingsList(

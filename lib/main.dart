@@ -31,7 +31,11 @@ class MyApp extends ConsumerWidget {
       // 通过 M3ETheme.of 取色；若不注入 M3ETheme，会回退到 material_ui 的静态
       // fallback 主题而不随全局主题变化。builder 位于 Navigator/Overlay 之上，
       // 在此注入与全局主题同步的 M3ETheme（见 lib/theme/m3e_bridge.dart）。
-      builder: m3eThemeBridgeBuilder,
+      // 同时嵌套 GlassNavigationShell 使 GlassAppBar.pinned 的返回键与操作项能够固定在导航栏之上。
+      builder: (context, child) {
+        final bridged = m3eThemeBridgeBuilder(context, child);
+        return GlassNavigationShell(child: bridged);
+      },
       // material_3_expressive 1.0.8+ 内部改用 material_ui（Flutter Material 的
       // fork），其 TextField 等组件需要 material_ui 自己的 MaterialLocalizations。
       // 与 Flutter 默认的两个委托同时注册，避免 "No MaterialLocalizations found"。

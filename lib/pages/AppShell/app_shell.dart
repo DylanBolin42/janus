@@ -41,6 +41,7 @@ class AppShell extends StatelessWidget {
         ),
         body: child,
         bottomBar: GlassTabBar.bottom(
+          settings: LiquidGlassSettings(thickness: 30, blur: 20),
           extraButton: GlassTabBarExtraButton(
             icon: Icon(Icons.add_rounded),
             //TODO: 修改为WoltModalSheet以增强可读性

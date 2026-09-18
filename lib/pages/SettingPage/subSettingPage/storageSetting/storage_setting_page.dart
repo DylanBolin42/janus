@@ -33,21 +33,14 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
         ref.watch(appSettingsProvider).value ?? const AppSettings();
     final tt = Theme.of(context).textTheme;
     return GlassScaffold(
-      topEdgeFadeExtent: -44,
-      appBar: GlassAppBar(
+      appBar: GlassAppBar.pinned(
         title: const Text('存储'),
         largeTitleController: _titleController,
-        leading: GlassButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onTap: () => context.pop(),
-        ),
+        onBack: () => context.pop(),
       ),
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
-          SliverToBoxAdapter(
-            child: SizedBox(height: MediaQuery.paddingOf(context).top),
-          ),
           GlassLargeTitle(text: '存储', controller: _titleController),
           SliverToBoxAdapter(
             child: SettingsList(

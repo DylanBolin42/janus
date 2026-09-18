@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/widgets/surfaces/glass_scaffold.dart';
 
 class TimelinePage extends StatefulWidget {
   const TimelinePage({super.key});
@@ -10,6 +11,12 @@ class TimelinePage extends StatefulWidget {
 class _TimelinePageState extends State<TimelinePage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: Material(
+        child: GlassScaffold(topEdgeFade: false, body: ListView()),
+      ),
+    );
   }
 }
