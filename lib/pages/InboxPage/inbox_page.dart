@@ -66,244 +66,6 @@ class _InboxPageState extends ConsumerState<InboxPage> {
         .cycle(delta, _inboxModes.length);
   }
 
-  /// 滑动手势露出的操作胶囊
-  /// [alignment]：右滑色带贴左缘，胶囊贴右缘（挨着卡片）；左滑反之
-  Widget _buildSwipeAction({
-    required IconData icon,
-    required String label,
-    required Color stripColor,
-    required Color capsuleColor,
-    required Color foreground,
-    required Alignment alignment,
-  }) {
-    return Container(
-      color: stripColor,
-      alignment: alignment,
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.base * 2),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.base * 1.5,
-          vertical: AppSpacing.base,
-        ),
-        //decoration: BoxDecoration(
-        //  color: capsuleColor,
-        //  borderRadius: BorderRadius.circular(999),
-        //),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 胶囊宽度随拖拽位移变化：宽度不足时图标等比缩小，避免 RenderFlex 溢出
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Icon(icon, color: foreground, size: 26),
-            ),
-            SizedBox(height: AppSpacing.base * 0.5),
-            Text(
-              label,
-              // 宽度不足时保持单行、边缘淡出，而不是被拆成竖排（每字一行）
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.fade,
-              style: TextStyle(
-                color: foreground,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 实现任务列表搭建的模块
-  Widget _buildTaskList({required List<Task> items}) {
-    return M3EDismissibleCardList(
-      // 页面整体由外层 ListView 滚动，卡片列表自身不独立滚动。
-      // 缺少这两项会导致嵌套 viewport 拿到无界高度，触发
-      // 「RenderBox was not laid out … hasSize」断言崩溃。
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      itemBuilder: (ctx, i) {
-        final task = items[i];
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              task.title,
-              style: tt.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: AppSpacing.base),
-            if (task.description != null)
-              ExpandableRichText(
-                task.description!,
-                expandText: 'More',
-                collapseText: 'Less',
-                maxLines: 2,
-                style: tt.bodySmall,
-              ),
-            SizedBox(height: AppSpacing.base * 2),
-            // DDL 构建（Expanded 等分宽度；勿用 double.infinity，
-            // 否则在 shrinkWrap 列表的无界测量约束下会触发
-            // 「BoxConstraints forces an infinite width/height」）
-            Row(
-              children: [
-                Container(
-                  height: 60,
-                  width: 100,
-                  alignment: AlignmentGeometry.center,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(64),
-                  ),
-                  padding: EdgeInsets.all(AppSpacing.base * 2),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.calendar_month_rounded,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSecondaryContainer,
-                      ),
-                      SizedBox(width: AppSpacing.base),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Transform.scale(
-                            // 纵向拉伸文字（拉长字形高度）
-                            scaleY: 1.5,
-                            child: Text(
-                              '${items[i].ddl.month}/${items[i].ddl.day}',
-                              style: tt.labelLarge?.copyWith(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSecondaryContainer,
-                              ),
-                            ),
-                          ),
-                          Transform.scale(
-                            scaleY: 1.5,
-                            child: Text(
-                              '${task.ddl.hour}:${task.ddl.minute.toString().padLeft(2, '0')}',
-                              style: tt.labelLarge?.copyWith(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSecondaryContainer,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: AppSpacing.base),
-                // EST 构建
-                Container(
-                  width: 110,
-                  height: 60,
-                  alignment: AlignmentGeometry.center,
-
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(64),
-                  ),
-                  padding: EdgeInsets.all(AppSpacing.base * 2),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.timer_rounded,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSecondaryContainer,
-                      ),
-                      SizedBox(width: AppSpacing.base),
-                      Transform.scale(
-                        scaleY: 1.5,
-                        child: Text(
-                          task.estHour != null && task.estMinute != null
-                              ? '${task.estHour}:${task.estMinute.toString().padLeft(2, '0')}'
-                              : '—',
-                          style: tt.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSecondaryContainer,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-      onDismiss: (i, dir) async {
-        var t = items[i];
-        if (dir == DismissDirection.endToStart) {
-          //TODO: 确认左滑手势的逻辑
-          return false;
-        }
-        if (dir == DismissDirection.startToEnd) {
-          // 增量更新：只把 status 置为 1（已完成），其余字段保持数据库原值
-          try {
-            await ref
-                .read(taskDaoProvider)
-                .editTask(id: t.id, status: const Value(1));
-          } catch (e, stack) {
-            AppLogger.e('任务属性：Status变更失败', error: e, stackTrace: stack);
-            return false;
-          }
-          AppLogger.i('任务${t.id}： ${t.title}Status设置为已完成成功');
-          return true;
-        } else {
-          return false;
-        }
-      },
-      style: M3EDismissibleCardStyle(
-        outerRadius: 24,
-        dismissThreshold: 0.4,
-        // 加大周围卡片被拖拽卡片的黏滞拉扯
-        neighbourPull: 32.0,
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        elevation: 0,
-        // 左右滑胶囊加大为胶囊形圆角
-        backgroundBorderRadius: 128,
-        secondaryBackgroundBorderRadius: 128,
-        // 右滑 → 完成
-        background: _buildSwipeAction(
-          icon: Icons.check_rounded,
-          label: '完成',
-          stripColor: Theme.of(context).colorScheme.primaryContainer,
-          capsuleColor: Theme.of(context).colorScheme.primary,
-          foreground: Theme.of(context).colorScheme.onPrimaryContainer,
-          alignment: Alignment.center,
-        ),
-        // 左滑 → 更多
-        secondaryBackground: _buildSwipeAction(
-          icon: Icons.more_horiz_rounded,
-          label: '更多',
-          stripColor: Theme.of(context).colorScheme.secondaryContainer,
-          capsuleColor: Theme.of(context).colorScheme.secondary,
-          foreground: Theme.of(context).colorScheme.onSecondaryContainer,
-          alignment: Alignment.center,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -533,18 +295,8 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                     ),
                     SizedBox(height: AppSpacing.base),
 
-                    // 任务卡片显示区域（实时监听数据库，增删改后自动刷新）
-                    //TODO: 根据优先级计算选择性传参
-                    ref
-                        .watch(inboxTasksProvider)
-                        .when(
-                          data: (tasks) => _buildTaskList(items: tasks),
-                          loading: () => const M3ELoadingIndicator(),
-                          error: (e, st) {
-                            AppLogger.e('任务列表加载失败', error: e, stackTrace: st);
-                            return const SizedBox(height: 200);
-                          },
-                        ),
+                    // 任务卡片显示区域（隔离至 _InboxTaskList 避免全页重绘）
+                    const _InboxTaskList(),
                     SizedBox(height: AppSpacing.bottomSafeArea),
                   ],
                 ),
@@ -554,5 +306,240 @@ class _InboxPageState extends ConsumerState<InboxPage> {
         ),
       ),
     );
+  }
+}
+
+/// 隔离任务列表渲染，防止任务流变化触发整个 [InboxPage] 重绘
+class _InboxTaskList extends ConsumerWidget {
+  const _InboxTaskList();
+
+  /// 滑动手势露出的操作胶囊
+  Widget _buildSwipeAction({
+    required IconData icon,
+    required String label,
+    required Color stripColor,
+    required Color capsuleColor,
+    required Color foreground,
+    required Alignment alignment,
+  }) {
+    return Container(
+      color: stripColor,
+      alignment: alignment,
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.base * 2),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.base * 1.5,
+          vertical: AppSpacing.base,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Icon(icon, color: foreground, size: 26),
+            ),
+            SizedBox(height: AppSpacing.base * 0.5),
+            Text(
+              label,
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.fade,
+              style: TextStyle(
+                color: foreground,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 实现任务列表搭建的模块
+  Widget _buildTaskList(BuildContext context, WidgetRef ref, List<Task> items) {
+    final tt = Theme.of(context).textTheme;
+    return M3EDismissibleCardList(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      itemBuilder: (ctx, i) {
+        final task = items[i];
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              task.title,
+              style: tt.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: AppSpacing.base),
+            if (task.description != null)
+              ExpandableRichText(
+                task.description!,
+                expandText: 'More',
+                collapseText: 'Less',
+                maxLines: 2,
+                style: tt.bodySmall,
+              ),
+            SizedBox(height: AppSpacing.base * 2),
+            Row(
+              children: [
+                Container(
+                  height: 60,
+                  width: 100,
+                  alignment: AlignmentGeometry.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(64),
+                  ),
+                  padding: EdgeInsets.all(AppSpacing.base * 2),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.calendar_month_rounded,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
+                      ),
+                      SizedBox(width: AppSpacing.base),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Transform.scale(
+                            scaleY: 1.5,
+                            child: Text(
+                              '${task.ddl.month}/${task.ddl.day}',
+                              style: tt.labelLarge?.copyWith(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                          ),
+                          Transform.scale(
+                            scaleY: 1.5,
+                            child: Text(
+                              '${task.ddl.hour}:${task.ddl.minute.toString().padLeft(2, '0')}',
+                              style: tt.labelLarge?.copyWith(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: AppSpacing.base),
+                Container(
+                  width: 110,
+                  height: 60,
+                  alignment: AlignmentGeometry.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(64),
+                  ),
+                  padding: EdgeInsets.all(AppSpacing.base * 2),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.timer_rounded,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSecondaryContainer,
+                      ),
+                      SizedBox(width: AppSpacing.base),
+                      Transform.scale(
+                        scaleY: 1.5,
+                        child: Text(
+                          task.estHour != null && task.estMinute != null
+                              ? '${task.estHour}:${task.estMinute.toString().padLeft(2, '0')}'
+                              : '—',
+                          style: tt.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSecondaryContainer,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+      onDismiss: (i, dir) async {
+        var t = items[i];
+        if (dir == DismissDirection.endToStart) {
+          return false;
+        }
+        if (dir == DismissDirection.startToEnd) {
+          try {
+            await ref
+                .read(taskDaoProvider)
+                .editTask(id: t.id, status: const Value(1));
+          } catch (e, stack) {
+            AppLogger.e('任务属性：Status变更失败', error: e, stackTrace: stack);
+            return false;
+          }
+          AppLogger.i('任务${t.id}： ${t.title}Status设置为已完成成功');
+          return true;
+        } else {
+          return false;
+        }
+      },
+      style: M3EDismissibleCardStyle(
+        outerRadius: 24,
+        dismissThreshold: 0.4,
+        neighbourPull: 32.0,
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        elevation: 0,
+        backgroundBorderRadius: 128,
+        secondaryBackgroundBorderRadius: 128,
+        background: _buildSwipeAction(
+          icon: Icons.check_rounded,
+          label: '完成',
+          stripColor: Theme.of(context).colorScheme.primaryContainer,
+          capsuleColor: Theme.of(context).colorScheme.primary,
+          foreground: Theme.of(context).colorScheme.onPrimaryContainer,
+          alignment: Alignment.center,
+        ),
+        secondaryBackground: _buildSwipeAction(
+          icon: Icons.more_horiz_rounded,
+          label: '更多',
+          stripColor: Theme.of(context).colorScheme.secondaryContainer,
+          capsuleColor: Theme.of(context).colorScheme.secondary,
+          foreground: Theme.of(context).colorScheme.onSecondaryContainer,
+          alignment: Alignment.center,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref.watch(inboxTasksProvider).when(
+          data: (tasks) => _buildTaskList(context, ref, tasks),
+          loading: () => const M3ELoadingIndicator(),
+          error: (e, st) {
+            AppLogger.e('任务列表加载失败', error: e, stackTrace: st);
+            return const SizedBox(height: 200);
+          },
+        );
   }
 }
