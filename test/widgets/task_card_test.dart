@@ -4,8 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:janus/shared/task_card.dart';
 
 void main() {
-  testWidgets('TaskCard custom checkbox presents semantics and toggles',
-      (WidgetTester tester) async {
+  testWidgets('TaskCard custom checkbox presents semantics and toggles', (
+    WidgetTester tester,
+  ) async {
     bool? toggledState;
 
     await tester.pumpWidget(
