@@ -66,7 +66,6 @@ class _InboxPageState extends ConsumerState<InboxPage> {
         .cycle(delta, _inboxModes.length);
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Riverpod 状态 → reel_text：切换时触发滚动动画
@@ -533,7 +532,9 @@ class _InboxTaskList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(inboxTasksProvider).when(
+    return ref
+        .watch(inboxTasksProvider)
+        .when(
           data: (tasks) => _buildTaskList(context, ref, tasks),
           loading: () => const M3ELoadingIndicator(),
           error: (e, st) {
