@@ -216,6 +216,30 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     );
   }
 
+  Future<void> setEndPoint(String endpoint) async {
+    final trimmed = endpoint.trim();
+    if (trimmed.isNotEmpty) {
+      final uri = Uri.tryParse(trimmed);
+      if (uri == null || !uri.hasScheme) {
+        throw ArgumentError('Invalid endpoint URL format');
+      }
+      final host = uri.host.toLowerCase();
+      final isLocal = host == 'localhost' || host == '127.0.0.1' || host == '::1';
+      if (uri.scheme != 'https' && !isLocal) {
+        throw ArgumentError('Remote AI endpoints must use HTTPS to protect credentials and data');
+      }
+    }
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(endPoint: trimmed),
+    );
+  }
+
+  Future<void> setModelName(String modelName) async {
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(modelName: modelName.trim()),
+    );
+  }
+
   // User Preference
   Future<void> setTaskCreationMode(TaskCreationMode mode) async {
     await _persist(
