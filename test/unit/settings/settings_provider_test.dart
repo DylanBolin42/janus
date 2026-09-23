@@ -465,16 +465,19 @@ void main() {
       expect(container.read(appSettingsProvider).value!.endPoint, validUrl);
     });
 
-    test('setEndPoint accepts local HTTP endpoint on localhost or 127.0.0.1', () async {
-      final container = ProviderContainer();
-      addTearDown(() => container.dispose());
-      await waitForInit(container);
+    test(
+      'setEndPoint accepts local HTTP endpoint on localhost or 127.0.0.1',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(() => container.dispose());
+        await waitForInit(container);
 
-      const localUrl = 'http://localhost:11434';
-      await notifierOf(container).setEndPoint(localUrl);
+        const localUrl = 'http://localhost:11434';
+        await notifierOf(container).setEndPoint(localUrl);
 
-      expect(container.read(appSettingsProvider).value!.endPoint, localUrl);
-    });
+        expect(container.read(appSettingsProvider).value!.endPoint, localUrl);
+      },
+    );
 
     test('setEndPoint rejects non-HTTPS remote endpoint', () async {
       final container = ProviderContainer();
