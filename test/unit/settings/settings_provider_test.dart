@@ -414,33 +414,36 @@ void main() {
     });
 
     // AI
-    test('setEndPoint accepts HTTPS and local HTTP, rejects unencrypted HTTP', () async {
-      final container = ProviderContainer();
-      addTearDown(() => container.dispose());
-      await waitForInit(container);
+    test(
+      'setEndPoint accepts HTTPS and local HTTP, rejects unencrypted HTTP',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(() => container.dispose());
+        await waitForInit(container);
 
-      final notifier = notifierOf(container);
+        final notifier = notifierOf(container);
 
-      // Valid HTTPS
-      await notifier.setEndPoint('https://api.openai.com/v1');
-      expect(
-        container.read(appSettingsProvider).value!.endPoint,
-        'https://api.openai.com/v1',
-      );
+        // Valid HTTPS
+        await notifier.setEndPoint('https://api.openai.com/v1');
+        expect(
+          container.read(appSettingsProvider).value!.endPoint,
+          'https://api.openai.com/v1',
+        );
 
-      // Local loopback HTTP
-      await notifier.setEndPoint('http://localhost:8080/v1');
-      expect(
-        container.read(appSettingsProvider).value!.endPoint,
-        'http://localhost:8080/v1',
-      );
+        // Local loopback HTTP
+        await notifier.setEndPoint('http://localhost:8080/v1');
+        expect(
+          container.read(appSettingsProvider).value!.endPoint,
+          'http://localhost:8080/v1',
+        );
 
-      // Reject non-local HTTP
-      expect(
-        () => notifier.setEndPoint('http://insecure-api.example.com/v1'),
-        throwsA(isA<ArgumentError>()),
-      );
-    });
+        // Reject non-local HTTP
+        expect(
+          () => notifier.setEndPoint('http://insecure-api.example.com/v1'),
+          throwsA(isA<ArgumentError>()),
+        );
+      },
+    );
 
     test('setModelName 更新 AI 模型名称', () async {
       final container = ProviderContainer();
