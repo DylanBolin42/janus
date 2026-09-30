@@ -82,11 +82,16 @@ jobs:
       - name: Generate Coverage Report
         if: always() && hashFiles('coverage/lcov.info') != ''
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq lcov
-          genhtml coverage/lcov.info --output-directory coverage/html
-          COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep lines | grep -oP '\d+\.\d+%' | head -1 || echo "N/A")
-          echo "### ✅ Test Coverage: $COVERAGE" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
+          sudo apt-get update -qq || true
+          sudo apt-get install -y -qq lcov || true
+          if command -v genhtml >/dev/null 2>&1; then
+            genhtml coverage/lcov.info --output-directory coverage/html
+            COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep lines | grep -oP '\d+\.\d+%' | head -1 || echo "N/A")
+            echo "### ✅ Test Coverage: $COVERAGE" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::lcov/genhtml package install failed; skipping HTML coverage generation."
+          fi
 
       - name: Upload Coverage Artifact
         if: always() && hashFiles('coverage/html') != ''
