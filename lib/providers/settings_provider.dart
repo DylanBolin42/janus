@@ -192,6 +192,32 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
+  Future<void> setEndPoint(String endPoint) async {
+    final trimmed = endPoint.trim();
+    if (trimmed.isNotEmpty) {
+      final uri = Uri.tryParse(trimmed);
+      final isHttps = uri != null && uri.scheme == 'https';
+      final isLocal = uri != null &&
+          uri.scheme == 'http' &&
+          (uri.host == 'localhost' || uri.host == '127.0.0.1');
+      // Sentinel security rule: Enforce HTTPS for remote AI endpoints to prevent plaintext credential exposure
+      if (!isHttps && !isLocal) {
+        throw ArgumentError(
+          'Security Error: AI endpoint must use HTTPS (or HTTP loopback for local dev).',
+        );
+      }
+    }
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(endPoint: trimmed),
+    );
+  }
+
+  Future<void> setModelName(String modelName) async {
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(modelName: modelName.trim()),
+    );
+  }
+
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.value ?? const AppSettings()).copyWith(aiDailySummary: enabled),
