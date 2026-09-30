@@ -118,7 +118,6 @@ class _InboxPageState extends ConsumerState<InboxPage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     // Riverpod 状态 → reel_text：切换时触发滚动动画
@@ -349,9 +348,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
 
                     // 任务卡片显示区域：隔离在 ConsumerWidget 内，触发流推送时避免重绘整个 InboxPage 及其重型 Header/Progress/ButtonGroup
                     //TODO: 根据优先级计算选择性传参
-                    _InboxTaskList(
-                      buildSwipeAction: _buildSwipeAction,
-                    ),
+                    _InboxTaskList(buildSwipeAction: _buildSwipeAction),
                     SizedBox(height: AppSpacing.bottomSafeArea),
                   ],
                 ),
@@ -376,25 +373,24 @@ class _InboxTaskList extends ConsumerWidget {
     required Color capsuleColor,
     required Color foreground,
     required Alignment alignment,
-  }) buildSwipeAction;
+  })
+  buildSwipeAction;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(inboxTasksProvider).when(
-      data: (tasks) => _buildTaskList(context, ref, tasks),
-      loading: () => const M3ELoadingIndicator(),
-      error: (e, st) {
-        AppLogger.e('任务列表加载失败', error: e, stackTrace: st);
-        return const SizedBox(height: 200);
-      },
-    );
+    return ref
+        .watch(inboxTasksProvider)
+        .when(
+          data: (tasks) => _buildTaskList(context, ref, tasks),
+          loading: () => const M3ELoadingIndicator(),
+          error: (e, st) {
+            AppLogger.e('任务列表加载失败', error: e, stackTrace: st);
+            return const SizedBox(height: 200);
+          },
+        );
   }
 
-  Widget _buildTaskList(
-    BuildContext context,
-    WidgetRef ref,
-    List<Task> items,
-  ) {
+  Widget _buildTaskList(BuildContext context, WidgetRef ref, List<Task> items) {
     final tt = Theme.of(context).textTheme;
     return M3EDismissibleCardList(
       // 页面整体由外层 ListView 滚动，卡片列表自身不独立滚动。
