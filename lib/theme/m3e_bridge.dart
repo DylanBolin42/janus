@@ -36,10 +36,40 @@ M3EThemeData buildM3EThemeData(ThemeData theme) {
 /// 真实的主题色。挂在 builder 里是必须的：只有位于 Overlay 之上的祖先，
 /// 面板（overlay child）才能通过继承查找到。
 Widget m3eThemeBridgeBuilder(BuildContext context, Widget? child) {
-  return M3ETheme(
-    data: buildM3EThemeData(Theme.of(context)),
-    child: child ?? const SizedBox.shrink(),
-  );
+  return _M3EThemeBridgeWidget(child: child);
+}
+
+/// 内部 Widget，通过缓存 [M3EThemeData] 避免每次父级重建时重复构造等价主题。
+class _M3EThemeBridgeWidget extends StatefulWidget {
+  const _M3EThemeBridgeWidget({this.child});
+
+  final Widget? child;
+
+  @override
+  State<_M3EThemeBridgeWidget> createState() => _M3EThemeBridgeWidgetState();
+}
+
+class _M3EThemeBridgeWidgetState extends State<_M3EThemeBridgeWidget> {
+  ThemeData? _cachedTheme;
+  M3EThemeData? _cachedM3eTheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    // ⚡ Bolt Optimization: Memoize M3EThemeData construction.
+    // Rebuilding buildM3EThemeData on every widget build allocates new
+    // M3EColorScheme and M3ETypeScale objects. Caching avoids unnecessary
+    // allocations when theme properties haven't changed.
+    if (_cachedTheme != theme || _cachedM3eTheme == null) {
+      _cachedTheme = theme;
+      _cachedM3eTheme = buildM3EThemeData(theme);
+    }
+
+    return M3ETheme(
+      data: _cachedM3eTheme!,
+      child: widget.child ?? const SizedBox.shrink(),
+    );
+  }
 }
 
 M3EColorScheme _toM3eColorScheme(ColorScheme cs) {
