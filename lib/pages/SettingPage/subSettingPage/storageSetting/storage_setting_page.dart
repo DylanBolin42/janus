@@ -1,13 +1,13 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
-import 'package:go_router/go_router.dart';
+import 'package:janus/shared/custom_app_settings_tile.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:janus/shared/custom_app_settings_tile.dart';
-import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class StorageSettingPage extends ConsumerStatefulWidget {
   const StorageSettingPage({super.key});
@@ -41,6 +41,8 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
+          // Pushes content below the pinned bar; must be a sliver.
+          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.topSafeArea)),
           GlassLargeTitle(text: '存储', controller: _titleController),
           SliverToBoxAdapter(
             child: SettingsList(

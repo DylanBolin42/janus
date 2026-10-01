@@ -273,7 +273,7 @@ class FlexSettingSection extends AbstractSettingsSection {
 /// 阻塞子组件交互。
 ///
 /// [SettingsTile]（来自 `card_settings_ui`）内部始终为 [InkWell] 设置非 null
-/// 的 `onTap`，导致其中的 [GlassTextField]、[GlassPullDownButton] 等交互组件
+/// 的 `onTap`，导致其中的 [MaterialTextField]、[GlassPullDownButton] 等交互组件
 /// 无法正常接收触摸事件。
 ///
 /// [InteractiveTile] 使用 [CustomAppSettingsTile] 替代，仅在 `onPressed` 非
@@ -284,7 +284,7 @@ class FlexSettingSection extends AbstractSettingsSection {
 /// InteractiveTile(
 ///   leading: Icon(Icons.web),
 ///   title: Text('WEBDAV地址'),
-///   trailing: SizedBox(width: 200, child: GlassTextField()),
+///   trailing: SizedBox(width: 200, child: MaterialTextField()),
 /// )
 /// ```
 class InteractiveTile extends AbstractSettingsTile {
@@ -301,7 +301,7 @@ class InteractiveTile extends AbstractSettingsTile {
   /// Tile 左侧的图标/组件。
   final Widget? leading;
 
-  /// Tile 右侧的交互组件（如 [GlassTextField]、[GlassPullDownButton]）。
+  /// Tile 右侧的交互组件（如 [MaterialTextField]、[GlassPullDownButton]）。
   final Widget? trailing;
 
   /// Tile 的主标题。

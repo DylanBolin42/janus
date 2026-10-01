@@ -376,27 +376,26 @@ class _ClassicPageState extends ConsumerState<ClassicPage> {
                         ),
                         itemStyle: M3EDropdownItemStyle(
                           textStyle: Theme.of(context).textTheme.bodySmall,
-                          selectedTextStyle: Theme.of(
-                            context,
-                          ).textTheme.bodySmall,
-                          selectedBackgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.secondaryContainer,
-                          selectedTextColor: Theme.of(
-                            context,
-                          ).colorScheme.onSecondaryContainer,
+                          selectedTextStyle: Theme.of(context)
+                              .textTheme
+                              .bodySmall,
+                          selectedBackgroundColor: Theme.of(context)
+                              .colorScheme
+                              .secondaryContainer,
+                          selectedTextColor: Theme.of(context)
+                              .colorScheme
+                              .onSecondaryContainer,
                         ),
                         fieldStyle: M3EDropdownFieldStyle(
                           hintText: '请选择标签',
-                          hintStyle: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                          selectedTextStyle: Theme.of(
-                            context,
-                          ).textTheme.bodySmall,
-                          foregroundColor: Theme.of(
-                            context,
-                          ).colorScheme.secondaryContainer,
+                          hintStyle: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: Colors.grey),
+                          selectedTextStyle: Theme.of(context)
+                              .textTheme
+                              .bodySmall,
+                          foregroundColor: Theme.of(context)
+                              .colorScheme
+                              .secondaryContainer,
                           errorStyle: Theme.of(context).textTheme.bodySmall,
                         ),
                         onSelectionChanged: (items) {

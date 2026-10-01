@@ -1,13 +1,13 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
+import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
 
 class PlanningSettingPage extends ConsumerStatefulWidget {
   const PlanningSettingPage({super.key});
@@ -41,6 +41,8 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
+          // Pushes content below the pinned bar; must be a sliver.
+          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.topSafeArea)),
           GlassLargeTitle(text: '规划', controller: _titleController),
           SliverToBoxAdapter(
             child: SettingsList(
@@ -83,13 +85,15 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                       ), //TODO: 添加说明description的默认颜色（浅灰，与SettingTile保持一致）
                       description: RichText(
                         text: TextSpan(
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           text: '宽松-每天占用60%的工作时间\n',
                           children: [
                             TextSpan(text: '中等-每天占用80%的工作时间\n'),
                             TextSpan(text: '密集-每天占用95%的工作时间\n'),
                             TextSpan(
-                              text:
-                                  '额外说明：任务密度约大，单位时间内能完成的任务数量更多，但也要求用户有更高的效率，同时容错率也更低，请用户理性选择。',
+                              text: '额外说明：任务密度约大，单位时间内能完成的任务数量更多，但也要求用户有更高的效率，同时容错率也更低，请用户理性选择。',
                             ),
                           ],
                         ),
@@ -189,9 +193,9 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                   title: Text('优先级判断', style: tt.titleMedium),
                   tiles: [
                     CustomAppSettingsTile(
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.errorContainer,
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .errorContainer,
                       child: Column(
                         children: [
                           Row(
@@ -201,9 +205,9 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                               Text(
                                 '警告',
                                 style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onErrorContainer,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onErrorContainer,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -213,9 +217,9 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
                           Text(
                             '以下设置项为算法核心配置，非专业人士请勿随意修改！',
                             style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onErrorContainer,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onErrorContainer,
                             ),
                           ),
                         ],

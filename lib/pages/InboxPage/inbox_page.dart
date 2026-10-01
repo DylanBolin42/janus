@@ -10,18 +10,17 @@ import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:m3e_dismissible/m3e_dismissible.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:reel_text/reel_text.dart';
 
-/// 首页轮播的三种模式（有序循环）
-const List<String> _inboxModes = ['EMERGENCY', 'PLANNED', 'COMING'];
+/// 首页任务的三种显示模式。
+const List<String> _inboxModes = ['Critical', 'Planned', 'Coming'];
 
 /// 当前模式索引（Riverpod 状态）
 class _CurrentModeIndexNotifier extends Notifier<int> {
   @override
   int build() => 0;
 
-  void cycle(int delta, int total) {
-    state = (state + delta + total) % total;
+  void select(int index) {
+    state = index;
   }
 }
 
@@ -38,33 +37,9 @@ class InboxPage extends ConsumerStatefulWidget {
 }
 
 class _InboxPageState extends ConsumerState<InboxPage> {
-  /// reel_text 控制器：驱动模式标签的滚动动画
-  late final ReelTextController _modeController;
-
   // final 常量定义
   double get screenWidth => MediaQuery.sizeOf(context).width;
   TextTheme get tt => Theme.of(context).textTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    _modeController = ReelTextController(
-      initialText: _inboxModes[ref.read(_currentModeIndexProvider)],
-    );
-  }
-
-  @override
-  void dispose() {
-    _modeController.dispose();
-    super.dispose();
-  }
-
-  /// 循环切换模式：delta = 1 下一个，-1 上一个
-  void _cycleMode(int delta) {
-    ref
-        .read(_currentModeIndexProvider.notifier)
-        .cycle(delta, _inboxModes.length);
-  }
 
   /// 滑动手势露出的操作胶囊
   /// [alignment]：右滑色带贴左缘，胶囊贴右缘（挨着卡片）；左滑反之
@@ -133,6 +108,28 @@ class _InboxPageState extends ConsumerState<InboxPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                Text(
+                  '${items[i].ddl.month}/${items[i].ddl.day}',
+                  style: tt.labelLarge?.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                ),
+                SizedBox(width: AppSpacing.base),
+                Text(
+                  '${task.ddl.hour}:${task.ddl.minute.toString().padLeft(2, '0')}',
+                  style: tt.labelLarge?.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: AppSpacing.base),
             Text(
               task.title,
               style: tt.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -147,71 +144,14 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                 style: tt.bodySmall,
               ),
             SizedBox(height: AppSpacing.base * 2),
-            // DDL 构建（Expanded 等分宽度；勿用 double.infinity，
+            // UsedTime 构建（Expanded 等分宽度；勿用 double.infinity，
             // 否则在 shrinkWrap 列表的无界测量约束下会触发
             // 「BoxConstraints forces an infinite width/height」）
             Row(
               children: [
-                Container(
-                  height: 60,
-                  width: 100,
-                  alignment: AlignmentGeometry.center,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(64),
-                  ),
-                  padding: EdgeInsets.all(AppSpacing.base * 2),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.calendar_month_rounded,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSecondaryContainer,
-                      ),
-                      SizedBox(width: AppSpacing.base),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Transform.scale(
-                            // 纵向拉伸文字（拉长字形高度）
-                            scaleY: 1.5,
-                            child: Text(
-                              '${items[i].ddl.month}/${items[i].ddl.day}',
-                              style: tt.labelLarge?.copyWith(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSecondaryContainer,
-                              ),
-                            ),
-                          ),
-                          Transform.scale(
-                            scaleY: 1.5,
-                            child: Text(
-                              '${task.ddl.hour}:${task.ddl.minute.toString().padLeft(2, '0')}',
-                              style: tt.labelLarge?.copyWith(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSecondaryContainer,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: AppSpacing.base),
                 // EST 构建
                 Container(
-                  width: 110,
+                  width: 120,
                   height: 60,
                   alignment: AlignmentGeometry.center,
 
@@ -224,23 +164,21 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                     children: [
                       Icon(
                         Icons.timer_rounded,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSecondaryContainer,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSecondaryContainer,
                       ),
                       SizedBox(width: AppSpacing.base),
-                      Transform.scale(
-                        scaleY: 1.5,
-                        child: Text(
-                          task.estHour != null && task.estMinute != null
-                              ? '${task.estHour}:${task.estMinute.toString().padLeft(2, '0')}'
-                              : '—',
-                          style: tt.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSecondaryContainer,
-                          ),
+                      Text(
+                        task.estHour != null && task.estMinute != null
+                            ? '${task.estHour}:${task.estMinute.toString().padLeft(2, '0')}'
+                            : '—',
+                        style: tt.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSecondaryContainer,
                         ),
                       ),
                     ],
@@ -307,18 +245,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Riverpod 状态 → reel_text：切换时触发滚动动画
-    ref.listen(_currentModeIndexProvider, (previous, next) {
-      final total = _inboxModes.length;
-      final delta = ((next - (previous ?? 0)) % total + total) % total;
-      _modeController.set(
-        _inboxModes[next],
-        // 前进默认向下滚；后退向上滚
-        options: delta == 1
-            ? null
-            : const ReelTextOptions(direction: ReelTextDirection.up),
-      );
-    });
+    final selectedModeIndex = ref.watch(_currentModeIndexProvider);
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,
@@ -329,7 +256,7 @@ class _InboxPageState extends ConsumerState<InboxPage> {
             children: [
               Container(
                 width: screenWidth,
-                height: 300,
+                height: 250,
                 clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primaryContainer,
@@ -403,9 +330,8 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                       progressType: ProgressType.linear,
                       currentStep: 3,
                       progressColor: Theme.of(context).colorScheme.primary,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.1),
+                      backgroundColor: Theme.of(context).colorScheme.onSurface
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(64),
                       minHeight: 12,
                     ),
@@ -438,94 +364,42 @@ class _InboxPageState extends ConsumerState<InboxPage> {
                     SizedBox(height: AppSpacing.base),
 
                     // 任务显示切换器（M3E ButtonGroup）
-                    Container(
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                    SizedBox(
                       width: double.infinity,
-                      height: 100,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppSpacing.base,
-                      ),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                        borderRadius: BorderRadius.circular(128),
-                      ),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          // 圆形箭头按钮直径（与中心胶囊同高）
-                          const double circleWidth = 80;
-                          // 中心按钮撑满剩余宽度（等效原 Expanded）
-                          final double centerWidth =
-                              constraints.maxWidth -
-                              circleWidth * 2 -
-                              AppSpacing.base * 2;
+                          // connected 组在按钮间保留 2dp 缝隙。
+                          final actionWidth =
+                              (constraints.maxWidth - 4) / _inboxModes.length;
                           return M3EButtonGroup(
-                            type: M3EButtonGroupType.standard,
+                            type: M3EButtonGroupType.connected,
                             shape: M3EButtonShape.round,
-                            size: M3EButtonSize.custom(height: 80),
-                            spacing: AppSpacing.base,
-                            direction: Axis.horizontal,
-                            // 中心按钮恒为选中态（当前模式）；点击箭头切换模式
-                            selectedIndex: 1,
-                            onSelectedIndexChanged: (index) {
-                              if (index == 0) {
-                                _cycleMode(-1);
-                              } else {
-                                _cycleMode(1);
+                            size: M3EButtonSize.md,
+                            style: M3EButtonStyle.filled,
+                            density: M3EButtonGroupDensity.regular,
+                            neighborSquish: true,
+                            multiSelect: false,
+                            selectionRequired: true,
+                            selectedIndex: selectedModeIndex,
+                            onSelectedIndexChanged: (int? index) {
+                              if (index != null) {
+                                ref
+                                    .read(_currentModeIndexProvider.notifier)
+                                    .select(index);
                               }
                             },
                             actions: [
-                              M3EButtonGroupAction(
-                                width: circleWidth,
-                                icon: Icon(
-                                  Icons.keyboard_arrow_left_rounded,
-                                  size: 70,
-                                ),
-                                decoration: M3EToggleButtonDecoration.styleFrom(
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.secondaryContainer,
-                                  foregroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.onSecondaryContainer,
-                                ),
-                              ),
-                              M3EButtonGroupAction(
-                                width: centerWidth,
-                                label: ReelText.controller(
-                                  controller: _modeController,
-                                  style: TextStyle(
-                                    fontFamily: 'AntonTitle',
-                                    fontSize: 30,
+                              for (final mode in _inboxModes)
+                                M3EButtonGroupAction(
+                                  width: actionWidth,
+                                  label: Text(
+                                    mode,
+                                    style: const TextStyle(
+                                      fontFamily: 'AntonTitle',
+                                      fontSize: 20,
+                                    ),
                                   ),
                                 ),
-                                decoration: M3EToggleButtonDecoration.styleFrom(
-                                  checkedRadius: 64,
-                                  connectedInnerRadius: 64,
-                                  borderRadius: 64.0,
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.primaryContainer,
-                                  foregroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                              ),
-                              M3EButtonGroupAction(
-                                width: circleWidth,
-                                icon: Icon(
-                                  Icons.keyboard_arrow_right_rounded,
-                                  size: 70,
-                                ),
-                                decoration: M3EToggleButtonDecoration.styleFrom(
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.secondaryContainer,
-                                  foregroundColor: Theme.of(
-                                    context,
-                                  ).colorScheme.onSecondaryContainer,
-                                ),
-                              ),
                             ],
                           );
                         },

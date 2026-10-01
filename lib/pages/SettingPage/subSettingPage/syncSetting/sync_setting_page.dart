@@ -1,13 +1,15 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
+import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:janus/shared/flex_setting_section.dart';
-import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
+import 'package:janus/shared/material_text_field.dart';
+import 'package:janus/theme/theme.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class SyncSettingPage extends ConsumerStatefulWidget {
   const SyncSettingPage({super.key});
@@ -51,6 +53,8 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
+          // Pushes content below the pinned bar; must be a sliver.
+          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.topSafeArea)),
           GlassLargeTitle(text: '同步', controller: _titleController),
           SliverToBoxAdapter(
             child: SettingsList(
@@ -89,9 +93,11 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                       title: Text('WEBDAV地址'),
                       trailing: SizedBox(
                         width: 200,
-                        child: GlassTextField(
+                        child: MaterialTextField(
                           controller: _webdavUrlController,
-                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                          shape: const LiquidRoundedSuperellipse(
+                            borderRadius: 64,
+                          ),
                         ),
                       ),
                     ),
@@ -99,9 +105,11 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                       title: Text('用户名'),
                       trailing: SizedBox(
                         width: 200,
-                        child: GlassTextField(
+                        child: MaterialTextField(
                           controller: _usernameController,
-                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                          shape: const LiquidRoundedSuperellipse(
+                            borderRadius: 64,
+                          ),
                         ),
                       ),
                     ),
@@ -109,10 +117,12 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                       title: Text('密码'),
                       trailing: SizedBox(
                         width: 200,
-                        child: GlassTextField(
+                        child: MaterialTextField(
                           controller: _passwordController,
                           obscureText: true,
-                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                          shape: const LiquidRoundedSuperellipse(
+                            borderRadius: 64,
+                          ),
                         ),
                       ),
                     ),
@@ -120,9 +130,11 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                       title: Text('同步至'),
                       trailing: SizedBox(
                         width: 200,
-                        child: GlassTextField(
+                        child: MaterialTextField(
                           controller: _syncToController,
-                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                          shape: const LiquidRoundedSuperellipse(
+                            borderRadius: 64,
+                          ),
                         ),
                       ),
                     ),
@@ -356,10 +368,12 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                       ),
                       trailing: SizedBox(
                         width: 200,
-                        child: GlassTextField(
+                        child: MaterialTextField(
                           controller: _encryptPasswordController,
                           obscureText: true,
-                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                          shape: const LiquidRoundedSuperellipse(
+                            borderRadius: 64,
+                          ),
                         ),
                       ),
                     ),

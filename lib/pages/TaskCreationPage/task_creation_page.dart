@@ -58,7 +58,7 @@ class TaskCreationPage {
             );
           },
         ),
-        hasTopBarLayer: true,
+        hasTopBarLayer: false,
         isTopBarLayerAlwaysVisible: true,
         topBarTitle: Padding(
           padding: const EdgeInsets.all(16.0),

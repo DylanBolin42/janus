@@ -1,13 +1,13 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
+import 'package:janus/shared/flex_setting_section.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:janus/shared/flex_setting_section.dart';
 
 class AboutPage extends ConsumerStatefulWidget {
   const AboutPage({super.key});
@@ -37,6 +37,8 @@ class _AboutPageState extends ConsumerState<AboutPage> {
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
+          // Pushes content below the pinned bar; must be a sliver.
+          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.topSafeArea)),
           GlassLargeTitle(text: '关于', controller: _titleController),
           SliverToBoxAdapter(
             child: SettingsList(

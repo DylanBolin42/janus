@@ -1,10 +1,11 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
-import 'package:go_router/go_router.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
+import 'package:janus/shared/material_text_field.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
@@ -40,6 +41,8 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
+          // Pushes content below the pinned bar; must be a sliver.
+          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.topSafeArea)),
           GlassLargeTitle(text: 'AI', controller: _titleController),
           SliverToBoxAdapter(
             child: SettingsList(
@@ -73,8 +76,10 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                             ],
                           ),
                           SizedBox(height: AppSpacing.base),
-                          GlassTextField(
-                            shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                          MaterialTextField(
+                            shape: const LiquidRoundedSuperellipse(
+                              borderRadius: 64,
+                            ),
                           ),
                         ],
                       ),
@@ -83,7 +88,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                     //  title: Text('Endpoint'),
                     //  trailing: SizedBox(
                     //    width: 160,
-                    //    child: GlassTextField(
+                    //    child: MaterialTextField(
                     //      shape: LiquidRoundedSuperellipse(borderRadius: 64),
                     //    ),
                     //  ),
@@ -94,9 +99,11 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
 
                       trailing: SizedBox(
                         width: 160,
-                        child: GlassTextField(
+                        child: MaterialTextField(
                           obscureText: true,
-                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                          shape: const LiquidRoundedSuperellipse(
+                            borderRadius: 64,
+                          ),
                         ),
                       ),
                     ),
@@ -105,8 +112,10 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
 
                       trailing: SizedBox(
                         width: 160,
-                        child: GlassTextField(
-                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                        child: MaterialTextField(
+                          shape: const LiquidRoundedSuperellipse(
+                            borderRadius: 64,
+                          ),
                         ),
                       ),
                       description: Text('以官方提供的名称为准'),

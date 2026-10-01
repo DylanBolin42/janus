@@ -45,7 +45,7 @@ class AppSpacing {
   static const double marginMobile = 16.0;
 
   /// Top and bottom safe areas
-  static const double topSafeArea = 30.0;
+  static const double topSafeArea = 120.0;
   static const double bottomSafeArea = 120.0;
 
   /// Page Margin

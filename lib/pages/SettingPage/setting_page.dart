@@ -35,6 +35,8 @@ class _SettingpageState extends State<Settingpage> {
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
+          // Pushes content below the pinned bar; must be a sliver.
+          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.topSafeArea)),
           GlassLargeTitle(text: '设置', controller: _titleController),
           SliverToBoxAdapter(
             child: SettingsList(

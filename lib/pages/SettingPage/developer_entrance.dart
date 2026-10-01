@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/providers/database_provider.dart';
 import 'package:janus/services/logger_service.dart';
+import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class DeveloperEntrance extends ConsumerStatefulWidget {
@@ -81,6 +82,8 @@ class _DeveloperEntranceState extends ConsumerState<DeveloperEntrance> {
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
+          // Pushes content below the pinned bar; must be a sliver.
+          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.topSafeArea)),
           GlassLargeTitle(
             text: 'Hello, Developer',
             controller: _titleController,

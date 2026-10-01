@@ -1,10 +1,11 @@
+import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
+import 'package:janus/theme/theme.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 /// 通用设置页 — 外观、语言、命名风格、权限
 ///
@@ -66,6 +67,8 @@ class _GeneralSettingPageState extends ConsumerState<GeneralSettingPage> {
       body: CustomScrollView(
         controller: _titleController.scrollController,
         slivers: [
+          // Pushes content below the pinned bar; must be a sliver.
+          SliverToBoxAdapter(child: SizedBox(height: AppSpacing.topSafeArea)),
           GlassLargeTitle(text: '通用', controller: _titleController),
           SliverToBoxAdapter(
             child: SettingsList(
