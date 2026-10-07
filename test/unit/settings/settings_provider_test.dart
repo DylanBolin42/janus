@@ -414,6 +414,54 @@ void main() {
     });
 
     // AI
+    test('setEndPoint accepts valid HTTPS endpoint', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      await notifierOf(container).setEndPoint('https://api.openai.com/v1');
+
+      expect(
+        container.read(appSettingsProvider).value!.endPoint,
+        'https://api.openai.com/v1',
+      );
+    });
+
+    test('setEndPoint accepts HTTP loopback endpoint for local dev', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      await notifierOf(container).setEndPoint('http://localhost:8080/v1');
+
+      expect(
+        container.read(appSettingsProvider).value!.endPoint,
+        'http://localhost:8080/v1',
+      );
+    });
+
+    test('setEndPoint rejects unencrypted remote HTTP endpoint', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      expect(
+        () => notifierOf(container).setEndPoint('http://api.insecure.com/v1'),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('setEndPoint rejects invalid URL format', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      expect(
+        () => notifierOf(container).setEndPoint('not-a-url'),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
     test('setUseAiDailySummary 更新 AI 日报开关', () async {
       final container = ProviderContainer();
       addTearDown(() => container.dispose());

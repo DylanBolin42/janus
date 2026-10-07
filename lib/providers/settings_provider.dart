@@ -192,6 +192,24 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
+  /// Sets the AI service endpoint, enforcing HTTPS for remote endpoints to prevent MITM attacks.
+  Future<void> setEndPoint(String endPoint) async {
+    final trimmed = endPoint.trim();
+    if (trimmed.isNotEmpty) {
+      final uri = Uri.tryParse(trimmed);
+      if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
+        throw ArgumentError('Invalid endpoint URL format.');
+      }
+      final isLocal = uri.host == 'localhost' || uri.host == '127.0.0.1';
+      if (uri.scheme != 'https' && !isLocal) {
+        throw ArgumentError('Remote endpoint URLs must use HTTPS protocol.');
+      }
+    }
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(endPoint: trimmed),
+    );
+  }
+
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.value ?? const AppSettings()).copyWith(aiDailySummary: enabled),
