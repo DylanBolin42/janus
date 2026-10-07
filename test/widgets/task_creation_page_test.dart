@@ -73,7 +73,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('新建任务'), findsOneWidget);
+    expect(find.text('新建任务'), findsWidgets);
+    expect(find.byTooltip('关闭'), findsOneWidget);
+    expect(find.byTooltip('新建任务'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
