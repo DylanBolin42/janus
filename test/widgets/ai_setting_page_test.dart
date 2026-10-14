@@ -13,6 +13,35 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  group('isValidEndpointUrl', () {
+    test('returns true for empty or whitespace string', () {
+      expect(isValidEndpointUrl(''), isTrue);
+      expect(isValidEndpointUrl('   '), isTrue);
+    });
+
+    test('returns true for valid https remote endpoints', () {
+      expect(isValidEndpointUrl('https://api.openai.com/v1'), isTrue);
+      expect(isValidEndpointUrl('https://api.deepseek.com/v1'), isTrue);
+    });
+
+    test('returns true for http local loopback hosts', () {
+      expect(isValidEndpointUrl('http://localhost:8080/v1'), isTrue);
+      expect(isValidEndpointUrl('http://127.0.0.1:11434/v1'), isTrue);
+      expect(isValidEndpointUrl('http://[::1]:11434/v1'), isTrue);
+    });
+
+    test('returns false for unencrypted remote http endpoints', () {
+      expect(isValidEndpointUrl('http://api.openai.com/v1'), isFalse);
+      expect(isValidEndpointUrl('http://example.com/api'), isFalse);
+    });
+
+    test('returns false for invalid or non-http(s) scheme URLs', () {
+      expect(isValidEndpointUrl('ftp://example.com'), isFalse);
+      expect(isValidEndpointUrl('not_a_url'), isFalse);
+      expect(isValidEndpointUrl('https://'), isFalse);
+    });
+  });
+
   testWidgets('AiSettingPage renders with title', (tester) async {
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 1.0;
