@@ -20,7 +20,10 @@ bool isValidEndpointUrl(String url) {
   if (uri.scheme == 'https') return true;
   if (uri.scheme == 'http') {
     final host = uri.host.toLowerCase();
-    return host == 'localhost' || host == '127.0.0.1' || host == '::1' || host == '[::1]';
+    return host == 'localhost' ||
+        host == '127.0.0.1' ||
+        host == '::1' ||
+        host == '[::1]';
   }
   return false;
 }
@@ -79,7 +82,8 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                         shape: LiquidRoundedSuperellipse(borderRadius: 64),
                         onChanged: (value) {
                           setState(() {
-                            if (value.isNotEmpty && !isValidEndpointUrl(value)) {
+                            if (value.isNotEmpty &&
+                                !isValidEndpointUrl(value)) {
                               _endpointError = '仅支持 HTTPS 协议或本地 HTTP 地址';
                             } else {
                               _endpointError = null;
