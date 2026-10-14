@@ -8,6 +8,26 @@ import 'package:janus/shared/custom_appbar.dart';
 import 'package:janus/theme/theme.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
+/// Validates whether an AI endpoint URL is safe to use.
+///
+/// Enforces HTTPS protocol for remote endpoints to prevent MitM attacks,
+/// but allows HTTP for local development loopback hosts (localhost, 127.0.0.1, ::1).
+bool isValidEndpointUrl(String url) {
+  final trimmed = url.trim();
+  if (trimmed.isEmpty) return true;
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null || !uri.hasScheme || uri.host.isEmpty) return false;
+  if (uri.scheme == 'https') return true;
+  if (uri.scheme == 'http') {
+    final host = uri.host.toLowerCase();
+    return host == 'localhost' ||
+        host == '127.0.0.1' ||
+        host == '::1' ||
+        host == '[::1]';
+  }
+  return false;
+}
+
 class AiSettingPage extends ConsumerStatefulWidget {
   const AiSettingPage({super.key});
 
@@ -16,6 +36,8 @@ class AiSettingPage extends ConsumerStatefulWidget {
 }
 
 class _AiSettingPageState extends ConsumerState<AiSettingPage> {
+  String? _endpointError;
+
   @override
   Widget build(BuildContext context) {
     final settings =
@@ -58,7 +80,30 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                       SizedBox(height: AppSpacing.base),
                       GlassTextField(
                         shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                        onChanged: (value) {
+                          setState(() {
+                            if (value.isNotEmpty &&
+                                !isValidEndpointUrl(value)) {
+                              _endpointError = '仅支持 HTTPS 协议或本地 HTTP 地址';
+                            } else {
+                              _endpointError = null;
+                            }
+                          });
+                        },
                       ),
+                      if (_endpointError != null) ...[
+                        SizedBox(height: AppSpacing.base),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _endpointError!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
