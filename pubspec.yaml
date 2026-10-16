@@ -64,6 +64,7 @@ dependencies:
   logger: ^2.7.0
   expandable_richtext: ^1.0.7
   m3e_dismissible: ^1.0.0
+  table_calendar: ^3.3.0
 
 dev_dependencies:
   flutter_test:
