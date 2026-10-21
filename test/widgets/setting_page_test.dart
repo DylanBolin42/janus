@@ -32,11 +32,20 @@ void main() {
     expect(find.text('关于'), findsOneWidget);
   });
 
-  testWidgets('SettingPage has back button', (tester) async {
+  testWidgets('SettingPage has back button wrapped in Tooltip', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: Settingpage()));
     await tester.pump();
 
     expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Tooltip &&
+            widget.message != null &&
+            widget.message!.isNotEmpty,
+      ),
+      findsAtLeastNWidgets(1),
+    );
   });
 
   testWidgets('SettingPage renders without crashing', (tester) async {
