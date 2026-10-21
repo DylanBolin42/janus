@@ -414,6 +414,45 @@ void main() {
     });
 
     // AI
+    test('isValidEndpointUrl 校验 URL 安全性', () {
+      expect(isValidEndpointUrl('https://api.openai.com/v1'), true);
+      expect(isValidEndpointUrl('http://localhost:8080/v1'), true);
+      expect(isValidEndpointUrl('http://127.0.0.1:11434'), true);
+      expect(isValidEndpointUrl(''), true);
+      expect(isValidEndpointUrl('http://insecure-api.com/v1'), false);
+      expect(isValidEndpointUrl('invalid-url'), false);
+      expect(isValidEndpointUrl('ftp://api.example.com'), false);
+    });
+
+    test('setEndPoint 拒绝不安全的 HTTP 远程 URL', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      final success = await notifierOf(
+        container,
+      ).setEndPoint('http://insecure-remote.com/v1');
+
+      expect(success, false);
+      expect(container.read(appSettingsProvider).value!.endPoint, '');
+    });
+
+    test('setEndPoint 接受安全的 HTTPS 或本地 HTTP URL', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      final success = await notifierOf(
+        container,
+      ).setEndPoint('https://api.openai.com/v1');
+
+      expect(success, true);
+      expect(
+        container.read(appSettingsProvider).value!.endPoint,
+        'https://api.openai.com/v1',
+      );
+    });
+
     test('setUseAiDailySummary 更新 AI 日报开关', () async {
       final container = ProviderContainer();
       addTearDown(() => container.dispose());
