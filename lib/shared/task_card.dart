@@ -21,21 +21,17 @@ extension TaskPriorityColor on TaskPriority {
   }
 }
 
+/// Static map lookup for O(1) priority label parsing.
+const Map<String, TaskPriority> _priorityMap = {
+  '紧急': TaskPriority.urgent,
+  '高': TaskPriority.high,
+  '中': TaskPriority.medium,
+  '低': TaskPriority.low,
+};
+
 /// Parse a Chinese priority label into the enum.
-TaskPriority taskPriorityFromString(String label) {
-  switch (label) {
-    case '紧急':
-      return TaskPriority.urgent;
-    case '高':
-      return TaskPriority.high;
-    case '中':
-      return TaskPriority.medium;
-    case '低':
-      return TaskPriority.low;
-    default:
-      return TaskPriority.medium;
-  }
-}
+TaskPriority taskPriorityFromString(String label) =>
+    _priorityMap[label] ?? TaskPriority.medium;
 
 class TaskCard extends ConsumerStatefulWidget {
   const TaskCard({
@@ -85,10 +81,13 @@ class _TaskCardState extends ConsumerState<TaskCard> {
     }
   }
 
+  /// Fast 2-digit zero-padding helper to avoid String.padLeft allocations.
+  static String _pad2(int value) =>
+      value < 10 ? '0$value' : value.toString();
+
   /// Format DDL as short readable string: "07/21 14:30"
   String _formatDdl(DateTime dt) =>
-      '${dt.month.toString().padLeft(2, '0')}/${dt.day.toString().padLeft(2, '0')} '
-      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+      '${_pad2(dt.month)}/${_pad2(dt.day)} ${_pad2(dt.hour)}:${_pad2(dt.minute)}';
 
   /// Whether the DDL is within the next 6 hours.
   bool get _isUrgent =>
