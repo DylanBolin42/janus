@@ -82,8 +82,7 @@ class _TaskCardState extends ConsumerState<TaskCard> {
   }
 
   /// Fast 2-digit zero-padding helper to avoid String.padLeft allocations.
-  static String _pad2(int value) =>
-      value < 10 ? '0$value' : value.toString();
+  static String _pad2(int value) => value < 10 ? '0$value' : value.toString();
 
   /// Format DDL as short readable string: "07/21 14:30"
   String _formatDdl(DateTime dt) =>
