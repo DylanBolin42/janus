@@ -51,7 +51,7 @@ jobs:
 
       - name: Upload TODO Report Artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: todo-report
           path: todo_report.md
@@ -90,7 +90,7 @@ jobs:
 
       - name: Upload Coverage Artifact
         if: always() && hashFiles('coverage/html') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/html
