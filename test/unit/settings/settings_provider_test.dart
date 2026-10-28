@@ -414,6 +414,74 @@ void main() {
     });
 
     // AI
+    test('isValidEndpoint 验证 HTTPS 与 loopback 规则', () {
+      expect(AppSettingsNotifier.isValidEndpoint(''), true);
+      expect(
+        AppSettingsNotifier.isValidEndpoint('https://api.openai.com/v1'),
+        true,
+      );
+      expect(
+        AppSettingsNotifier.isValidEndpoint('http://localhost:11434'),
+        true,
+      );
+      expect(
+        AppSettingsNotifier.isValidEndpoint('http://127.0.0.1:11434'),
+        true,
+      );
+      expect(
+        AppSettingsNotifier.isValidEndpoint('http://api.openai.com/v1'),
+        false,
+      );
+      expect(AppSettingsNotifier.isValidEndpoint('ftp://example.com'), false);
+      expect(AppSettingsNotifier.isValidEndpoint('invalid-url'), false);
+    });
+
+    test('setEndPoint 仅接受 HTTPS 和本地 HTTP 端点', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      // 拒绝非本地 HTTP 远程端点（防止 MITM 明文泄露）
+      final rejected = await notifierOf(
+        container,
+      ).setEndPoint('http://insecure-remote.com/api');
+      expect(rejected, false);
+      expect(container.read(appSettingsProvider).value!.endPoint, '');
+
+      // 接受远程 HTTPS 端点
+      final acceptedHttps = await notifierOf(
+        container,
+      ).setEndPoint('https://api.openai.com/v1');
+      expect(acceptedHttps, true);
+      expect(
+        container.read(appSettingsProvider).value!.endPoint,
+        'https://api.openai.com/v1',
+      );
+
+      // 接受本地 HTTP 循环端点
+      final acceptedLocal = await notifierOf(
+        container,
+      ).setEndPoint('http://localhost:11434');
+      expect(acceptedLocal, true);
+      expect(
+        container.read(appSettingsProvider).value!.endPoint,
+        'http://localhost:11434',
+      );
+    });
+
+    test('setModelName 更新模型名称', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      await notifierOf(container).setModelName('deepseek-chat');
+
+      expect(
+        container.read(appSettingsProvider).value!.modelName,
+        'deepseek-chat',
+      );
+    });
+
     test('setUseAiDailySummary 更新 AI 日报开关', () async {
       final container = ProviderContainer();
       addTearDown(() => container.dispose());
