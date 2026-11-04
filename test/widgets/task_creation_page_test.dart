@@ -74,6 +74,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('新建任务'), findsOneWidget);
+    expect(find.byTooltip('关闭'), findsOneWidget);
+    expect(find.byTooltip('创建任务'), findsOneWidget);
+    expect(find.bySemanticsLabel('关闭'), findsOneWidget);
+    expect(find.bySemanticsLabel('创建任务'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
