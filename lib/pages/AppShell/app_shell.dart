@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:janus/models/app_settings.dart';
+import 'package:janus/providers/settings_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:janus/pages/TaskCreationPage/task_creation_page.dart';
 import 'package:janus/router/route_constants.dart';
@@ -6,16 +9,26 @@ import 'package:janus/shared/custom_appbar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({required this.child, super.key});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final namingStyle =
+        ref.watch(appSettingsProvider).value?.tabNamingStyle ??
+        TabNamingStyle.classic;
+    final labels = namingStyle.tabLabels;
     final String? routeName = GoRouterState.of(context).name;
     final String title = routeName != null
-        ? (RouteDisplayName.names[routeName] ?? routeName)
+        ? (switch (routeName) {
+            'inbox' => labels[0],
+            'task' => labels[1],
+            'focus' => labels[2],
+            'insights' => labels[3],
+            _ => RouteDisplayName.names[routeName] ?? routeName,
+          })
         : 'Janus';
 
     return Material(
@@ -88,10 +101,10 @@ class AppShell extends StatelessWidget {
           unselectedIconColor: Theme.of(context).colorScheme.onSurfaceVariant,
           unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
           tabs: [
-            GlassTab(icon: Icon(Icons.inbox_rounded), label: 'Inbox'),
-            GlassTab(icon: Icon(Icons.task_rounded), label: 'Tasks'),
-            GlassTab(icon: Icon(Icons.lock_clock_rounded), label: 'Focus'),
-            GlassTab(icon: Icon(Icons.insights_rounded), label: 'Insights'),
+            GlassTab(icon: Icon(Icons.inbox_rounded), label: labels[0]),
+            GlassTab(icon: Icon(Icons.task_rounded), label: labels[1]),
+            GlassTab(icon: Icon(Icons.lock_clock_rounded), label: labels[2]),
+            GlassTab(icon: Icon(Icons.insights_rounded), label: labels[3]),
           ],
           selectedIndex: _calculateSelectedIndex(context),
           onTabSelected: (int index) => _onItemTapped(index, context),

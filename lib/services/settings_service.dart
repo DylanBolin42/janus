@@ -14,9 +14,9 @@ class SettingsService {
   /// or if the stored JSON is corrupt.
   Future<AppSettings> load() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_key);
-    if (raw == null) return const AppSettings();
     try {
+      final raw = prefs.getString(_key);
+      if (raw == null) return const AppSettings();
       return AppSettings.fromJson(jsonDecode(raw) as Map<String, dynamic>);
     } catch (_) {
       // Corrupt data → reset to defaults
@@ -27,6 +27,7 @@ class SettingsService {
   /// Persists [settings] to shared preferences.
   Future<void> save(AppSettings settings) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, jsonEncode(settings.toJson()));
+    final saved = await prefs.setString(_key, jsonEncode(settings.toJson()));
+    if (!saved) throw StateError('Unable to save app settings');
   }
 }

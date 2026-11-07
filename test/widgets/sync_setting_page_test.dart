@@ -57,7 +57,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
-    expect(find.text('当前消耗流量：0.5GB'), findsOneWidget);
+    expect(find.text('同步服务尚未接入，暂无流量统计'), findsOneWidget);
   });
 
   testWidgets('SyncSettingPage shows sync toggle', (tester) async {

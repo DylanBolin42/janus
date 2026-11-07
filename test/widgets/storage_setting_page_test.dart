@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:drift/native.dart';
+import 'package:janus/database/app_database.dart';
+import 'package:janus/providers/database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:janus/pages/SettingPage/subSettingPage/storageSetting/storage_setting_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Widget createStorageSettingPage() {
-  return const ProviderScope(child: MaterialApp(home: StorageSettingPage()));
+  final database = AppDatabase.forTesting(NativeDatabase.memory());
+  addTearDown(database.close);
+  return ProviderScope(
+    overrides: [appDatabaseProvider.overrideWithValue(database)],
+    child: const MaterialApp(home: StorageSettingPage()),
+  );
 }
 
 void main() {
