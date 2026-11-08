@@ -48,6 +48,45 @@ void main() {
       final settings = await service.load();
 
       expect(settings, const AppSettings());
+      final prefs = await SharedPreferences.getInstance();
+      expect(
+        prefs.getString(SettingsService.corruptBackupKey),
+        '{malformed json!!!}',
+      );
+      expect(service.recoveredCorruptSettings, isTrue);
+      await service.save(const AppSettings(themeMode: AppThemeMode.dark));
+      expect(
+        prefs.getString(SettingsService.corruptBackupKey),
+        '{malformed json!!!}',
+      );
+    });
+
+    test(
+      'invalid fields are backed up while valid preferences survive',
+      () async {
+        final raw = jsonEncode({
+          'themeMode': 'dark',
+          'language': 'invalid-language',
+          'isNotificationEnabled': 'yes',
+          'morningBriefingTime': '25:99',
+        });
+        SharedPreferences.setMockInitialValues({'app_settings': raw});
+        final settings = await service.load();
+        expect(settings.themeMode, AppThemeMode.dark);
+        expect(settings.language, AppLanguage.chinese);
+        expect(settings.isNotificationEnabled, isFalse);
+        expect(settings.morningBriefingTime.hour, 8);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getString(SettingsService.corruptBackupKey), raw);
+        expect(prefs.getString('app_settings'), raw);
+      },
+    );
+
+    test('direct save backs up corrupt data before overwriting it', () async {
+      SharedPreferences.setMockInitialValues({'app_settings': '[]'});
+      await service.save(const AppSettings());
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(SettingsService.corruptBackupKey), '[]');
     });
 
     test('multiple save/load cycles preserve latest value', () async {

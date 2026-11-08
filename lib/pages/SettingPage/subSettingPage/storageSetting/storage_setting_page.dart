@@ -27,7 +27,7 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('删除全部任务和标签？'),
-        content: const Text('此操作无法撤销，应用设置会保留。'),
+        content: const Text('将删除全部任务和标签，应用设置会保留。下一步需要再次确认。'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -41,6 +41,24 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
       ),
     );
     if (confirmed != true || !mounted) return;
+    final finalConfirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('最后确认：永久删除'),
+        content: const Text('尚无备份或撤销功能。全部任务和标签将永久丢失，无法恢复。确定继续？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('永久删除'),
+          ),
+        ],
+      ),
+    );
+    if (finalConfirmed != true || !mounted) return;
     try {
       final service = StorageService(ref.read(appDatabaseProvider));
       await service.clear();

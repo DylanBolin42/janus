@@ -17,11 +17,28 @@ import 'package:janus/pages/SettingPage/subSettingPage/focusSetting/focus_settin
 import 'package:janus/pages/SettingPage/subSettingPage/notificationSetting/notification_setting_page.dart';
 import 'package:janus/providers/settings_provider.dart';
 import 'package:janus/services/settings_service.dart';
+import 'package:janus/shared/settings_recovery_notice.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets('corrupt settings show a visible recovery warning', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({'app_settings': '{broken'});
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: SettingsRecoveryNotice(child: Scaffold(body: Text('app'))),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('corrupt_settings_backup'), findsOneWidget);
+    expect(find.text('app'), findsOneWidget);
+  });
 
   testWidgets('briefing time controls show persisted times and save edits', (
     tester,
@@ -128,6 +145,17 @@ void main() {
       await tester.tap(find.text('删除数据库'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('删除'));
+      await tester.pumpAndSettle();
+      expect(find.text('尚无备份或撤销功能。全部任务和标签将永久丢失，无法恢复。确定继续？'), findsOneWidget);
+      expect(await database.taskDao.getAllTasks(), hasLength(1));
+      await tester.tap(find.text('取消'));
+      await tester.pumpAndSettle();
+      expect(await database.taskDao.getAllTasks(), hasLength(1));
+      await tester.tap(find.text('删除数据库'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('删除'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('永久删除'));
       await tester.runAsync(() async {
         await Future<void>.delayed(const Duration(milliseconds: 50));
       });

@@ -567,7 +567,13 @@ class TimeOfDayConverter implements JsonConverter<TimeOfDay, String> {
   @override
   TimeOfDay fromJson(String json) {
     final parts = json.split(':');
-    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    if (parts.length != 2) throw const FormatException('Invalid time');
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      throw const FormatException('Time out of range');
+    }
+    return TimeOfDay(hour: hour, minute: minute);
   }
 
   @override
