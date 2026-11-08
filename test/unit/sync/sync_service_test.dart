@@ -4,6 +4,8 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:janus/providers/sync_provider.dart';
 import 'package:janus/database/app_database.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/models/task.dart';
@@ -127,6 +129,81 @@ void main() {
     await running;
     expect(backend.uploads, 1);
   });
+
+  test(
+    'independent provider containers share the operation lock and allow retry',
+    () async {
+      final otherBackend = FakeBackend();
+      final other = SyncService(
+        backend: (_) => otherBackend,
+        store: () => store,
+      );
+      addTearDown(other.dispose);
+      final firstContainer = ProviderContainer(
+        overrides: [syncServiceProvider.overrideWithValue(sync)],
+      );
+      final secondContainer = ProviderContainer(
+        overrides: [syncServiceProvider.overrideWithValue(other)],
+      );
+      addTearDown(firstContainer.dispose);
+      addTearDown(secondContainer.dispose);
+      backend.gate = Completer<void>();
+      final first = firstContainer
+          .read(syncServiceProvider)
+          .run(SyncAction.upload, config);
+      await secondContainer
+          .read(syncServiceProvider)
+          .run(SyncAction.upload, config);
+      expect(other.phase, SyncPhase.failed);
+      expect(other.message, contains('另一个同步操作'));
+      expect(otherBackend.uploads, 0);
+      expect(other.lastSync, isNull);
+      backend.gate!.complete();
+      await first;
+      await other.run(other.lastAction!, config);
+      expect(other.phase, SyncPhase.success);
+      expect(otherBackend.uploads, 1);
+    },
+  );
+
+  test(
+    'failed operation releases shared lock for another entry point',
+    () async {
+      final otherBackend = FakeBackend();
+      final other = SyncService(
+        backend: (_) => otherBackend,
+        store: () => store,
+      );
+      addTearDown(other.dispose);
+      backend.fail = true;
+      await sync.run(SyncAction.upload, config);
+      expect(sync.phase, SyncPhase.failed);
+      await other.run(SyncAction.upload, config);
+      expect(other.phase, SyncPhase.success);
+      expect(otherBackend.uploads, 1);
+    },
+  );
+
+  test(
+    'disposing an entry point does not release a running operation early',
+    () async {
+      final runningService = SyncService(
+        backend: (_) => backend,
+        store: () => store,
+      );
+      backend.gate = Completer<void>();
+      final running = runningService.run(SyncAction.upload, config);
+      runningService.dispose();
+      await sync.run(SyncAction.upload, config);
+      expect(sync.phase, SyncPhase.failed);
+      expect(backend.uploads, 0);
+      backend.gate!.complete();
+      await running;
+      await sync.run(SyncAction.upload, config);
+      expect(sync.phase, SyncPhase.success);
+      expect(backend.uploads, 2);
+    },
+  );
 
   test(
     'snapshot round trip restores tasks, tags and settings but keeps device security settings',

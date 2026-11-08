@@ -136,8 +136,8 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
           title: Text(action == SyncAction.download ? '替换本地数据？' : '替换远端快照？'),
           content: Text(
             action == SyncAction.download
-                ? '下载会完整替换本地任务、标签与通用设置，无法合并。请先备份当前数据。'
-                : '上传会覆盖同名远端快照，不会合并其他设备的数据。',
+                ? '仅限单写入者：确认其他设备已停止编辑和上传，再下载。此操作完整替换本地任务、标签与通用设置，无法合并。请先备份本地数据。'
+                : '仅限单写入者：先停止其他设备编辑，下载最新快照后再修改、上传。本次上传无条件覆盖远端同名快照，不检查其他设备更新，可能丢失数据。快照为包含任务内容的明文 JSON。',
           ),
           actions: [
             TextButton(
@@ -280,7 +280,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                     InteractiveTile(
                       title: const Text('同步模式'),
                       description: const Text(
-                        '全量快照替换；自动合并尚未实现。同步至填写 .json 文件名，目录必须已存在。',
+                        '仅限单写入者、全量覆盖，无版本冲突保护。先停止其他设备编辑，下载最新快照，再修改并上传；其他设备只能随后下载。切换写入设备前先上传并停止旧设备编辑，再由新设备下载。同步至填写 .json 文件名，目录必须已存在。',
                       ),
                     ),
                     InteractiveTile(
@@ -348,7 +348,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                       leading: const Icon(Icons.security_rounded),
                       title: const Text('安全性说明'),
                       description: const Text(
-                        '仅支持 HTTPS 与有效证书。远端 JSON 为明文快照；RSA 数据加密与应用锁尚未实现，不会显示为已启用。请使用可信服务器。桌面端和 Web 的安全存储暂不支持。',
+                        '快照明文包含任务标题、备注、标签及设置。传输安全依赖服务端 TLS 的完整性与有效证书；服务器及其备份的访问者可以读取快照。仅使用可信 HTTPS 服务器。客户端加密尚未实现（TODO：认证加密、密钥管理与恢复流程）；RSA 与应用锁也未实现。桌面/Web 安全存储暂不支持。',
                       ),
                     ),
                   ],

@@ -28,6 +28,9 @@ class SnapshotStore {
     'modelName',
   };
 
+  // TODO(JANUS-19): Optional client-side authenticated encryption needs a
+  // versioned envelope, audited AEAD/KDF implementation and multi-device key
+  // recovery. Until those exist, snapshots contain plaintext task data.
   Future<String> export() async {
     final prefs = (await settings.load()).toJson()
       ..removeWhere((key, _) => localKeys.contains(key));
@@ -110,6 +113,10 @@ class SnapshotStore {
 }
 
 class SyncService extends ChangeNotifier {
+  // All service/provider instances in this application isolate share the same
+  // local database and preferences. Acquire synchronously before the first await.
+  // This is not a cross-device or cross-process WebDAV conflict lock.
+  static bool _operationInFlight = false;
   SyncService({required this.backend, required this.store});
   final SyncBackend Function(SyncConfig) backend;
   final SnapshotStore Function() store;
@@ -126,6 +133,7 @@ class SyncService extends ChangeNotifier {
   }
 
   Future<void> refresh() async {
+    if (busy) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       lastSync = DateTime.tryParse(prefs.getString('sync.lastSuccess') ?? '');
@@ -138,8 +146,13 @@ class SyncService extends ChangeNotifier {
   Future<void> run(SyncAction action, SyncConfig config) async {
     if (busy) return;
     lastAction = action;
-    _update(SyncPhase.connecting, '正在连接服务器');
+    if (_operationInFlight) {
+      _update(SyncPhase.failed, '另一个同步操作正在运行，请稍后重试');
+      return;
+    }
+    _operationInFlight = true;
     try {
+      _update(SyncPhase.connecting, '正在连接服务器');
       config.directory;
       final remote = backend(config);
       await remote.verify();
@@ -170,6 +183,8 @@ class SyncService extends ChangeNotifier {
       _update(SyncPhase.failed, error.message);
     } catch (_) {
       _update(SyncPhase.failed, '同步失败，请检查配置、存储空间后重试');
+    } finally {
+      _operationInFlight = false;
     }
   }
 
