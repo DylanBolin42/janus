@@ -55,3 +55,18 @@ final result = const TaskScheduler().schedule(
 单测覆盖 JANUS-26 数值、阈值、亚秒精度、稳定顺序、EDF 插队、保留长程重要工作、超载取舍、无 DDL、缺 EST、状态过滤、窗口归一化/跨日/空档、连续性、越界、非法输入及固定种子密集堆积不变量。
 
 TODO：UI/provider/持久化入口；JANUS-30 不可用时段处理；接线后的 EST 校验与时区输入规范；按实际反馈评估碎片窗口的更强可行性搜索。不实现依赖、实际耗时学习、创建时间老化、自动执行、后台周期重排。
+
+## PR #184 交付验证记录
+
+实现提交：`af92d38e3e9f5a834ad90f54d65a56ca9d21e307`，分支 `dylanbolin09/janus-62-auto-scheduler`，沿用 [PR #184](https://github.com/DylanBolin42/janus/pull/184)。
+
+- Flutter 3.47.0 / Dart 3.13.0；`fvm flutter test --no-pub --concurrency=4`：228 项全部通过，新增调度测试 23 项，其中密集队列用固定种子检查 30 批输入。
+- `fvm flutter analyze --no-pub`：4 info + 2 warning，与独立 main `d5f33fa` 的 6 条诊断逐条一致，无新增诊断；退出码为 1，不是零诊断通过。
+- `dart analyze lib/scheduling test/unit/scheduling`：No issues found。
+- `fvm dart format --output=none --set-exit-if-changed lib/scheduling test/unit/scheduling`：0 changed；`git diff --check` 通过。
+- GitHub [CI 42441162686](https://github.com/DylanBolin42/janus/actions/runs/42441162686)：Format & Analyze、Tests & Coverage、Build Android Check、PR Summary 全部通过。
+- GitHub [Dependency Check 42441162669](https://github.com/DylanBolin42/janus/actions/runs/42441162669)：通过；CodeQL 亦通过。PR 未合并，auto-merge 关闭。
+
+可复跑入口：在仓库根目录执行 `bash scripts/verify_scheduler.sh`。需要已配置 FVM/Flutter；脚本运行全套测试，并用分支与 `origin/main` 的 merge-base 建立临时工作树对照分析诊断。运行日志写入忽略目录 `.dart_tool/scheduler-verification/`，结束后移除临时工作树。完整原始输出是可重建验证产物，不提交；此节保存验收结果与远程 CI 证据。
+
+交接附件 `uploads/` 下两份 PDF 是用户提供的参考原件，不属于源码变更，不复制进公共仓库；材料来源与采用规则已在前文说明。Flutter SDK、包缓存、build、临时 PDF 提取文本、原始测试日志及旧的一次性后台编排脚本均为临时环境产物。
