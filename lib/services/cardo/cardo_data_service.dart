@@ -160,7 +160,19 @@ class CardoDataService {
               ),
               mode: InsertMode.insertOrIgnore,
             );
+        await (db.update(db.tasks)
+              ..where((t) => t.id.isIn([predecessor, successor])))
+            .write(const TasksCompanion(dependencyGraphKnown: Value(true)));
       });
+
+  /// Explicitly confirm the recorded graph for an imported/legacy task, including empty.
+  Future<void> confirmDependencyGraph(int id) => db.transaction(() async {
+    await _task(id);
+    await (db.update(db.tasks)..where((t) => t.id.equals(id))).write(
+      const TasksCompanion(dependencyGraphKnown: Value(true)),
+    );
+  });
+
   Future<List<TaskDependency>> getDependencies() =>
       db.select(db.taskDependencies).get();
 
@@ -213,6 +225,7 @@ class CardoDataService {
     final memo = <int, double?>{};
     double? path(int id, Set<int> visiting) {
       if (memo.containsKey(id)) return memo[id];
+      if (byId[id]?.dependencyGraphKnown != true) return memo[id] = null;
       if (!visiting.add(id)) return null;
       double longest = 0;
       for (final child in children[id] ?? <int>[]) {

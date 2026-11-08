@@ -33,6 +33,9 @@ class Tasks extends Table {
   /// Actual consumed whole minutes, independently of EST. Null means unknown.
   IntColumn get usedTime =>
       integer().nullable().customConstraint('CHECK (used_time >= 0)')();
+
+  /// Null on legacy records: an absent historical graph is not confirmed empty.
+  BoolColumn get dependencyGraphKnown => boolean().nullable()();
   BoolColumn get priorityExplicit => boolean().nullable()();
   // EST is a duration: estHour * 60 + estMinute, in minutes.
   IntColumn get estHour => integer().nullable()();

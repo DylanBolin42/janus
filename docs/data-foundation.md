@@ -20,6 +20,7 @@
   EST 或 startedAt 到当前的墙钟时间当作实际投入。完成/撤销不清零 usedTime。
   选择累计加事件方案：支持人工或专注模块提交有效分钟，不必先实现完整计时器，
   同时保留审计与估计快照。调用方须对同一观测只提交一次；API 非幂等。
+- `dependencyGraphKnown` 可空：旧库/导入任务默认未知，依赖收益移除权重；新建任务确认初始空图，显式加边确认关联任务，`confirmDependencyGraph` 可确认历史记录的空图。缺图不冒充已确认无依赖。
 - `priorityExplicit` 可空：编辑 priority 时设 true。历史及新建默认 0 不猜测是否显式选择。
 - `task_dependencies(predecessor, successor)` 联合主键，前置→后续；外键级联删除。
   事务内校验任务存在及可达性，拒绝自环/间接环；CRUD 用 CardoDataService。
@@ -51,7 +52,7 @@ cardo-v1，而注册**显式选择的 `version:2` / `scoringVersion:cardo-v2`**�
 | aging | §6 `min(age_days/scale_days,1)`，默认30天 | 无 createdAt 移除该权重 |
 | decay | §6 `exp(-lambda_per_day*age_days)`，默认 λ=.01 | 无 createdAt 移除该权重；与老化方向相反，需调用方按任务类型选用 |
 | estimated_duration | §6 `1/(estimated_minutes/scale_minutes+1)`，默认60分钟 | 不使用 default_minutes 伪造观测；无有效 EST 移除权重 |
-| dependency | 前置未完成先排除；解锁收益 `L/(L+scale_minutes)`，默认60分钟；L 为最长下游路径剩余预计分钟和 | 无下游为真实0；路径任一 EST 未知则该因子未知，不假装关键路径完整 |
+| dependency | 前置未完成先排除；解锁收益 `L/(L+scale_minutes)`，默认60分钟；L 为最长下游路径剩余预计分钟和 | 已确认图的无下游为真实0；历史图未知或路径任一 EST 未知则该因子未知，不假装关键路径完整 |
 | efficiency | 有完成样本时，平均 `min(estimated_at_completion/used_at_completion,1)`；无完成样本时使用当前显式 EST/usedTime 的同一有界比值 | 无有效正分钟观测则移除；当前比值仅耗时效率代理，非生产率测量 |
 | success | §6 `(successes+1)/(attempts+2)`；同任务 completed+failed 为分母 | 零尝试未知，不以先验冒充观测 |
 | context | 未过期的 energyMatch，资源就绪 false / 可用分钟不足是前置门槛 | 无/过期精力匹配移除权重；未知资源不声称就绪 |

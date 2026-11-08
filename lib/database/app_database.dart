@@ -45,6 +45,7 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(tasks, tasks.completedAt);
         await m.addColumn(tasks, tasks.usedTime);
         await m.addColumn(tasks, tasks.priorityExplicit);
+        await m.addColumn(tasks, tasks.dependencyGraphKnown);
         await m.createTable(taskDependencies);
         await m.createTable(taskEvents);
         await m.createTable(taskContexts);
@@ -68,6 +69,7 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
       TasksCompanion.insert(
         //TODO: 给所有相关方法添加Status字段
         createdAt: Value(DateTime.now().toUtc()),
+        dependencyGraphKnown: const Value(true),
         status: Value(draft.status),
         title: draft.title,
         ddl: draft.ddl!,

@@ -182,6 +182,30 @@ void main() {
       expect(iterator.current.single.score, closeTo(95.83333333333333, 1e-10));
     },
   );
+  test(
+    'legacy unknown graph deweights dependency until explicitly confirmed',
+    () async {
+      final id = await db
+          .into(db.tasks)
+          .insert(
+            TasksCompanion.insert(
+              title: 'legacy',
+              ddl: now,
+              priority: const Value(3),
+            ),
+          );
+      service.scoring.configs.replaceJson(
+        '{"version":2,"factors":{"dependency":{"enabled":true,"weight":1}}}',
+      );
+      var r = (await service.calculate()).single;
+      expect(r.score, 100);
+      expect(r.warnings, contains('missing_data:dependency:weight_removed'));
+      await service.confirmDependencyGraph(id);
+      r = (await service.calculate()).single;
+      expect(r.factors['dependency'], 0);
+      expect(r.score, 50);
+    },
+  );
   for (final version in [1, 2, 3]) {
     test(
       'upgrade real v$version SQLite schema to v4 preserves unknown history',

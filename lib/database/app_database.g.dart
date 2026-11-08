@@ -106,6 +106,19 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     requiredDuringInsert: false,
     $customConstraints: 'CHECK (used_time >= 0)',
   );
+  static const VerificationMeta _dependencyGraphKnownMeta =
+      const VerificationMeta('dependencyGraphKnown');
+  @override
+  late final GeneratedColumn<bool> dependencyGraphKnown = GeneratedColumn<bool>(
+    'dependency_graph_known',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dependency_graph_known" IN (0, 1))',
+    ),
+  );
   static const VerificationMeta _priorityExplicitMeta = const VerificationMeta(
     'priorityExplicit',
   );
@@ -174,6 +187,7 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     startedAt,
     completedAt,
     usedTime,
+    dependencyGraphKnown,
     priorityExplicit,
     estHour,
     estMinute,
@@ -253,6 +267,15 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         usedTime.isAcceptableOrUnknown(data['used_time']!, _usedTimeMeta),
       );
     }
+    if (data.containsKey('dependency_graph_known')) {
+      context.handle(
+        _dependencyGraphKnownMeta,
+        dependencyGraphKnown.isAcceptableOrUnknown(
+          data['dependency_graph_known']!,
+          _dependencyGraphKnownMeta,
+        ),
+      );
+    }
     if (data.containsKey('priority_explicit')) {
       context.handle(
         _priorityExplicitMeta,
@@ -325,6 +348,10 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         DriftSqlType.int,
         data['${effectivePrefix}used_time'],
       ),
+      dependencyGraphKnown: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dependency_graph_known'],
+      ),
       priorityExplicit: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}priority_explicit'],
@@ -380,6 +407,9 @@ class Task extends DataClass implements Insertable<Task> {
 
   /// Actual consumed whole minutes, independently of EST. Null means unknown.
   final int? usedTime;
+
+  /// Null on legacy records: an absent historical graph is not confirmed empty.
+  final bool? dependencyGraphKnown;
   final bool? priorityExplicit;
   final int? estHour;
   final int? estMinute;
@@ -395,6 +425,7 @@ class Task extends DataClass implements Insertable<Task> {
     this.startedAt,
     this.completedAt,
     this.usedTime,
+    this.dependencyGraphKnown,
     this.priorityExplicit,
     this.estHour,
     this.estMinute,
@@ -422,6 +453,9 @@ class Task extends DataClass implements Insertable<Task> {
     }
     if (!nullToAbsent || usedTime != null) {
       map['used_time'] = Variable<int>(usedTime);
+    }
+    if (!nullToAbsent || dependencyGraphKnown != null) {
+      map['dependency_graph_known'] = Variable<bool>(dependencyGraphKnown);
     }
     if (!nullToAbsent || priorityExplicit != null) {
       map['priority_explicit'] = Variable<bool>(priorityExplicit);
@@ -460,6 +494,9 @@ class Task extends DataClass implements Insertable<Task> {
       usedTime: usedTime == null && nullToAbsent
           ? const Value.absent()
           : Value(usedTime),
+      dependencyGraphKnown: dependencyGraphKnown == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dependencyGraphKnown),
       priorityExplicit: priorityExplicit == null && nullToAbsent
           ? const Value.absent()
           : Value(priorityExplicit),
@@ -489,6 +526,9 @@ class Task extends DataClass implements Insertable<Task> {
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
       usedTime: serializer.fromJson<int?>(json['usedTime']),
+      dependencyGraphKnown: serializer.fromJson<bool?>(
+        json['dependencyGraphKnown'],
+      ),
       priorityExplicit: serializer.fromJson<bool?>(json['priorityExplicit']),
       estHour: serializer.fromJson<int?>(json['estHour']),
       estMinute: serializer.fromJson<int?>(json['estMinute']),
@@ -509,6 +549,7 @@ class Task extends DataClass implements Insertable<Task> {
       'startedAt': serializer.toJson<DateTime?>(startedAt),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
       'usedTime': serializer.toJson<int?>(usedTime),
+      'dependencyGraphKnown': serializer.toJson<bool?>(dependencyGraphKnown),
       'priorityExplicit': serializer.toJson<bool?>(priorityExplicit),
       'estHour': serializer.toJson<int?>(estHour),
       'estMinute': serializer.toJson<int?>(estMinute),
@@ -527,6 +568,7 @@ class Task extends DataClass implements Insertable<Task> {
     Value<DateTime?> startedAt = const Value.absent(),
     Value<DateTime?> completedAt = const Value.absent(),
     Value<int?> usedTime = const Value.absent(),
+    Value<bool?> dependencyGraphKnown = const Value.absent(),
     Value<bool?> priorityExplicit = const Value.absent(),
     Value<int?> estHour = const Value.absent(),
     Value<int?> estMinute = const Value.absent(),
@@ -542,6 +584,9 @@ class Task extends DataClass implements Insertable<Task> {
     startedAt: startedAt.present ? startedAt.value : this.startedAt,
     completedAt: completedAt.present ? completedAt.value : this.completedAt,
     usedTime: usedTime.present ? usedTime.value : this.usedTime,
+    dependencyGraphKnown: dependencyGraphKnown.present
+        ? dependencyGraphKnown.value
+        : this.dependencyGraphKnown,
     priorityExplicit: priorityExplicit.present
         ? priorityExplicit.value
         : this.priorityExplicit,
@@ -565,6 +610,9 @@ class Task extends DataClass implements Insertable<Task> {
           ? data.completedAt.value
           : this.completedAt,
       usedTime: data.usedTime.present ? data.usedTime.value : this.usedTime,
+      dependencyGraphKnown: data.dependencyGraphKnown.present
+          ? data.dependencyGraphKnown.value
+          : this.dependencyGraphKnown,
       priorityExplicit: data.priorityExplicit.present
           ? data.priorityExplicit.value
           : this.priorityExplicit,
@@ -587,6 +635,7 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('startedAt: $startedAt, ')
           ..write('completedAt: $completedAt, ')
           ..write('usedTime: $usedTime, ')
+          ..write('dependencyGraphKnown: $dependencyGraphKnown, ')
           ..write('priorityExplicit: $priorityExplicit, ')
           ..write('estHour: $estHour, ')
           ..write('estMinute: $estMinute, ')
@@ -607,6 +656,7 @@ class Task extends DataClass implements Insertable<Task> {
     startedAt,
     completedAt,
     usedTime,
+    dependencyGraphKnown,
     priorityExplicit,
     estHour,
     estMinute,
@@ -626,6 +676,7 @@ class Task extends DataClass implements Insertable<Task> {
           other.startedAt == this.startedAt &&
           other.completedAt == this.completedAt &&
           other.usedTime == this.usedTime &&
+          other.dependencyGraphKnown == this.dependencyGraphKnown &&
           other.priorityExplicit == this.priorityExplicit &&
           other.estHour == this.estHour &&
           other.estMinute == this.estMinute &&
@@ -643,6 +694,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<DateTime?> startedAt;
   final Value<DateTime?> completedAt;
   final Value<int?> usedTime;
+  final Value<bool?> dependencyGraphKnown;
   final Value<bool?> priorityExplicit;
   final Value<int?> estHour;
   final Value<int?> estMinute;
@@ -658,6 +710,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.startedAt = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.usedTime = const Value.absent(),
+    this.dependencyGraphKnown = const Value.absent(),
     this.priorityExplicit = const Value.absent(),
     this.estHour = const Value.absent(),
     this.estMinute = const Value.absent(),
@@ -674,6 +727,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.startedAt = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.usedTime = const Value.absent(),
+    this.dependencyGraphKnown = const Value.absent(),
     this.priorityExplicit = const Value.absent(),
     this.estHour = const Value.absent(),
     this.estMinute = const Value.absent(),
@@ -691,6 +745,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<DateTime>? startedAt,
     Expression<DateTime>? completedAt,
     Expression<int>? usedTime,
+    Expression<bool>? dependencyGraphKnown,
     Expression<bool>? priorityExplicit,
     Expression<int>? estHour,
     Expression<int>? estMinute,
@@ -707,6 +762,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (startedAt != null) 'started_at': startedAt,
       if (completedAt != null) 'completed_at': completedAt,
       if (usedTime != null) 'used_time': usedTime,
+      if (dependencyGraphKnown != null)
+        'dependency_graph_known': dependencyGraphKnown,
       if (priorityExplicit != null) 'priority_explicit': priorityExplicit,
       if (estHour != null) 'est_hour': estHour,
       if (estMinute != null) 'est_minute': estMinute,
@@ -725,6 +782,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Value<DateTime?>? startedAt,
     Value<DateTime?>? completedAt,
     Value<int?>? usedTime,
+    Value<bool?>? dependencyGraphKnown,
     Value<bool?>? priorityExplicit,
     Value<int?>? estHour,
     Value<int?>? estMinute,
@@ -741,6 +799,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
       startedAt: startedAt ?? this.startedAt,
       completedAt: completedAt ?? this.completedAt,
       usedTime: usedTime ?? this.usedTime,
+      dependencyGraphKnown: dependencyGraphKnown ?? this.dependencyGraphKnown,
       priorityExplicit: priorityExplicit ?? this.priorityExplicit,
       estHour: estHour ?? this.estHour,
       estMinute: estMinute ?? this.estMinute,
@@ -779,6 +838,11 @@ class TasksCompanion extends UpdateCompanion<Task> {
     if (usedTime.present) {
       map['used_time'] = Variable<int>(usedTime.value);
     }
+    if (dependencyGraphKnown.present) {
+      map['dependency_graph_known'] = Variable<bool>(
+        dependencyGraphKnown.value,
+      );
+    }
     if (priorityExplicit.present) {
       map['priority_explicit'] = Variable<bool>(priorityExplicit.value);
     }
@@ -811,6 +875,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('startedAt: $startedAt, ')
           ..write('completedAt: $completedAt, ')
           ..write('usedTime: $usedTime, ')
+          ..write('dependencyGraphKnown: $dependencyGraphKnown, ')
           ..write('priorityExplicit: $priorityExplicit, ')
           ..write('estHour: $estHour, ')
           ..write('estMinute: $estMinute, ')
@@ -2312,6 +2377,7 @@ typedef $$TasksTableCreateCompanionBuilder =
       Value<DateTime?> startedAt,
       Value<DateTime?> completedAt,
       Value<int?> usedTime,
+      Value<bool?> dependencyGraphKnown,
       Value<bool?> priorityExplicit,
       Value<int?> estHour,
       Value<int?> estMinute,
@@ -2329,6 +2395,7 @@ typedef $$TasksTableUpdateCompanionBuilder =
       Value<DateTime?> startedAt,
       Value<DateTime?> completedAt,
       Value<int?> usedTime,
+      Value<bool?> dependencyGraphKnown,
       Value<bool?> priorityExplicit,
       Value<int?> estHour,
       Value<int?> estMinute,
@@ -2467,6 +2534,11 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
 
   ColumnFilters<int> get usedTime => $composableBuilder(
     column: $table.usedTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dependencyGraphKnown => $composableBuilder(
+    column: $table.dependencyGraphKnown,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2651,6 +2723,11 @@ class $$TasksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get dependencyGraphKnown => $composableBuilder(
+    column: $table.dependencyGraphKnown,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get priorityExplicit => $composableBuilder(
     column: $table.priorityExplicit,
     builder: (column) => ColumnOrderings(column),
@@ -2716,6 +2793,11 @@ class $$TasksTableAnnotationComposer
 
   GeneratedColumn<int> get usedTime =>
       $composableBuilder(column: $table.usedTime, builder: (column) => column);
+
+  GeneratedColumn<bool> get dependencyGraphKnown => $composableBuilder(
+    column: $table.dependencyGraphKnown,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get priorityExplicit => $composableBuilder(
     column: $table.priorityExplicit,
@@ -2877,6 +2959,7 @@ class $$TasksTableTableManager
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
                 Value<int?> usedTime = const Value.absent(),
+                Value<bool?> dependencyGraphKnown = const Value.absent(),
                 Value<bool?> priorityExplicit = const Value.absent(),
                 Value<int?> estHour = const Value.absent(),
                 Value<int?> estMinute = const Value.absent(),
@@ -2892,6 +2975,7 @@ class $$TasksTableTableManager
                 startedAt: startedAt,
                 completedAt: completedAt,
                 usedTime: usedTime,
+                dependencyGraphKnown: dependencyGraphKnown,
                 priorityExplicit: priorityExplicit,
                 estHour: estHour,
                 estMinute: estMinute,
@@ -2909,6 +2993,7 @@ class $$TasksTableTableManager
                 Value<DateTime?> startedAt = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
                 Value<int?> usedTime = const Value.absent(),
+                Value<bool?> dependencyGraphKnown = const Value.absent(),
                 Value<bool?> priorityExplicit = const Value.absent(),
                 Value<int?> estHour = const Value.absent(),
                 Value<int?> estMinute = const Value.absent(),
@@ -2924,6 +3009,7 @@ class $$TasksTableTableManager
                 startedAt: startedAt,
                 completedAt: completedAt,
                 usedTime: usedTime,
+                dependencyGraphKnown: dependencyGraphKnown,
                 priorityExplicit: priorityExplicit,
                 estHour: estHour,
                 estMinute: estMinute,
