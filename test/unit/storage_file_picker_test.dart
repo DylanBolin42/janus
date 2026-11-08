@@ -64,6 +64,7 @@ class PluginPicker extends FilePicker {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late AppDatabase db;
   late StorageService storage;
   late Directory dir;
@@ -267,4 +268,78 @@ void main() {
     expect(payload['formatVersion'], 1);
     expect(payload['tasks'], hasLength(6));
   });
+  test(
+    'bounded mobile channel cancellation, metadata overflow and unreadable results are explicit',
+    () async {
+      const channel = MethodChannel('janus/storage_import_test');
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      final native = NativeStorageFilePicker(
+        platform: PluginPicker(),
+        importChannel: channel,
+        useBoundedImport: true,
+      );
+      messenger.setMockMethodCallHandler(channel, (_) async => null);
+      expect(await native.pickJson(), isNull);
+      messenger.setMockMethodCallHandler(channel, (_) async {
+        throw PlatformException(code: 'too_large');
+      });
+      await expectLater(
+        native.pickJson(),
+        throwsA(
+          isA<StorageFileException>().having(
+            (e) => e.message,
+            'message',
+            contains('20 MiB'),
+          ),
+        ),
+      );
+      messenger.setMockMethodCallHandler(
+        channel,
+        (_) async => {'path': 'content://not-a-copy', 'size': 1},
+      );
+      await expectLater(
+        native.pickJson(),
+        throwsA(isA<StorageFileException>()),
+      );
+      messenger.setMockMethodCallHandler(channel, (_) async {
+        throw PlatformException(code: 'permission_denied');
+      });
+      await expectLater(
+        native.pickJson(),
+        throwsA(
+          isA<StorageFileException>().having(
+            (e) => e.message,
+            'message',
+            contains('拒绝'),
+          ),
+        ),
+      );
+    },
+  );
+
+  test(
+    'bounded mobile channel reads only the returned temporary copy',
+    () async {
+      const channel = MethodChannel('janus/storage_import_copy_test');
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      final file = File('${dir.path}/bounded.json');
+      await file.writeAsString('{}');
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        expect(call.method, 'pickJson');
+        return {'path': file.path, 'size': 2};
+      });
+      final native = NativeStorageFilePicker(
+        platform: PluginPicker(),
+        importChannel: channel,
+        useBoundedImport: true,
+      );
+      final picked = (await native.pickJson())!;
+      expect(await picked.open().expand((c) => c).toList(), utf8.encode('{}'));
+      await picked.release();
+    },
+  );
 }

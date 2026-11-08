@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:drift/drift.dart';
@@ -26,7 +28,8 @@ class StorageStatistics {
 
 /// JSON protocol v1. Settings and external assets are intentionally excluded.
 class StorageSnapshot {
-  StorageSnapshot._(this.tasks, this.tags);
+  StorageSnapshot._(this.tasks, this.tags, this.createdAt);
+  final DateTime createdAt;
   static const version = 1;
   final List<Task> tasks;
   final List<Tag> tags;
@@ -48,10 +51,16 @@ class StorageSnapshot {
         root['schemaVersion'] != schemaVersion) {
       throw const FormatException('数据库版本不匹配');
     }
-    if (root['createdAt'] is! String ||
-        DateTime.tryParse(root['createdAt'] as String) == null) {
-      throw const FormatException('createdAt 缺失或无效');
+    final timestamp = root['createdAt'];
+    if (timestamp is! String ||
+        !RegExp(
+          r'(Z|[+-]\d{2}:?\d{2})$',
+          caseSensitive: false,
+        ).hasMatch(timestamp)) {
+      throw const FormatException('createdAt 必须包含时区（Z 或 UTC 偏移）');
     }
+    final createdAt = DateTime.tryParse(timestamp)?.toUtc();
+    if (createdAt == null) throw const FormatException('createdAt 缺失或无效');
     List<Map<String, dynamic>> rows(String key, List<String> fields) {
       final value = root[key];
       if (value is! List) throw FormatException('$key 缺失或不是数组');
@@ -128,6 +137,7 @@ class StorageSnapshot {
       return StorageSnapshot._(
         List.unmodifiable(tasks),
         List.unmodifiable(tags),
+        createdAt,
       );
     } on FormatException {
       rethrow;
@@ -139,8 +149,18 @@ class StorageSnapshot {
 
 /// Extends JANUS-15's transactional statistics/clear operations.
 class StorageService implements StorageRepository {
-  StorageService(this.database, {Future<Directory> Function()? documents})
-    : documents = documents ?? getApplicationDocumentsDirectory;
+  StorageService(
+    this.database, {
+    Future<Directory> Function()? documents,
+    DateTime Function()? now,
+  }) : documents = documents ?? getApplicationDocumentsDirectory,
+       now = now ?? DateTime.now;
+  // Shared across service instances so separate callers cannot interleave
+  // export/retention, import or clear in this application isolate.
+  static final _operations = _StorageQueue();
+  static const maxSnapshots = 10;
+  static const maxSnapshotTotalBytes = 100 * 1024 * 1024;
+  final DateTime Function() now;
   final AppDatabase database;
   final Future<Directory> Function() documents;
 
@@ -149,7 +169,9 @@ class StorageService implements StorageRepository {
     return dir.create(recursive: true);
   }
 
-  Future<List<File>> snapshots() async {
+  Future<List<File>> snapshots() => _operations.run(_snapshots);
+
+  Future<List<File>> _snapshots() async {
     final dir = await snapshotDirectory();
     final files = await dir
         .list()
@@ -202,12 +224,22 @@ class StorageService implements StorageRepository {
   }
 
   @override
-  Future<File> exportSnapshot() async {
+  Future<File> exportSnapshot() => _operations.run(_exportSnapshot);
+
+  /// Capture bytes before releasing the retention lock, even if another caller
+  /// exports enough snapshots to evict this file while a picker is still open.
+  Future<({String name, Uint8List bytes})> exportForTransfer() =>
+      _operations.run(() async {
+        final file = await _exportSnapshot();
+        return (name: p.basename(file.path), bytes: await file.readAsBytes());
+      });
+
+  Future<File> _exportSnapshot() async {
     final data = await database.transaction(
       () async => {
         'formatVersion': StorageSnapshot.version,
         'schemaVersion': database.schemaVersion,
-        'createdAt': DateTime.now().toUtc().toIso8601String(),
+        'createdAt': now().toUtc().toIso8601String(),
         'tasks': (await database.select(database.tasks).get())
             .map((t) => t.toJson())
             .toList(),
@@ -216,20 +248,51 @@ class StorageService implements StorageRepository {
             .toList(),
       },
     );
+    final encoded = utf8.encode(jsonEncode(data));
+    if (encoded.length > maxSnapshotBytes) {
+      throw const FormatException('快照超过 20 MiB，未生成新快照或清理已有副本');
+    }
     final dir = await snapshotDirectory();
     final target = File(
       p.join(
         dir.path,
-        'janus_${DateTime.now().toUtc().microsecondsSinceEpoch}.json',
+        'janus_${now().toUtc().microsecondsSinceEpoch}_${List.generate(16, (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, "0")).join()}.json',
       ),
     );
     final temp = File('${target.path}.tmp');
     try {
-      await temp.writeAsString(jsonEncode(data), flush: true);
-      return await temp.rename(target.path);
+      await temp.writeAsBytes(encoded, flush: true);
+      final published = await temp.rename(target.path);
+      await _pruneSnapshots(keep: published);
+      return published;
     } catch (_) {
       if (await temp.exists()) await temp.delete();
       rethrow;
+    }
+  }
+
+  Future<void> _pruneSnapshots({required File keep}) async {
+    final ownedName = RegExp(r'^janus_\d+(?:_[a-f0-9]+)?\.json$');
+    final files = (await _snapshots())
+        .where((f) => ownedName.hasMatch(p.basename(f.path)))
+        .toList();
+    final dated = <({File file, DateTime modified, int bytes})>[];
+    for (final file in files) {
+      final stat = await file.stat();
+      dated.add((file: file, modified: stat.modified, bytes: stat.size));
+    }
+    dated.sort((a, b) {
+      final dateOrder = a.modified.compareTo(b.modified);
+      return dateOrder != 0 ? dateOrder : a.file.path.compareTo(b.file.path);
+    });
+    var total = dated.fold(0, (sum, item) => sum + item.bytes);
+    var count = dated.length;
+    for (final item in dated) {
+      if (count <= maxSnapshots && total <= maxSnapshotTotalBytes) break;
+      if (item.file.path == keep.path) continue;
+      await item.file.delete();
+      count--;
+      total -= item.bytes;
     }
   }
 
@@ -260,23 +323,47 @@ class StorageService implements StorageRepository {
   }
 
   @override
-  Future<StorageSnapshot> readSnapshot(File file) async =>
-      readSnapshotStream(file.openRead, size: await file.length());
+  Future<StorageSnapshot> readSnapshot(File file) async => _operations.run(
+    () async => readSnapshotStream(file.openRead, size: await file.length()),
+  );
 
   @override
-  Future<void> restore(StorageSnapshot snapshot) =>
-      database.transaction(() async {
-        await database.delete(database.tasks).go();
-        await database.delete(database.tags).go();
-        for (final tag in snapshot.tags) {
-          await database.into(database.tags).insert(tag);
-        }
-        for (final task in snapshot.tasks) {
-          await database.into(database.tasks).insert(task);
-        }
-      });
+  Future<void> restore(StorageSnapshot snapshot) => _operations.run(
+    () => database.transaction(() async {
+      await database.delete(database.tasks).go();
+      await database.delete(database.tags).go();
+      for (final tag in snapshot.tags) {
+        await database.into(database.tags).insert(tag);
+      }
+      for (final task in snapshot.tasks) {
+        await database.into(database.tasks).insert(task);
+      }
+    }),
+  );
 
   /// Keep schema/settings intact and notify Drift's live queries.
   @override
-  Future<void> clear() => database.taskDao.deleteAllData();
+  Future<void> clear() => _operations.run(database.taskDao.deleteAllData);
+}
+
+/// Failed operations release the queue; subsequent requests can still proceed.
+class _StorageQueue {
+  Future<void>? _tail;
+  Future<T> run<T>(Future<T> Function() action) {
+    final previous = _tail;
+    final finished = Completer<void>();
+    final ticket = finished.future;
+    _tail = ticket;
+    Future<T> invoke() async {
+      try {
+        return await action();
+      } finally {
+        // Do not retain an idle completed Future (or its caller's Zone).
+        if (identical(_tail, ticket)) _tail = null;
+        finished.complete();
+      }
+    }
+
+    return previous == null ? invoke() : previous.then((_) => invoke());
+  }
 }

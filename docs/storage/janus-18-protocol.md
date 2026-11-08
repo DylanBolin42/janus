@@ -8,7 +8,7 @@ UTF-8 JSON 对象包含以下必填字段：
 
 - `formatVersion`: 整数 `1`，用于演进快照格式。
 - `schemaVersion`: 当前数据库版本 `3`；当前不执行跨版本迁移，不匹配时拒绝导入。
-- `createdAt`: UTC ISO-8601 导出时间。
+- `createdAt`: 导出时为 UTC ISO-8601；导入必须包含 `Z` 或显式 UTC 偏移，解析后 `toUtc()` 归一化。无时区字符串拒收并提示，避免随设备本地时区改变含义。
 - `tasks`: 任务数组，每项包含 `id`, `status`, `title`, `description`, `ddl`, `estHour`, `estMinute`, `priority`, `tags`。
 - `tags`: 标签数组，每项包含 `id`, `name`。
 
@@ -16,7 +16,7 @@ UTF-8 JSON 对象包含以下必填字段：
 
 ## 文件与恢复操作
 
-导出在同一个读事务内获得任务和标签，写入应用文档目录 `janus_snapshots/janus_<UTC微秒时间戳>.json.tmp`，flush 后同目录 rename 为 `.json`。失败清理临时文件。数据库不被修改。
+导出在同一个读事务内获得任务和标签，写入应用文档目录 `janus_snapshots/janus_<UTC微秒时间戳>_<128位随机后缀>.json.tmp`，flush 后同目录 rename 为 `.json`。失败清理临时文件。数据库不被修改。
 
 “导入数据库”通过系统文件选择器选择任意提供方的 JSON；“应用内快照”列出该目录的 `.json` 文件。两种来源共用校验与确认流程。完整读取和验证后展示任务/标签数，用户确认才在一个事务中删除当前数据并插入快照。取消、读取失败、格式/版本/字段错误均不修改数据库；写入中途失败回滚全部删除与插入。Drift 通知已有查询流；本页操作后重新读取统计。设置保留，表结构保留。
 
@@ -26,16 +26,22 @@ UTF-8 JSON 对象包含以下必填字段：
 
 ## 文件来源与权限路径
 
-- **系统导入**：“导入数据库”调用 `file_picker` 的单文件 JSON 选择器，不要求用户把文件搬入应用目录。选择器抽象 `StorageFilePicker` 返回 `SnapshotSource`（大小、字节流、释放回调），`StorageTransfer` 完成只读校验后才把快照交给页面确认。取消显示取消提示；选中但不可读、提供方失败和权限拒绝显示错误，不写数据库。
+- **系统导入**：“导入数据库”调用系统单文件 JSON 选择器（移动端用有界原生桥接，桌面用 `file_picker`），不要求用户把文件搬入应用目录。选择器抽象 `StorageFilePicker` 返回 `SnapshotSource`（大小、字节流、释放回调），`StorageTransfer` 完成只读校验后才把快照交给页面确认。取消显示取消提示；选中但不可读、提供方失败和权限拒绝显示错误，不写数据库。
 - **应用内导入**：“应用内快照”列出应用文档目录 `janus_snapshots` 的 JSON，通过同一有界流读取与格式校验管线恢复。无需重新申请外部文件权限。
-- **Android**：插件原生代码用系统文档选择器取得临时 URI 授权，以 `ContentResolver.openInputStream(contentUri)` 复制到应用私有缓存，Dart 使用插件返回的读取流。应用不对 `content://` 调用 `File`，不把 URI 当绝对路径，不申请整个外部存储权限，也不保存需要续期的 URI。用完仅删除本次所选缓存文件（确认位于应用临时目录内）。
-- **iOS**：插件使用 `UIDocumentPickerModeImport`，系统先提供应用拥有的 Inbox 副本，插件移到临时目录。读取副本后释放；不保存原始提供方 URL，因此无需跨会话安全作用域书签。iCloud 文件下载/临时复制由系统和插件执行，失败返回错误。macOS 补齐 `com.apple.security.files.user-selected.read-write` entitlement，读写系统面板选择的文件。
+- **Android**：专用 `janus/storage_import` 原生通道使用 `ACTION_OPEN_DOCUMENT` 获取临时只读 URI 授权。先查 `OpenableColumns.SIZE`，已知超过 20 MiB 时不打开输入流、不创建缓存；元数据缺失/查询失败时，以 `ContentResolver.openInputStream` 按 8 KiB 块复制，并在累计超过 20 MiB 时立即停止、删除部分副本。Dart 只得到有界的私有缓存文件，不把 `content://` 当路径，不保存长期 URI 授权。
+- **iOS**：同一通道使用 `UIDocumentPickerModeOpen`，避免 Import 模式先完整复制。选中 URL 后启动安全作用域访问，先查 `.fileSizeKey`，再通过 `NSFileCoordinator` 协调提供方读取；已知过大即拒绝，元数据未知仍按 8 KiB 块复制并在 20 MiB 中断。成功/失败均关闭流、停止安全作用域访问；失败删除部分副本，成功读取后删除本次临时副本。没有跨会话访问原始 URL 的需要，因此不持久化书签。macOS 使用 `com.apple.security.files.user-selected.read-write` entitlement，桌面选择器继续用 file_picker。
 - **系统导出**：“导出数据库”先生成应用内恢复快照，然后用 `saveFile(bytes: ...)` 让用户选择名称/位置。Android 由插件通过 ContentResolver 写入目标 URI，iOS 由系统文档导出面板导出 staging 文件，桌面由插件写入选择的路径；应用不重新解释返回的标识符。取消会明确提示系统保存取消、应用内副本保留；失败也保留应用内副本。iOS staging 文件在返回后按精确文件名清理，绝不清空整个应用临时目录。
-- **大小与编码**：导入上限 20 MiB；先检查已知大小，再逐块累计，即使提供方大小未知或谎报也无法绕过。超限取消订阅并释放来源，UTF-8 解码/JSON 解析只在大小检查后进行。应用内导入同样受限。系统导出超过 20 MiB 时明确拒绝传递 bytes 并提示已保留本地快照。插件在原生层可能先完整复制/下载文件到缓存；此限制保证 Dart 内存读取有界，不能阻止提供方原生下载阶段的磁盘开销。复制失败、磁盘不足都不会进入数据库写事务。
+- **大小与编码**：导入上限 20 MiB；先检查已知大小，再逐块累计，即使提供方大小未知或谎报也无法绕过。超限取消订阅并释放来源，UTF-8 解码/JSON 解析只在大小检查后进行。应用内导入同样受限。导出编码结果超过 20 MiB 时，在写文件和清理旧快照前拒绝，已有副本保留。Android/iOS 的应用自有复制现在也有原生上限；但系统/云盘提供方在元数据查询、协调读取或打开流时可能自行下载/缓存整个云端文件，该提供方内部网络与磁盘开销无法由应用上限控制。复制失败、磁盘不足都不会进入数据库写事务。
+
+### 应用内快照保留与并发
+
+应用生成的 `janus_<时间戳>[_随机后缀].json` 最多 **10 份 / 合计 100 MiB**，同时满足两项上限。每次成功导出新副本后、返回之前，按文件修改时间从最旧开始删除，保护本次新文件。先写临时文件再发布，写入失败不会先删旧备份；清理失败会报操作错误，可下次导出重试。其他命名的外部 JSON 不自动删除，也不计入自动备份配额。删除记录、导入操作不会删除备份。页面导出/应用内快照入口说明自动清理策略。
+
+所有 StorageService 实例在应用 isolate 内共用串行队列，覆盖导出（包括保留清理）、读取本地快照、导入恢复与清空；数据库恢复仍是单事务，失败释放队列，不会阻塞后续操作。导出名称使用微秒时间戳加 128 位安全随机后缀，避免相同时间/并发命名碰撞。系统导出在释放队列前复制待保存 bytes，避免系统面板等待期间源副本被其他导出的保留策略清理。此队列不是跨进程分布式锁；应用当前以单 isolate 管理存储，未来多进程写入需增加文件锁/服务协调。
 
 ### 依赖选择
 
-新增 `file_picker: ^10.3.10`（锁定 10.3.10）。选择已有 Android SAF 缓存读取、iOS Import 副本及桌面保存面板的成熟跨平台实现，避免自行维护多套原生 URI/授权代码。上游项目持续维护（已有更新大版本）；本次选用兼容当前 iOS 13 工程的 10.x API，插件 podspec 最低 iOS 12，不提升部署目标。当前最新 13.x 的 Darwin 实现要求 iOS 14，因此未采用。
+新增 `file_picker: ^10.3.10`（锁定 10.3.10）。系统保存与桌面选择采用成熟的跨平台实现；为提前限制移动端复制体积，Android/iOS 导入改用小型原生桥接，保留 Dart 选择器抽象。上游项目持续维护（已有更新大版本）；本次选用兼容当前 iOS 13 工程的 10.x API，插件 podspec 最低 iOS 12，不提升部署目标。当前最新 13.x 的 Darwin 实现要求 iOS 14，因此未采用。
 
 包下载归档实测约 20 MiB（包含示例与媒体），解包约 22 MiB；lib/Android/iOS/macOS 源码目录合计约 400 KiB。它们都不是最终安装包增量。iOS 还包含 DKImagePickerController/DKPhotoGallery 等上游媒体依赖，即使本页面只选 JSON，也有 Pod 维护和体积成本；精确 APK/IPA 增量需要同配置原生 release 构建比较，本沙箱没有 Android SDK/Xcode，不虚报数字。锁文件新增 cross_file、dbus、flutter_plugin_android_lifecycle、petitparser、win32、xml 传递依赖，没有升级现有包。锁文件 Dart 下限变为 3.13，项目指定 Flutter 3.47.0 已自带 Dart 3.13，CI 配置无需修改。
 
@@ -45,7 +51,7 @@ UTF-8 JSON 对象包含以下必填字段：
 
 ## 真机待验
 
-- Android/iOS/桌面真实系统选择器的取消、授权拒绝和保存位置选择；Android Downloads/云盘 content URI、iOS Files/iCloud 的导入副本及临时授权；macOS 沙箱 entitlement。
+- Android/iOS/桌面真实系统选择器的取消、授权拒绝和保存位置选择；Android Downloads/云盘 content URI、iOS Files/iCloud 的安全作用域打开、元数据查询、有界副本与临时授权；macOS 沙箱 entitlement。
 - 导出到用户所选位置并从该位置重新导入；取消/写入失败仍保留应用内快照；重启后应用内快照列表仍存在，在不同设备恢复字段和时间一致。
 - 空快照、取消导入、损坏快照、数据库版本不匹配时提示与数据保留；确认导入后主页任务列表更新。
 - 清空后任务/标签为零，可继续创建，设置不变；真实 SQLite/WAL 文件大小显示。

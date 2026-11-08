@@ -32,9 +32,18 @@ abstract interface class StorageFilePicker {
 }
 
 class NativeStorageFilePicker implements StorageFilePicker {
-  NativeStorageFilePicker({FilePicker? platform})
-    : platform = platform ?? FilePicker.platform;
+  NativeStorageFilePicker({
+    FilePicker? platform,
+    MethodChannel? importChannel,
+    bool? useBoundedImport,
+  }) : platform = platform ?? FilePicker.platform,
+       importChannel =
+           importChannel ?? const MethodChannel('janus/storage_import'),
+       useBoundedImport =
+           useBoundedImport ?? (Platform.isAndroid || Platform.isIOS);
   final FilePicker platform;
+  final MethodChannel importChannel;
+  final bool useBoundedImport;
 
   Future<void> _cleanup(String? cachedPath) async {
     if (cachedPath == null || (!Platform.isAndroid && !Platform.isIOS)) return;
@@ -56,6 +65,9 @@ class NativeStorageFilePicker implements StorageFilePicker {
     try {
       return await action();
     } on PlatformException catch (error) {
+      if (error.code == 'too_large') {
+        throw const StorageFileException('快照超过 20 MiB，已停止读取并清理临时副本');
+      }
       final code = '${error.code} ${error.message}'.toLowerCase();
       if (code.contains('permission') ||
           code.contains('denied') ||
@@ -72,6 +84,29 @@ class NativeStorageFilePicker implements StorageFilePicker {
   Future<SnapshotSource?> pickJson() => _native(() async {
     String? cachedPath;
     try {
+      if (useBoundedImport) {
+        final selected = await importChannel.invokeMapMethod<String, dynamic>(
+          'pickJson',
+        );
+        if (selected == null) return null;
+        final path = selected['path'];
+        final size = selected['size'];
+        if (path is! String ||
+            !p.isAbsolute(path) ||
+            path.contains('://') ||
+            size is! int) {
+          throw const StorageFileException('系统未返回可读的临时副本');
+        }
+        cachedPath = path;
+        if (size > StorageService.maxSnapshotBytes) {
+          throw const StorageFileException('快照超过 20 MiB');
+        }
+        return SnapshotSource(
+          size: size,
+          open: File(path).openRead,
+          release: () => _cleanup(path),
+        );
+      }
       final result = await platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
@@ -162,13 +197,7 @@ class StorageTransfer {
 
   /// Keeps a local recovery snapshot even when the destination is cancelled.
   Future<String?> exportToPicker() async {
-    final file = await storage.exportSnapshot();
-    if (await file.length() > StorageService.maxSnapshotBytes) {
-      throw const StorageFileException('快照超过 20 MiB，已保留本地副本，无法通过系统选择器导出');
-    }
-    return picker.saveJson(
-      file.uri.pathSegments.last,
-      await file.readAsBytes(),
-    );
+    final snapshot = await storage.exportForTransfer();
+    return picker.saveJson(snapshot.name, snapshot.bytes);
   }
 }

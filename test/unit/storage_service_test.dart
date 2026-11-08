@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -142,4 +143,132 @@ void main() {
     );
     expect((await service.statistics()).tasks, 6);
   });
+  test(
+    'createdAt normalizes offsets to UTC and rejects timestamps without a zone',
+    () {
+      Map<String, dynamic> payload(String date) => {
+        'formatVersion': 1,
+        'schemaVersion': 3,
+        'createdAt': date,
+        'tasks': [],
+        'tags': [],
+      };
+      for (final date in [
+        '2026-11-08T03:00:00Z',
+        '2026-11-08T11:00:00+08:00',
+        '2026-11-07T21:30:00-05:30',
+      ]) {
+        final snapshot = StorageSnapshot.parse(jsonEncode(payload(date)), 3);
+        expect(snapshot.createdAt, DateTime.utc(2026, 11, 8, 3));
+        expect(snapshot.createdAt.isUtc, isTrue);
+      }
+      expect(
+        () => StorageSnapshot.parse(
+          jsonEncode(payload('2026-11-08T03:00:00')),
+          3,
+        ),
+        throwsA(
+          isA<FormatException>().having(
+            (e) => e.message,
+            'message',
+            contains('时区'),
+          ),
+        ),
+      );
+    },
+  );
+
+  test(
+    'simultaneous exports with identical timestamps have unique names and retain at most ten',
+    () async {
+      final fixed = StorageService(
+        db,
+        documents: () async => directory,
+        now: () => DateTime.utc(2026),
+      );
+      final outputs = await Future.wait(
+        List.generate(12, (_) => fixed.exportSnapshot()),
+      );
+      expect(outputs.map((f) => f.path).toSet(), hasLength(12));
+      expect(await fixed.snapshots(), hasLength(StorageService.maxSnapshots));
+      expect(await outputs.last.exists(), isTrue);
+      expect(
+        await (await fixed.snapshotDirectory())
+            .list()
+            .where((f) => f.path.endsWith('.tmp'))
+            .toList(),
+        isEmpty,
+      );
+    },
+  );
+
+  test(
+    'retention deletes oldest owned snapshots to satisfy total bytes, keeps unrelated files',
+    () async {
+      final dir = await service.snapshotDirectory();
+      final oldest = File('${dir.path}/janus_1.json');
+      final newer = File('${dir.path}/janus_2.json');
+      for (final file in [oldest, newer]) {
+        final handle = await file.open(mode: FileMode.write);
+        await handle.truncate(60 * 1024 * 1024);
+        await handle.close();
+      }
+      await oldest.setLastModified(DateTime.utc(2020));
+      await newer.setLastModified(DateTime.utc(2021));
+      final external = File('${dir.path}/external.json');
+      await external.writeAsString('external');
+      final fresh = await service.exportSnapshot();
+      expect(await oldest.exists(), isFalse);
+      expect(await newer.exists(), isTrue);
+      expect(await external.exists(), isTrue);
+      expect(await fresh.exists(), isTrue);
+      final owned = (await service.snapshots()).where(
+        (f) => f.path.contains('/janus_'),
+      );
+      var total = 0;
+      for (final file in owned) {
+        total += await file.length();
+      }
+      expect(total, lessThanOrEqualTo(StorageService.maxSnapshotTotalBytes));
+    },
+  );
+
+  test(
+    'separate service instances serialize export, clear and restore',
+    () async {
+      final snapshot = await service.readSnapshot(
+        await service.exportSnapshot(),
+      );
+      final entered = Completer<void>();
+      final gate = Completer<void>();
+      final slow = StorageService(
+        db,
+        documents: () async {
+          if (!entered.isCompleted) entered.complete();
+          await gate.future;
+          return directory;
+        },
+      );
+      final first = slow.exportForTransfer();
+      await entered.future;
+      var cleared = false;
+      final clear = service.clear().then((_) {
+        cleared = true;
+      });
+      final restore = service.restore(snapshot);
+      final second = service.exportForTransfer();
+      await Future<void>.delayed(Duration.zero);
+      expect(cleared, isFalse);
+      gate.complete();
+      final firstData =
+          jsonDecode(utf8.decode((await first).bytes)) as Map<String, dynamic>;
+      await clear;
+      await restore;
+      final secondData =
+          jsonDecode(utf8.decode((await second).bytes)) as Map<String, dynamic>;
+      expect(firstData['tasks'], hasLength(6));
+      expect(secondData['tasks'], hasLength(6));
+      expect((await service.statistics()).tasks, 6);
+    },
+  );
 }

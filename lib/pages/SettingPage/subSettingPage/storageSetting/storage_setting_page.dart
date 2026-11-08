@@ -246,13 +246,13 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                     title: Text('导出数据库'),
                     leading: Icon(MdiIcons.export),
                     trailing: Icon(Icons.navigate_next_rounded),
-                    description: Text('选择保存位置，并保留应用内快照'),
+                    description: Text('选择保存位置；本地最多 10 份 / 100 MiB，自动清理最旧副本'),
                     onPressed: _busy ? null : (_) => _export(),
                   ),
                   SettingsTile.navigation(
                     title: Text('应用内快照'),
                     leading: Icon(Icons.history),
-                    description: Text('从本应用保留的快照恢复'),
+                    description: Text('从本应用保留的快照恢复（导出时自动清理最旧副本）'),
                     onPressed: _busy ? null : (_) => _importLocal(),
                   ),
                   CustomAppSettingsTile(
