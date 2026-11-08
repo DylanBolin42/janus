@@ -66,6 +66,7 @@ dependencies:
   logger: ^2.7.0
   expandable_richtext: ^1.0.7
   m3e_dismissible: ^1.0.0
+  file_picker: ^10.3.10
 
 dev_dependencies:
   flutter_test:
