@@ -24,6 +24,6 @@ final inboxTasksProvider = StreamProvider<List<Task>>((ref) {
 });
 
 /// 回顾使用全部任务（包含完成和冻结），避免复用首页的未完成筛选。
-final insightTasksProvider = StreamProvider<List<Task>>((ref) {
+final insightTasksProvider = StreamProvider.autoDispose<List<Task>>((ref) {
   return ref.watch(taskDaoProvider).watchAllTasks();
 });

@@ -62,7 +62,6 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-    await tester.pumpAndSettle();
   });
 
   testWidgets('loading, error and retry are explicit', (tester) async {
@@ -117,10 +116,91 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.drag(find.byType(ListView), const Offset(0, -1800));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1800));
       await tester.pumpAndSettle();
       expect(find.text('暂无记录'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
+  testWidgets('2000 task rows build lazily and can scroll to the last task', (
+    tester,
+  ) async {
+    final day = DateTime.now();
+    final tasks = List.generate(
+      2000,
+      (i) => Task(
+        id: i,
+        title: 'large task $i',
+        ddl: day,
+        priority: 0,
+        status: i.isEven ? 1 : 0,
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          insightTasksProvider.overrideWith((ref) => Stream.value(tasks)),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: const Scaffold(body: InsightPage()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('本期到期 2000 项，冻结 0 项'), findsOneWidget);
+    expect(find.text('50%'), findsOneWidget);
+    expect(find.byKey(const ValueKey(1999)), findsNothing);
+    final scrollable = tester.state<ScrollableState>(find.byType(Scrollable));
+    // No frame-time assertion: CI speed is not a device performance budget.
+    // Lazy extent estimates converge as the viewport moves towards the end.
+    for (var i = 0; i < 10; i++) {
+      scrollable.position.jumpTo(scrollable.position.maxScrollExtent);
+      await tester.pumpAndSettle();
+      if (find.byKey(const ValueKey(1999)).evaluate().isNotEmpty) break;
+    }
+    expect(find.byKey(const ValueKey(1999)), findsOneWidget);
+    expect(find.byType(Card).evaluate().length, lessThan(50));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'leaving page releases the stream while ProviderScope remains alive',
+    (tester) async {
+      var cancellations = 0;
+      final controller = StreamController<List<Task>>.broadcast(
+        onCancel: () => cancellations++,
+      );
+      final visible = ValueNotifier(true);
+      addTearDown(visible.dispose);
+      addTearDown(controller.close);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            insightTasksProvider.overrideWith((ref) => controller.stream),
+          ],
+          child: MaterialApp(
+            home: Scaffold(
+              body: ValueListenableBuilder<bool>(
+                valueListenable: visible,
+                builder: (context, show, _) =>
+                    show ? const InsightPage() : const Text('another page'),
+              ),
+            ),
+          ),
+        ),
+      );
+      controller.add([]);
+      await tester.pumpAndSettle();
+      expect(controller.hasListener, isTrue);
+      visible.value = false;
+      await tester.pumpAndSettle();
+      await tester.pump();
+      expect(controller.hasListener, isFalse);
+      expect(cancellations, 1);
+      controller.addError(StateError('after disposal'));
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

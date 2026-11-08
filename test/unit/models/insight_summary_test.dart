@@ -64,4 +64,23 @@ void main() {
       expect(InsightPeriod.week.next(start, -1), DateTime(2026, 10, 26));
     },
   );
+  test(
+    '2000 current tasks aggregate correctly and old periods change with status',
+    () {
+      final source = List.generate(
+        2000,
+        (i) => task(i, start, status: i.isEven ? 1 : 0, minutes: 15),
+      );
+      final before = InsightSummary(source, start, end, DateTime(2027));
+      expect(before.completed, 1000);
+      expect(before.completionRate, .5);
+      expect(before.overdue, 1000);
+      expect(before.estimatedMinutes, 30000);
+      source[1] = source[1].copyWith(status: 1);
+      final after = InsightSummary(source, start, end, DateTime(2027));
+      expect(after.completed, 1001); // Past DDL group is a current snapshot.
+      expect(after.overdue, 999);
+      expect(before.completed, 1000); // Previously built value stays immutable.
+    },
+  );
 }
