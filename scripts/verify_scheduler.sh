@@ -16,7 +16,7 @@ cleanup() {
 trap cleanup EXIT
 
 fvm dart format --output=none --set-exit-if-changed \
-  lib/scheduling test/unit/scheduling
+  lib/scheduling test/unit/scheduling scripts/benchmark_scheduler.dart
 fvm flutter pub get
 fvm flutter test --no-pub --concurrency=4 2>&1 | tee "$result_dir/tests.log"
 
