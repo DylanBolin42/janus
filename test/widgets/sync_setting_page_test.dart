@@ -45,7 +45,9 @@ void main() {
     expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
   });
 
-  testWidgets('SyncSettingPage shows data usage tile', (tester) async {
+  testWidgets('SyncSettingPage shows truthful synchronization state', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 3000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -57,7 +59,9 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
-    expect(find.text('当前消耗流量：0.5GB'), findsOneWidget);
+    expect(find.text('当前消耗流量：0.5GB'), findsNothing);
+    expect(find.text('尚未同步'), findsOneWidget);
+    expect(find.text('上次同步：无记录'), findsOneWidget);
   });
 
   testWidgets('SyncSettingPage shows sync toggle', (tester) async {

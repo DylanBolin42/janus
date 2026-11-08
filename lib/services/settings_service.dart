@@ -27,6 +27,8 @@ class SettingsService {
   /// Persists [settings] to shared preferences.
   Future<void> save(AppSettings settings) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, jsonEncode(settings.toJson()));
+    if (!await prefs.setString(_key, jsonEncode(settings.toJson()))) {
+      throw StateError('Settings could not be persisted');
+    }
   }
 }
