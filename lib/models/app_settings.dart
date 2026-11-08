@@ -75,6 +75,14 @@ enum TabNamingStyle {
   professional,
 }
 
+extension TabNamingLabels on TabNamingStyle {
+  List<String> get tabLabels => switch (this) {
+    TabNamingStyle.classic => const ['收件箱', '任务', '专注', '洞察'],
+    TabNamingStyle.latin => const ['Inbox', 'Tasks', 'Focus', 'Insights'],
+    TabNamingStyle.professional => const ['待处理', '任务管理', '专注工作', '数据分析'],
+  };
+}
+
 /// Display label and icon for [AppThemeMode] in the settings UI.
 extension AppThemeModeLabel on AppThemeMode {
   String get label {
@@ -559,7 +567,13 @@ class TimeOfDayConverter implements JsonConverter<TimeOfDay, String> {
   @override
   TimeOfDay fromJson(String json) {
     final parts = json.split(':');
-    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    if (parts.length != 2) throw const FormatException('Invalid time');
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      throw const FormatException('Time out of range');
+    }
+    return TimeOfDay(hour: hour, minute: minute);
   }
 
   @override
@@ -568,6 +582,8 @@ class TimeOfDayConverter implements JsonConverter<TimeOfDay, String> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+enum FocusTimerMode { countdown, stopwatch, pomodoro }
+
 // Freezed model — AppSettings
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -591,7 +607,15 @@ abstract class AppSettings with _$AppSettings {
     @Default(ApproachingNotificationStyle.notifier)
     ApproachingNotificationStyle approachingNotificationStyle,
 
+    @TimeOfDayConverter()
+    @Default(TimeOfDay(hour: 8, minute: 0))
+    TimeOfDay morningBriefingTime,
+    @TimeOfDayConverter()
+    @Default(TimeOfDay(hour: 20, minute: 0))
+    TimeOfDay eveningBriefingTime,
+
     // Focus settings
+    @Default(FocusTimerMode.countdown) FocusTimerMode focusTimerMode,
     @Default(TempLeaveDuration.tenM) TempLeaveDuration tempLeaveDuration,
     @Default(TempLeaveTimes.twice) TempLeaveTimes tempLeaveTimes,
     @Default(FocusSceneRenderMode.rive)

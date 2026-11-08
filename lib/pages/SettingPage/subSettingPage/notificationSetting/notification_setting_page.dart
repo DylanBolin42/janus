@@ -34,6 +34,7 @@ class _NotificationSettingPageState
               tiles: [
                 SettingsTile(
                   title: Text('是否通知'),
+                  description: const Text('当前仅保存偏好，系统通知服务尚未接入'),
                   leading: Icon(Icons.notifications_rounded),
                   trailing: GlassSwitch(
                     value: settings.isNotificationEnabled,
@@ -110,16 +111,34 @@ class _NotificationSettingPageState
                   title: Text('早晨发送时间'),
                   trailing: CupertinoTimePickerButton(
                     use24hFormat: true,
-                  ), //TODO: 这里需要绑定时间
+                    initialTime: settings.morningBriefingTime,
+                    onCompleted: (time) {
+                      if (time != null) {
+                        ref
+                            .read(appSettingsProvider.notifier)
+                            .setMorningBriefingTime(time);
+                      }
+                    },
+                  ),
                 ),
                 SettingsTile(
                   title: Text('晚上发送时间'),
                   trailing: CupertinoTimePickerButton(
                     use24hFormat: true,
-                  ), //TODO: 这里需要绑定时间
+                    initialTime: settings.eveningBriefingTime,
+                    onCompleted: (time) {
+                      if (time != null) {
+                        ref
+                            .read(appSettingsProvider.notifier)
+                            .setEveningBriefingTime(time);
+                      }
+                    },
+                  ),
                 ),
               ],
             ),
+            // TODO(JANUS-15): 接入平台通知权限、调度及简报生成服务后消费上述配置。
+            // 当前仓库没有通知触发服务，保存配置不会产生系统通知。
             SettingsSection(
               tiles: [SettingsTile(title: Text('🚧开发中🚧'))],
               title: Text('通知音效', style: tt.titleMedium),

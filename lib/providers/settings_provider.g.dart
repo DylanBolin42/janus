@@ -93,7 +93,7 @@ final class AppSettingsNotifierProvider
 }
 
 String _$appSettingsNotifierHash() =>
-    r'aee37325e7e6bc8c8596c178399903c982d2d0d6';
+    r'7006818c99f115dfac110bbe952f9b1fcf479a73';
 
 /// Async notifier that loads, exposes, and persists [AppSettings].
 ///
