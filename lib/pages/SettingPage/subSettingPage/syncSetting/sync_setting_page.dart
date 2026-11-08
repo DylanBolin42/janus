@@ -7,7 +7,9 @@ import 'package:janus/shared/custom_app_settings_tile.dart';
 import 'package:janus/shared/custom_appbar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:janus/shared/flex_setting_section.dart';
-import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
+import 'package:janus/providers/sync_provider.dart';
+import 'package:janus/services/sync/sync_backend.dart';
+import 'package:janus/services/sync/sync_service.dart';
 
 class SyncSettingPage extends ConsumerStatefulWidget {
   const SyncSettingPage({super.key});
@@ -22,7 +24,142 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _syncToController = TextEditingController();
-  final _encryptPasswordController = TextEditingController();
+  bool _loading = true;
+  bool _saving = false;
+  bool _hasConfig = false;
+  String? _configError;
+  late final SyncService _sync;
+
+  @override
+  void initState() {
+    super.initState();
+    _sync = ref.read(syncServiceProvider)..addListener(_changed);
+    _load();
+  }
+
+  void _changed() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _load() async {
+    try {
+      final config = await ref.read(syncCredentialsProvider).load();
+      if (!mounted) return;
+      if (config != null) {
+        config.directory;
+        _hasConfig = true;
+        _webdavUrlController.text = config.url;
+        _usernameController.text = config.username;
+        _passwordController.text = config.password;
+        _syncToController.text = config.filename;
+      } else {
+        _syncToController.text = 'janus.json';
+      }
+    } catch (_) {
+      if (mounted) _configError = '无法读取安全配置；安全存储目前仅支持 Android / iOS';
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+    await _sync.refresh();
+  }
+
+  SyncConfig get _config => SyncConfig(
+    _webdavUrlController.text.trim(),
+    _usernameController.text,
+    _passwordController.text,
+    _syncToController.text.trim(),
+  );
+
+  Future<void> _save() async {
+    setState(() {
+      _saving = true;
+      _configError = null;
+    });
+    try {
+      await ref.read(syncCredentialsProvider).save(_config);
+      if (mounted) {
+        setState(() {
+          _hasConfig = true;
+          _configError = '配置已安全保存，尚未验证连接';
+        });
+      }
+    } on SyncFailure catch (error) {
+      if (mounted) setState(() => _configError = error.message);
+    } catch (_) {
+      if (mounted) setState(() => _configError = '安全保存失败；请在 Android / iOS 上重试');
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _toggle(bool enabled) async {
+    if (_loading || _saving || _sync.busy) return;
+    setState(() {
+      _saving = true;
+      _configError = null;
+    });
+    try {
+      if (enabled) {
+        await _sync.run(SyncAction.check, _config);
+        if (!mounted || _sync.phase != SyncPhase.success) return;
+        await ref.read(syncCredentialsProvider).save(_config);
+        if (!mounted) return;
+        setState(() => _hasConfig = true);
+      }
+      if (!mounted) return;
+      await ref.read(appSettingsProvider.notifier).setSyncEnabled(enabled);
+    } catch (_) {
+      if (mounted) setState(() => _configError = '配置或启用状态保存失败，请重试');
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _run(SyncAction action) async {
+    if (_loading || _saving || _sync.busy) return;
+    if (action != SyncAction.check) {
+      late AppSettings settings;
+      try {
+        settings = await ref.read(appSettingsProvider.future);
+      } catch (_) {
+        if (mounted) setState(() => _configError = '无法读取同步设置，请重新进入页面后重试');
+        return;
+      }
+      if (!mounted) return;
+      if (!settings.syncEnabled || !_hasConfig) {
+        setState(() => _configError = '请先开启手动同步');
+        return;
+      }
+      final accepted = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(action == SyncAction.download ? '替换本地数据？' : '替换远端快照？'),
+          content: Text(
+            action == SyncAction.download
+                ? '下载会完整替换本地任务、标签与通用设置，无法合并。请先备份当前数据。'
+                : '上传会覆盖同名远端快照，不会合并其他设备的数据。',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('确认替换'),
+            ),
+          ],
+        ),
+      );
+      if (accepted != true || !mounted) return;
+    }
+    await _sync.run(action, _config);
+    if (mounted &&
+        action == SyncAction.download &&
+        _sync.phase == SyncPhase.success) {
+      ref.invalidate(appSettingsProvider);
+    }
+  }
 
   @override
   void dispose() {
@@ -30,7 +167,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
     _usernameController.dispose();
     _passwordController.dispose();
     _syncToController.dispose();
-    _encryptPasswordController.dispose();
+    _sync.removeListener(_changed);
     super.dispose();
   }
 
@@ -39,329 +176,186 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
     final settings =
         ref.watch(appSettingsProvider).value ?? const AppSettings();
     final tt = Theme.of(context).textTheme;
-    return GlassScaffold(
-      topEdgeFade: false,
-      appBar: const CustomAppbar(title: '同步', showBack: true),
-      body: CustomAppbar.wrapBody(
-        context,
-        SettingsList(
-          sections: [
-            SettingsSection(
-              tiles: [
-                CustomAppSettingsTile(
-                  child: Row(
-                    children: [
-                      Icon(Icons.update_rounded),
-                      Spacer(),
-                      Text('当前消耗流量：0.5GB'),
-                    ],
-                  ),
-                ),
-                InteractiveTile(
-                  title: Text('是否同步'),
-                  leading: Icon(Icons.upload_rounded),
-                  trailing: GlassSwitch(
-                    value: settings.syncEnabled,
-                    onChanged: (val) {
-                      ref
-                          .read(appSettingsProvider.notifier)
-                          .setSyncEnabled(val);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SettingsSection(
-              title: Text('同步设置', style: tt.titleMedium),
-              tiles: [
-                InteractiveTile(
-                  title: Text('WEBDAV地址'),
-                  trailing: SizedBox(
-                    width: 200,
-                    child: GlassTextField(
-                      controller: _webdavUrlController,
-                      shape: LiquidRoundedSuperellipse(borderRadius: 64),
-                    ),
-                  ),
-                ),
-                InteractiveTile(
-                  title: Text('用户名'),
-                  trailing: SizedBox(
-                    width: 200,
-                    child: GlassTextField(
-                      controller: _usernameController,
-                      shape: LiquidRoundedSuperellipse(borderRadius: 64),
-                    ),
-                  ),
-                ),
-                InteractiveTile(
-                  title: Text('密码'),
-                  trailing: SizedBox(
-                    width: 200,
-                    child: GlassTextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      shape: LiquidRoundedSuperellipse(borderRadius: 64),
-                    ),
-                  ),
-                ),
-                InteractiveTile(
-                  title: Text('同步至'),
-                  trailing: SizedBox(
-                    width: 200,
-                    child: GlassTextField(
-                      controller: _syncToController,
-                      shape: LiquidRoundedSuperellipse(borderRadius: 64),
-                    ),
-                  ),
-                ),
-                InteractiveTile(
-                  title: Text('同步模式'),
-                  trailing: Builder(
-                    builder: (ctx) => GlassPullDownButton(
-                      label: settings.syncMode.label,
-                      buttonWidth: 120,
-                      buttonShape: const LiquidRoundedRectangle(
-                        borderRadius: 64,
-                      ),
-                      items: SyncMode.values.map((mode) {
-                        final isSelected = settings.syncMode == mode;
-                        return GlassMenuItem(
-                          title: mode.label,
-                          icon: Icon(
-                            isSelected ? Icons.check_rounded : null,
-                            size: 20,
+    return Scaffold(
+      body: GlassScaffold(
+        topEdgeFade: false,
+        appBar: const CustomAppbar(title: '同步', showBack: true),
+        body: CustomAppbar.wrapBody(
+          context,
+          RefreshIndicator(
+            onRefresh: _sync.refresh,
+            child: SettingsList(
+              physics: const AlwaysScrollableScrollPhysics(),
+              sections: [
+                SettingsSection(
+                  tiles: [
+                    CustomAppSettingsTile(
+                      child: Row(
+                        children: [
+                          Icon(Icons.update_rounded),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(_sync.message),
+                                Text(
+                                  _sync.lastSync == null
+                                      ? '上次同步：无记录'
+                                      : '上次同步：${_sync.lastSync!.toLocal()}',
+                                ),
+                                if (_sync.busy) const LinearProgressIndicator(),
+                                if (_configError != null) Text(_configError!),
+                                if (_sync.phase == SyncPhase.failed &&
+                                    _sync.lastAction != null)
+                                  TextButton(
+                                    onPressed: () => _run(_sync.lastAction!),
+                                    child: const Text('重试'),
+                                  ),
+                              ],
+                            ),
                           ),
-                          isSelected: isSelected,
-                          onTap: () {
-                            ref
-                                .read(appSettingsProvider.notifier)
-                                .setSyncMode(mode);
-                          },
-                        );
-                      }).toList(),
+                        ],
+                      ),
                     ),
-                  ),
+                    InteractiveTile(
+                      title: Text('是否同步'),
+                      description: const Text('启用手动同步；不会自动调度或合并'),
+                      leading: Icon(Icons.upload_rounded),
+                      trailing: GlassSwitch(
+                        value: !_loading && _hasConfig && settings.syncEnabled,
+                        onChanged: _toggle,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            FlexSettingSection(
-              title: Text('手动操作', style: tt.titleMedium),
-              tiles: [
-                FlexRow(
-                  children: [
-                    FlexTile(
-                      child: Center(
-                        child: Text(
-                          '手动上传',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                SettingsSection(
+                  title: Text('同步设置', style: tt.titleMedium),
+                  tiles: [
+                    InteractiveTile(
+                      title: Text('WEBDAV地址'),
+                      trailing: SizedBox(
+                        width: 200,
+                        child: GlassTextField(
+                          controller: _webdavUrlController,
+                          enabled: !_loading && !_saving && !_sync.busy,
+                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
                         ),
                       ),
                     ),
+                    InteractiveTile(
+                      title: Text('用户名'),
+                      trailing: SizedBox(
+                        width: 200,
+                        child: GlassTextField(
+                          controller: _usernameController,
+                          enabled: !_loading && !_saving && !_sync.busy,
+                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                        ),
+                      ),
+                    ),
+                    InteractiveTile(
+                      title: Text('密码'),
+                      trailing: SizedBox(
+                        width: 200,
+                        child: GlassTextField(
+                          controller: _passwordController,
+                          enabled: !_loading && !_saving && !_sync.busy,
+                          obscureText: true,
+                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                        ),
+                      ),
+                    ),
+                    InteractiveTile(
+                      title: Text('同步至'),
+                      trailing: SizedBox(
+                        width: 200,
+                        child: GlassTextField(
+                          controller: _syncToController,
+                          enabled: !_loading && !_saving && !_sync.busy,
+                          shape: LiquidRoundedSuperellipse(borderRadius: 64),
+                        ),
+                      ),
+                    ),
+                    InteractiveTile(
+                      title: const Text('同步模式'),
+                      description: const Text(
+                        '全量快照替换；自动合并尚未实现。同步至填写 .json 文件名，目录必须已存在。',
+                      ),
+                    ),
+                    InteractiveTile(
+                      title: const Text('保存配置'),
+                      description: const Text(
+                        'Android Keystore / iOS Keychain；不会保存到普通偏好设置',
+                      ),
+                      enabled: !_loading && !_saving && !_sync.busy,
+                      onPressed: (_) => _save(),
+                    ),
+                  ],
+                ),
+                FlexSettingSection(
+                  title: Text('手动操作', style: tt.titleMedium),
+                  tiles: [
+                    FlexRow(
+                      children: [
+                        FlexTile(
+                          enabled: !_loading && !_saving && !_sync.busy,
+                          onTap: (_) => _run(SyncAction.upload),
+                          child: Center(
+                            child: Text(
+                              '手动上传',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        FlexTile(
+                          enabled: !_loading && !_saving && !_sync.busy,
+                          onTap: (_) => _run(SyncAction.download),
+                          child: Center(
+                            child: Text(
+                              '手动下载',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     FlexTile(
+                      enabled: !_loading && !_saving && !_sync.busy,
+                      onTap: (_) => _run(SyncAction.check),
                       child: Center(
                         child: Text(
-                          '手动下载',
+                          '连通性检查',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
                   ],
                 ),
-                FlexTile(
-                  child: Center(
-                    child: Text(
-                      '连通性检查',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                SettingsSection(
+                  title: Text('同步行为', style: tt.titleMedium),
+                  tiles: [
+                    InteractiveTile(
+                      title: const Text('仅手动触发'),
+                      description: const Text('定时、间隔及修改后自动同步尚未实现。下拉刷新上次同步时间。'),
                     ),
-                  ),
+                  ],
+                ),
+                SettingsSection(
+                  title: Text('安全', style: tt.titleMedium),
+                  tiles: [
+                    InteractiveTile(
+                      leading: const Icon(Icons.security_rounded),
+                      title: const Text('安全性说明'),
+                      description: const Text(
+                        '仅支持 HTTPS 与有效证书。远端 JSON 为明文快照；RSA 数据加密与应用锁尚未实现，不会显示为已启用。请使用可信服务器。桌面端和 Web 的安全存储暂不支持。',
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            SettingsSection(
-              title: Text('同步行为', style: tt.titleMedium),
-              tiles: [
-                InteractiveTile(
-                  title: Text('触发间隔'),
-                  trailing: Builder(
-                    builder: (ctx) => GlassPullDownButton(
-                      icon: Icon(settings.syncTrigger.icon),
-                      label: settings.syncTrigger.label,
-                      buttonWidth: 120,
-                      buttonShape: const LiquidRoundedRectangle(
-                        borderRadius: 64,
-                      ),
-                      items: SyncTrigger.values.map((trigger) {
-                        final isSelected = settings.syncTrigger == trigger;
-                        return GlassMenuItem(
-                          title: trigger.label,
-                          icon: Icon(
-                            isSelected ? Icons.check_rounded : trigger.icon,
-                            size: 20,
-                          ),
-                          isSelected: isSelected,
-                          onTap: () {
-                            ref
-                                .read(appSettingsProvider.notifier)
-                                .setSyncTrigger(trigger);
-                          },
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-                switch (settings.syncTrigger) {
-                  SyncTrigger.onChanged => InteractiveTile(
-                    leading: Icon(Icons.save_rounded),
-                    title: Text('自动保存'),
-                    description: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: 'Janus会在新增、修改、删除任务时触发同步，'),
-                          TextSpan(
-                            text: '不建议有上传次数限额的用户使用该模式',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  SyncTrigger.onInterval => InteractiveTile(
-                    leading: Icon(Icons.more_time_rounded),
-                    title: Text('间隔时长'),
-                    description: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: 'Janus将会在特定时长后触发同步（无数据变化则不进行同步操作），'),
-                          TextSpan(
-                            text: '建议酌情设定间隔时长',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                    trailing: CupertinoTimePickerButton(
-                      initialTime: TimeOfDay.fromDateTime(
-                        DateTime(
-                          DateTime.now().year,
-                          DateTime.now().month,
-                          DateTime.now()
-                              .day, //INFO: Wasted data, won't be stored into the [DataBase] or [SharedPreference]. Only to meet the need of a [DateTime] type data.
-                          //WARNING: Unsure whether it will cause vulnerability.
-                        ).add(settings.syncDurationOnInterval),
-                      ),
-                      onCompleted: (timeOfDay) {
-                        if (timeOfDay == null) return;
-                        ref
-                            .read(appSettingsProvider.notifier)
-                            .setSyncDurationOnInterval(
-                              Duration(
-                                hours: timeOfDay.hour,
-                                minutes: timeOfDay.minute,
-                              ),
-                            );
-                      },
-                    ),
-                  ),
-
-                  SyncTrigger.onTime => InteractiveTile(
-                    leading: Icon(Icons.av_timer_rounded),
-                    title: Text('上传时间点'),
-                    description: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: 'Janus将在特定时间点触发同步（无数据变化则不进行同步操作），'),
-                          TextSpan(
-                            text: '可能会导致多端数据不同步，不建议日程不规律的用户使用该模式',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                },
-              ],
-            ),
-            SettingsSection(
-              title: Text('安全', style: tt.titleMedium),
-              tiles: [
-                InteractiveTile(
-                  leading: Icon(Icons.security_rounded),
-                  title: Text('安全性说明'),
-                  description: Text(
-                    '虽然数据传输过程中信息将会根据传输协议加密，但如不开启数据加密，云端WEBDAV服务器中用户数据将以明文存储，若云端WEBDAV服务器发生数据泄露，将无法保证用户个人信息的安全性。',
-                  ),
-                ),
-                InteractiveTile(
-                  title: Text('加密算法'),
-                  description: Text(
-                    '更长的密钥长度会带来更高安全性，但是编解码速度相应也会减慢。一般使用RSA-2048即可',
-                  ),
-                  trailing: Builder(
-                    builder: (ctx) => GlassPullDownButton(
-                      icon: null,
-                      label: settings.rsaType.label,
-                      buttonWidth: 170,
-                      buttonShape: const LiquidRoundedRectangle(
-                        borderRadius: 64,
-                      ),
-                      items: RsaType.values.map((type) {
-                        final isSelected = settings.rsaType == type;
-                        return GlassMenuItem(
-                          title: type.label,
-                          icon: Icon(
-                            isSelected ? Icons.check_rounded : null,
-                            size: 20,
-                          ),
-                          isSelected: isSelected,
-                          onTap: () {
-                            ref
-                                .read(appSettingsProvider.notifier)
-                                .setRsaType(type);
-                          },
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-                InteractiveTile(
-                  title: Text('密码'),
-                  description: Text.rich(
-                    TextSpan(
-                      //TODO: 将颜色设为和其他一致
-                      children: [
-                        const TextSpan(text: '建议设置8-16位混合密码以提高安全性。'),
-                        const TextSpan(
-                          text: '一旦设定将无法找回，请务必妥善保管！',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                  trailing: SizedBox(
-                    width: 200,
-                    child: GlassTextField(
-                      controller: _encryptPasswordController,
-                      obscureText: true,
-                      shape: LiquidRoundedSuperellipse(borderRadius: 64),
-                    ),
-                  ),
-                ),
-                InteractiveTile(
-                  title: Text('应用锁'),
-                  trailing: GlassSwitch(
-                    value: settings.useAppLock,
-                    onChanged: (status) {
-                      ref
-                          .read(appSettingsProvider.notifier)
-                          .setUseAppLock(status);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
