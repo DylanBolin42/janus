@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
+import 'package:janus/providers/notification_provider.dart';
 import 'package:janus/shared/custom_appbar.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:cupertino_calendar_picker/cupertino_calendar_picker.dart';
@@ -21,6 +22,7 @@ class _NotificationSettingPageState
   Widget build(BuildContext context) {
     final settings =
         ref.watch(appSettingsProvider).value ?? const AppSettings();
+    final notificationStatus = ref.watch(notificationSyncProvider);
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
@@ -34,10 +36,45 @@ class _NotificationSettingPageState
               tiles: [
                 SettingsTile(
                   title: Text('是否通知'),
+                  description: Text(
+                    !settings.isNotificationEnabled
+                        ? '通知已关闭'
+                        : notificationStatus.when(
+                            data: (allowed) => allowed
+                                ? '已获系统授权；实际投递受系统限制'
+                                : '未获系统通知授权或当前平台不支持',
+                            loading: () => '正在检查系统通知权限…',
+                            error: (_, _) => '通知调度失败，请重试或检查系统设置',
+                          ),
+                  ),
                   leading: Icon(Icons.notifications_rounded),
                   trailing: GlassSwitch(
                     value: settings.isNotificationEnabled,
-                    onChanged: (status) {
+                    onChanged: (status) async {
+                      if (status) {
+                        try {
+                          final allowed = await ref
+                              .read(notificationServiceProvider)
+                              .platform
+                              .permission(request: true);
+                          if (!context.mounted) return;
+                          if (!allowed) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('未获通知权限，请在系统设置中允许通知'),
+                              ),
+                            );
+                            return;
+                          }
+                        } catch (_) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('无法启用通知，请稍后重试')),
+                          );
+                          return;
+                        }
+                      }
+                      if (!context.mounted) return;
                       ref
                           .read(appSettingsProvider.notifier)
                           .setNotificationEnabled(status);
@@ -47,7 +84,7 @@ class _NotificationSettingPageState
               ],
             ),
             SettingsSection(
-              title: Text('通知强度', style: tt.titleMedium),
+              title: Text('通知强度（全屏选项暂按横幅投递）', style: tt.titleMedium),
               tiles: [
                 SettingsTile(
                   title: Text('紧迫通知方式'),
