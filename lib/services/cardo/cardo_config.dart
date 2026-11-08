@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
+import 'package:path/path.dart' as paths;
+import 'package:path_provider/path_provider.dart';
 
 /// Immutable, validated snapshot. No caller can mutate a running batch's policy.
 class CardoConfig {
@@ -80,6 +82,37 @@ Map<String, dynamic> _defaults(int version) => {
 /// Whole-snapshot replacement; errors never change the effective configuration.
 /// Loads are serialized, including read failures and missing-file fallback.
 class CardoConfigService {
+  static const configName = 'cardo-config.json';
+  final Future<Directory> Function() _directory;
+
+  /// Directory injection is for isolated tests/host integration, never user input.
+  CardoConfigService({Future<Directory> Function()? configDirectory})
+    : _directory = configDirectory ?? getApplicationSupportDirectory;
+
+  Future<File> _configFile(String name) async {
+    if (name != configName) throw const FormatException('invalid_config_name');
+    final root = await _directory();
+    final absolute = paths.normalize(root.absolute.path);
+    // Reject a symlink in any existing directory component, including ancestors.
+    var component = absolute;
+    while (true) {
+      if (await FileSystemEntity.type(component, followLinks: false) ==
+          FileSystemEntityType.link) {
+        throw const FormatException('symlink_rejected');
+      }
+      final parent = paths.dirname(component);
+      if (parent == component) break;
+      component = parent;
+    }
+    final file = File(paths.join(absolute, configName));
+    final type = await FileSystemEntity.type(file.path, followLinks: false);
+    if (type != FileSystemEntityType.notFound &&
+        type != FileSystemEntityType.file) {
+      throw const FormatException('non_regular_config_rejected');
+    }
+    return file;
+  }
+
   CardoConfig get current => _current;
   late CardoConfig _current = CardoConfig._(
     _defaults(1),
@@ -143,6 +176,7 @@ class CardoConfigService {
   bool replaceJson(String text, {String source = 'injected'}) {
     ++_requestGeneration;
     lastAttemptAt = DateTime.now().toUtc();
+    source = source == 'builtin' ? 'builtin' : 'injected';
     attemptedSource = source;
     try {
       final (data, warnings) = _parseCandidate(text);
@@ -179,16 +213,16 @@ class CardoConfigService {
     final next = _queue.then((_) async {
       if (generation != _requestGeneration || _disposed) return;
       lastAttemptAt = DateTime.now().toUtc();
-      attemptedSource = path;
+      attemptedSource = configName;
       try {
-        final file = File(path);
+        final file = await _configFile(path);
         final exists = await file.exists();
         if (generation != _requestGeneration || _disposed) return;
         if (!exists) {
           if (current.source != 'builtin') replaceJson('{}', source: 'builtin');
           _lastText = null;
           _lastPath = null;
-          attemptedSource = path;
+          attemptedSource = configName;
           lastStatus = 'fallback';
           lastError = 'file_missing';
           return;
@@ -204,20 +238,22 @@ class CardoConfigService {
         final text = utf8.decode(bytes);
         if (text == _lastText &&
             path == _lastPath &&
-            current.source == file.absolute.path &&
+            current.source == configName &&
             lastStatus != 'rejected') {
           return;
         }
         final (data, warnings) = await _parseOffThread(text);
         if (generation != _requestGeneration || _disposed) return;
-        attemptedSource = file.absolute.path;
-        _publish(data, warnings, file.absolute.path);
+        attemptedSource = configName;
+        _publish(data, warnings, configName);
         _lastText = text;
         _lastPath = path;
       } catch (error) {
         if (generation != _requestGeneration || _disposed) return;
         lastStatus = 'rejected';
-        lastError = error.toString();
+        lastError = error is FormatException
+            ? 'invalid_configuration_or_path'
+            : 'configuration_read_failed';
       }
     });
     _queue = next;

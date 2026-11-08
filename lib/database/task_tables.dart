@@ -44,3 +44,18 @@ class Tasks extends Table {
   IntColumn get priority => integer().withDefault(const Constant(0))();
   TextColumn get tags => text().map(const TagConverter()).nullable()();
 }
+
+/// Shared lifecycle whitelist used by every status-writing entry point.
+class TaskLifecycle {
+  static const transitions = <int, Set<int>>{
+    0: {1, 2, -1},
+    2: {0, 1, -1},
+    -1: {0, 2},
+    1: {0},
+  };
+  static void requireTransition(int from, int to) {
+    if (!(transitions[from]?.contains(to) ?? false)) {
+      throw StateError('Illegal task transition: $from -> $to');
+    }
+  }
+}

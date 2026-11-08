@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:path/path.dart' as path_util;
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../services/cardo/cardo_config.dart';
 
 /// Current policy and last load result are separate, so a rejected file never
@@ -15,11 +13,6 @@ class CardoConfigDialog extends StatefulWidget {
 }
 
 class _CardoConfigDialogState extends State<CardoConfigDialog> {
-  late final TextEditingController path = TextEditingController(
-    text: widget.service.attemptedSource == 'builtin'
-        ? ''
-        : widget.service.attemptedSource,
-  );
   bool busy = false;
   Timer? refreshTimer;
   @override
@@ -33,17 +26,12 @@ class _CardoConfigDialogState extends State<CardoConfigDialog> {
   @override
   void dispose() {
     refreshTimer?.cancel();
-    path.dispose();
     super.dispose();
   }
 
   Future<void> reload() async {
-    if (path.text.trim().isEmpty) return;
     setState(() => busy = true);
-    final selected = path_util.absolute(path.text.trim());
-    path.text = selected;
-    await SharedPreferencesAsync().setString('cardo.configPath', selected);
-    await widget.service.watchFile(selected);
+    await widget.service.watchFile(CardoConfigService.configName);
     if (mounted) setState(() => busy = false);
   }
 
@@ -64,13 +52,7 @@ class _CardoConfigDialogState extends State<CardoConfigDialog> {
               Text('生效来源：${c.source}\n加载时间：${c.loadedAt.toIso8601String()}'),
               Text('有效权重：${s.diagnostics.effectiveWeights}'),
               const SizedBox(height: 16),
-              TextField(
-                controller: path,
-                decoration: const InputDecoration(
-                  labelText: '配置文件绝对路径',
-                  helperText: '文件缺失恢复默认；格式错误保留当前配置',
-                ),
-              ),
+              const Text('应用私有目录中的 cardo-config.json；文件缺失恢复默认，格式错误保留当前配置'),
               const SizedBox(height: 16),
               Text(
                 '最近尝试：${s.lastAttemptAt?.toIso8601String() ?? "无"}\n${s.attemptedSource ?? ""}\n${s.lastStatus}\n${s.lastError ?? ""}',

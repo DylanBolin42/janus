@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:janus/database/app_database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -33,13 +32,7 @@ final inboxTasksProvider = StreamProvider<List<Task>>((ref) {
 final cardoConfigProvider = Provider<CardoConfigService>((ref) {
   final service = CardoConfigService();
   ref.onDispose(service.dispose);
-  unawaited(
-    SharedPreferencesAsync().getString('cardo.configPath').then((path) async {
-      if (path != null && service.attemptedSource == null) {
-        await service.watchFile(path);
-      }
-    }),
-  );
+  unawaited(service.watchFile(CardoConfigService.configName));
   return service;
 });
 final cardoScoringProvider = Provider<CardoScoringService>(

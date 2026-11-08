@@ -19,6 +19,7 @@ class TaskEvents extends Table {
   IntColumn get taskId =>
       integer().references(Tasks, #id, onDelete: KeyAction.cascade)();
   TextColumn get kind => text()();
+  TextColumn get idempotencyKey => text().nullable()();
   DateTimeColumn get occurredAt => dateTime()();
   IntColumn get minutes => integer().nullable()();
   IntColumn get estimatedMinutes => integer().nullable()();

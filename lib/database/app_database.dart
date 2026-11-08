@@ -21,11 +21,14 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) => m.createAll(),
+    onCreate: (m) async {
+      await m.createAll();
+      await _createCardoIndexes();
+    },
     beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
@@ -50,8 +53,23 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(taskEvents);
         await m.createTable(taskContexts);
       }
+      if (from >= 4 && from < 5) {
+        await m.addColumn(taskEvents, taskEvents.idempotencyKey);
+      }
+      await _createCardoIndexes();
     },
   );
+
+  Future<void> _createCardoIndexes() async {
+    for (final sql in [
+      'CREATE UNIQUE INDEX IF NOT EXISTS task_event_idempotency ON task_events(task_id, idempotency_key)',
+      'CREATE INDEX IF NOT EXISTS task_event_history ON task_events(task_id, id, kind)',
+      'CREATE INDEX IF NOT EXISTS task_event_kind ON task_events(kind)',
+      'CREATE INDEX IF NOT EXISTS dependency_successor ON task_dependencies(successor, predecessor)',
+    ]) {
+      await customStatement(sql);
+    }
+  }
 }
 
 @DriftAccessor(
@@ -149,6 +167,9 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
         tasks,
       )..where((t) => t.id.equals(id))).getSingleOrNull();
       if (old == null) return 0;
+      if (status.present && status.value != old.status) {
+        TaskLifecycle.requireTransition(old.status, status.value);
+      }
       if (status.present && status.value == 1 && old.status != 1) {
         final dependencies = await (select(
           taskDependencies,

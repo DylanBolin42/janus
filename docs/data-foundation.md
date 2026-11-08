@@ -1,12 +1,12 @@
 # JANUS-63：Cardo 数据底座与唯一评分入口
 
-本实现以 [priority-algorithm.md](priority-algorithm.md)（#181，8125708）为基线。
+本实现以 [priority-algorithm.md](priority-algorithm.md)（已通过 #181 合入 main，`167844f`）为基线。
 `CardoScoringService.calculate` / `calculateBatch` 是唯一公式入口；调用方传入
 `CardoInput`、同批 `now` 和可注入的 `CardoConfigService`。输出 `score`、`level`、
 `scoringVersion`、`configRevision`、贡献、原因和警告。批次按未舍入分数、DDL、id 排序。
 不把算法等级写回手动 priority，不自动执行或抢占专注任务。
 
-## Schema v4 与升级
+## Schema v5 与升级
 
 - `tasks.createdAt/startedAt/completedAt` 可空。新建记录 UTC 创建瞬时；首次 `start`
   设置 startedAt；完成设置 completedAt，撤销完成清空 completedAt，但事件留存。
@@ -15,25 +15,30 @@
   EST 的单位固定为 `estHour * 60 + estMinute` **分钟**：hour 是时长小时，minute
   是 0–59 的余数，绝不是钟表时刻。现有 TimeOfDay 表单只能录入 0–23 小时，
   数据层可读取更长的非负小时；非法/不完整 EST 视为未知。
-- `CardoDataService.addUsedTime(id, minutes)` 每次显式提交正整数分钟，事务内累加
+- `CardoDataService.addUsedTime(id, minutes, idempotencyKey: key)` 每次显式提交正整数分钟，事务内累加
   usedTime 并写 `time_logged` 事件和当时 EST。首次观测前为 null；完成操作**不**把
   EST 或 startedAt 到当前的墙钟时间当作实际投入。完成/撤销不清零 usedTime。
   选择累计加事件方案：支持人工或专注模块提交有效分钟，不必先实现完整计时器，
-  同时保留审计与估计快照。调用方须对同一观测只提交一次；API 非幂等。
+  同时保留审计与估计快照。调用方为同一观测生成并持久保存 1–128 字符的幂等键，重试复用该键；
+  `(task_id,idempotency_key)` 唯一索引保证同键同分钟仅累计一次（含完成后的重试），
+  同键不同分钟显式返错。事务先插入事件以取得写锁，再读取/更新累计值；
+  不同连接并发重试也不会重复累计，失败事务回滚事件与分钟。旧事件键留 null，不猜造键。
 - `dependencyGraphKnown` 可空：旧库/导入任务默认未知，依赖收益移除权重；新建任务确认初始空图，显式加边确认关联任务，`confirmDependencyGraph` 可确认历史记录的空图。缺图不冒充已确认无依赖。
 - `priorityExplicit` 可空：编辑 priority 时设 true。历史及新建默认 0 不猜测是否显式选择。
 - `task_dependencies(predecessor, successor)` 联合主键，前置→后续；外键级联删除。
   事务内校验任务存在及可达性，拒绝自环/间接环；CRUD 用 CardoDataService。
 - `task_events` 保存 started/time_logged/completed/reopened/failed，以及
   priority_changed/exposed/accepted/ignored。时间、实际分钟、当时预计分钟、改档值、
-  失败原因、反馈配置修订号按事件种类可空。complete 重试不重复计成功；撤销事件
+  失败原因、反馈配置修订号按事件种类可空。complete 只允许 0/2→1，重复 complete 显式返错；reopen 只允许 1→0。
+  冻结 -1 必须先解冻为 0/2，不能直接完成；服务与 DAO 共用白名单。撤销事件
   不抹去曾经完成的事实。失败仅表示显式记录的执行尝试，不从冻结或撤销推断失败。
 - `task_contexts` 每任务一条可选资源就绪、可用分钟、精力匹配和目标影响（0–1），
   必须给 expiresAt，过期即未知。此处是显式用户输入接口，绝不从 tags/标题推断。
-- 升级 v1→v4、v2→v4、v3→v4 保留原有列，按版本补 tags/status，再补上述列/表。
+- 升级 v1/v2/v3→v5 保留原有列，按版本补 tags/status，再补上述列/表。
   **所有旧任务新列均留 null、事件/依赖/情境表为空**；不从 id、DDL、EST 或完成状态
   回填创建/完成/实际时间。迁移测试从真实旧 SQLite 表定义及 user_version 打开。
-  新库直接 createAll，连接开启 foreign_keys，覆盖约束与级联清理。
+  v4→v5 仅给事件补可空 idempotency_key 并创建索引，保留已有分钟与事件。
+  新库 createAll 后建相同索引，连接开启 foreign_keys，覆盖约束与级联清理。
 
 ## 默认兼容与扩展因子
 
@@ -84,8 +89,12 @@ v1 完整 schema 仍见原文 §7；v2 完整 schema 见 [cardo-config-v2.schema
 错误类型、错误版本和跨字段冲突。已知字段 null 不视为缺失。每次成功完整替换不可变
 快照，修订递增；错误保留旧快照，文件缺失恢复内置 v1。每批捕获一个 config/now。
 `diagnostics` 提供只读生效快照、有效权重和独立的最近尝试状态。
-设置→规划→优先级算法→当前配置可指定路径、重载并查看诊断；路径用本地设置保存。
-启动建立默认后加载指定路径；轮询每2秒检查，支持原子重命名/删除，读操作串行，JSON 解析与校验在独立 isolate 执行；过期请求不能覆盖较新发布。
+设置→规划→优先级算法→当前配置可重载并查看诊断。固定读取应用私有
+ApplicationSupportDirectory 下的 `cardo-config.json`，不再保存/接受用户绝对路径。
+旧 `cardo.configPath` 设置忽略，不读取也不回显；只接受固定文件名，拒绝绝对路径、
+路径穿越、文件及祖先目录符链接和非普通文件。诊断只显示文件名/稳定错误码，不暴露物理路径。
+目录解析由应用控制（测试可注入隔离目录），JSON 仍可由宿主直接注入。
+启动建立默认后加载固定文件；轮询每2秒检查，支持原子重命名/删除，读操作串行，JSON 解析与校验在独立 isolate 执行；过期请求不能覆盖较新发布。
 源文件不执行脚本、不 include、不读取其指定的其他路径。推荐同目录临时文件原子替换。
 
 `cardoConfigProvider` / `cardoScoringProvider` / `cardoDataProvider` / `cardoResultsProvider`
@@ -94,3 +103,28 @@ v1 完整 schema 仍见原文 §7；v2 完整 schema 见 [cardo-config-v2.schema
 原任务流控制，调用方可消费独立 cardoResultsProvider；本 PR 不擅自替换展示策略。
 **#184 后续只需把本地 CardoScore 换成 CardoScoringService，消费结果与版本，不复制公式。**
 #185 也修改 database_provider.dart，合并时需处理 provider 相邻改动。
+
+## 索引、分页与实测
+
+事件表有 `(task_id,idempotency_key)` 唯一索引、`(task_id,id,kind)` 游标/聚合索引
+及 `kind` 样本索引；依赖表补 `(successor,predecessor)` 反向索引（正向已有主键）。
+`eventPage(taskId, afterId:, limit:)` 用 SQL 游标限制读取，limit 为 1–1000。
+`calculate(afterId:, limit:)` 按任务 id 取页，返回页内按分数排序的结果；下一页游标
+取本页最大 taskId，不能取分数排序后的最后一项。它不是全局排名分页。
+评分仍需完整任务/依赖元数据和全历史效率以保持跨页语义；当前仍有 O(V+E) 图读取。
+事件由 SQLite 一次 GROUP BY 聚合，不把整个事件历史加载到 Dart；情境和阻塞
+用 Map/Set 查询，移除了每任务重复过滤事件、依赖与情境的乘法开销。
+
+可复现基准：`fvm flutter test --no-pub --concurrency=1 test/performance/cardo_data_benchmark_test.dart`。
+内存 SQLite，启用 dependency/success/efficiency/feedback，每任务10条事件，
+每5个任务一段链，先预热1次，整批和100条结果页各测5次；不计造数时间。
+结果是本 sandbox 的开发模式实测，不代表 Android 真机耗时或性能承诺。
+
+2026-11-08 Linux sandbox / Flutter 3.47.0 / Dart 3.13.0（开发模式）实测：
+
+| 任务 / 事件 / 边 | 整批中位数（5次） | 100条页中位数（5次） |
+| --- | --- | --- |
+| 1,000 / 10,000 / 800 | 96.562 ms | 27.179 ms |
+| 5,000 / 50,000 / 4,000 | 438.433 ms | 106.302 ms |
+
+分页仍会读取完整图并聚合历史，因此不承诺与总库大小无关的常数耗时。

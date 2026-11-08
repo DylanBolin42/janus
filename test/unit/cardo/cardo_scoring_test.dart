@@ -132,15 +132,17 @@ void main() {
     () async {
       final dir = await Directory.systemTemp.createTemp('cardo');
       addTearDown(() => dir.delete(recursive: true));
-      final f = File('${dir.path}/config.json');
+      configs.dispose();
+      configs = CardoConfigService(configDirectory: () async => dir);
+      final f = File('${dir.path}/cardo-config.json');
       await f.writeAsString('{"thresholds":{"a_min":80}}');
-      await configs.reloadFile(f.path);
+      await configs.reloadFile(CardoConfigService.configName);
       final old = configs.current;
       await f.writeAsBytes([255]);
-      await configs.reloadFile(f.path);
+      await configs.reloadFile(CardoConfigService.configName);
       expect(identical(configs.current, old), isTrue);
       await f.delete();
-      await configs.reloadFile(f.path);
+      await configs.reloadFile(CardoConfigService.configName);
       expect(configs.current.source, 'builtin');
       expect(configs.lastStatus, 'fallback');
     },
@@ -207,14 +209,16 @@ void main() {
     'file watch publishes atomic replacement and deletion without restart',
     () async {
       final dir = await Directory.systemTemp.createTemp('cardo-watch');
-      final file = File('${dir.path}/config.json');
+      configs.dispose();
+      configs = CardoConfigService(configDirectory: () async => dir);
+      final file = File('${dir.path}/cardo-config.json');
       addTearDown(() async {
         configs.dispose();
         await dir.delete(recursive: true);
       });
       await file.writeAsString('{}');
       await configs.watchFile(
-        file.path,
+        CardoConfigService.configName,
         interval: const Duration(milliseconds: 10),
       );
       final revision = configs.current.revision;
@@ -243,13 +247,68 @@ void main() {
     () async {
       final dir = await Directory.systemTemp.createTemp('cardo-race');
       addTearDown(() => dir.delete(recursive: true));
-      final file = File('${dir.path}/config.json');
+      configs.dispose();
+      configs = CardoConfigService(configDirectory: () async => dir);
+      final file = File('${dir.path}/cardo-config.json');
       await file.writeAsString('{"thresholds":{"a_min":90}}');
-      final older = configs.reloadFile(file.path);
+      final older = configs.reloadFile(CardoConfigService.configName);
       configs.replaceJson('{"thresholds":{"a_min":80}}');
       await older;
       expect(configs.current.threshold('a_min'), 80);
       expect(configs.current.source, 'injected');
+    },
+  );
+  test(
+    'fixed sandbox config rejects absolute paths and traversal without echo',
+    () async {
+      final dir = await Directory.systemTemp.createTemp('cardo-safe');
+      addTearDown(() => dir.delete(recursive: true));
+      configs.dispose();
+      configs = CardoConfigService(configDirectory: () async => dir);
+      configs.replaceJson('{"thresholds":{"a_min":80}}');
+      final old = configs.current;
+      for (final name in [
+        '/etc/passwd',
+        '../cardo-config.json',
+        './cardo-config.json',
+        'a/../cardo-config.json',
+        r'C:\private\secret',
+        '${dir.path}/cardo-config.json',
+      ]) {
+        await configs.reloadFile(name);
+        expect(identical(configs.current, old), isTrue);
+        expect(configs.lastStatus, 'rejected');
+        expect(configs.attemptedSource, CardoConfigService.configName);
+        expect(configs.lastError, 'invalid_configuration_or_path');
+        expect(configs.current.source, 'injected');
+      }
+    },
+  );
+  test(
+    'config rejects file symlinks and directory ancestor symlinks',
+    () async {
+      final dir = await Directory.systemTemp.createTemp('cardo-links');
+      addTearDown(() => dir.delete(recursive: true));
+      final real = Directory('${dir.path}/real')..createSync();
+      final target = File('${real.path}/cardo-config.json')
+        ..writeAsStringSync('{"thresholds":{"a_min":90}}');
+      final linkedFile = Link('${dir.path}/cardo-config.json')
+        ..createSync(target.path);
+      configs.dispose();
+      configs = CardoConfigService(configDirectory: () async => dir);
+      await configs.reloadFile(CardoConfigService.configName);
+      expect(configs.lastStatus, 'rejected');
+      expect(configs.current.source, 'builtin');
+      await linkedFile.delete();
+      final linkedDir = Link('${dir.path}/linked')..createSync(real.path);
+      configs.dispose();
+      configs = CardoConfigService(
+        configDirectory: () async => Directory(linkedDir.path),
+      );
+      await configs.reloadFile(CardoConfigService.configName);
+      expect(configs.lastStatus, 'rejected');
+      expect(configs.lastError, 'invalid_configuration_or_path');
+      expect(configs.current.source, 'builtin');
     },
   );
   test('gates precede scoring and stable sorting', () {

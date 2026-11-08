@@ -15,11 +15,8 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final service = CardoConfigService();
       addTearDown(service.dispose);
-      service.replaceJson(
-        '{"thresholds":{"a_min":80}}',
-        source: '/config/cardo.json',
-      );
-      service.replaceJson('{"version":99}', source: '/config/rejected.json');
+      service.replaceJson('{"thresholds":{"a_min":80}}', source: 'injected');
+      service.replaceJson('{"version":99}', source: 'injected');
       if (Platform.environment.containsKey('CARDO_SCREENSHOT')) {
         await tester.runAsync(() async {
           final bytes = await File(
@@ -44,7 +41,7 @@ void main() {
           ),
         ),
       );
-      expect(find.textContaining('生效来源：/config/cardo.json'), findsOneWidget);
+      expect(find.textContaining('生效来源：injected'), findsOneWidget);
       expect(find.textContaining('\nrejected\n'), findsOneWidget);
       expect(find.text('重新加载配置'), findsOneWidget);
       expect(find.textContaining('修订：1'), findsOneWidget);

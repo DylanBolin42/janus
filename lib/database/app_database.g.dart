@@ -1340,6 +1340,17 @@ class $TaskEventsTable extends TaskEvents
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _idempotencyKeyMeta = const VerificationMeta(
+    'idempotencyKey',
+  );
+  @override
+  late final GeneratedColumn<String> idempotencyKey = GeneratedColumn<String>(
+    'idempotency_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _occurredAtMeta = const VerificationMeta(
     'occurredAt',
   );
@@ -1409,6 +1420,7 @@ class $TaskEventsTable extends TaskEvents
     id,
     taskId,
     kind,
+    idempotencyKey,
     occurredAt,
     minutes,
     estimatedMinutes,
@@ -1446,6 +1458,15 @@ class $TaskEventsTable extends TaskEvents
       );
     } else if (isInserting) {
       context.missing(_kindMeta);
+    }
+    if (data.containsKey('idempotency_key')) {
+      context.handle(
+        _idempotencyKeyMeta,
+        idempotencyKey.isAcceptableOrUnknown(
+          data['idempotency_key']!,
+          _idempotencyKeyMeta,
+        ),
+      );
     }
     if (data.containsKey('occurred_at')) {
       context.handle(
@@ -1515,6 +1536,10 @@ class $TaskEventsTable extends TaskEvents
         DriftSqlType.string,
         data['${effectivePrefix}kind'],
       )!,
+      idempotencyKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}idempotency_key'],
+      ),
       occurredAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}occurred_at'],
@@ -1552,6 +1577,7 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
   final int id;
   final int taskId;
   final String kind;
+  final String? idempotencyKey;
   final DateTime occurredAt;
   final int? minutes;
   final int? estimatedMinutes;
@@ -1562,6 +1588,7 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
     required this.id,
     required this.taskId,
     required this.kind,
+    this.idempotencyKey,
     required this.occurredAt,
     this.minutes,
     this.estimatedMinutes,
@@ -1575,6 +1602,9 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
     map['id'] = Variable<int>(id);
     map['task_id'] = Variable<int>(taskId);
     map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || idempotencyKey != null) {
+      map['idempotency_key'] = Variable<String>(idempotencyKey);
+    }
     map['occurred_at'] = Variable<DateTime>(occurredAt);
     if (!nullToAbsent || minutes != null) {
       map['minutes'] = Variable<int>(minutes);
@@ -1599,6 +1629,9 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
       id: Value(id),
       taskId: Value(taskId),
       kind: Value(kind),
+      idempotencyKey: idempotencyKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(idempotencyKey),
       occurredAt: Value(occurredAt),
       minutes: minutes == null && nullToAbsent
           ? const Value.absent()
@@ -1627,6 +1660,7 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
       id: serializer.fromJson<int>(json['id']),
       taskId: serializer.fromJson<int>(json['taskId']),
       kind: serializer.fromJson<String>(json['kind']),
+      idempotencyKey: serializer.fromJson<String?>(json['idempotencyKey']),
       occurredAt: serializer.fromJson<DateTime>(json['occurredAt']),
       minutes: serializer.fromJson<int?>(json['minutes']),
       estimatedMinutes: serializer.fromJson<int?>(json['estimatedMinutes']),
@@ -1642,6 +1676,7 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
       'id': serializer.toJson<int>(id),
       'taskId': serializer.toJson<int>(taskId),
       'kind': serializer.toJson<String>(kind),
+      'idempotencyKey': serializer.toJson<String?>(idempotencyKey),
       'occurredAt': serializer.toJson<DateTime>(occurredAt),
       'minutes': serializer.toJson<int?>(minutes),
       'estimatedMinutes': serializer.toJson<int?>(estimatedMinutes),
@@ -1655,6 +1690,7 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
     int? id,
     int? taskId,
     String? kind,
+    Value<String?> idempotencyKey = const Value.absent(),
     DateTime? occurredAt,
     Value<int?> minutes = const Value.absent(),
     Value<int?> estimatedMinutes = const Value.absent(),
@@ -1665,6 +1701,9 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
     id: id ?? this.id,
     taskId: taskId ?? this.taskId,
     kind: kind ?? this.kind,
+    idempotencyKey: idempotencyKey.present
+        ? idempotencyKey.value
+        : this.idempotencyKey,
     occurredAt: occurredAt ?? this.occurredAt,
     minutes: minutes.present ? minutes.value : this.minutes,
     estimatedMinutes: estimatedMinutes.present
@@ -1683,6 +1722,9 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
       id: data.id.present ? data.id.value : this.id,
       taskId: data.taskId.present ? data.taskId.value : this.taskId,
       kind: data.kind.present ? data.kind.value : this.kind,
+      idempotencyKey: data.idempotencyKey.present
+          ? data.idempotencyKey.value
+          : this.idempotencyKey,
       occurredAt: data.occurredAt.present
           ? data.occurredAt.value
           : this.occurredAt,
@@ -1706,6 +1748,7 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
           ..write('id: $id, ')
           ..write('taskId: $taskId, ')
           ..write('kind: $kind, ')
+          ..write('idempotencyKey: $idempotencyKey, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('minutes: $minutes, ')
           ..write('estimatedMinutes: $estimatedMinutes, ')
@@ -1721,6 +1764,7 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
     id,
     taskId,
     kind,
+    idempotencyKey,
     occurredAt,
     minutes,
     estimatedMinutes,
@@ -1735,6 +1779,7 @@ class TaskEvent extends DataClass implements Insertable<TaskEvent> {
           other.id == this.id &&
           other.taskId == this.taskId &&
           other.kind == this.kind &&
+          other.idempotencyKey == this.idempotencyKey &&
           other.occurredAt == this.occurredAt &&
           other.minutes == this.minutes &&
           other.estimatedMinutes == this.estimatedMinutes &&
@@ -1747,6 +1792,7 @@ class TaskEventsCompanion extends UpdateCompanion<TaskEvent> {
   final Value<int> id;
   final Value<int> taskId;
   final Value<String> kind;
+  final Value<String?> idempotencyKey;
   final Value<DateTime> occurredAt;
   final Value<int?> minutes;
   final Value<int?> estimatedMinutes;
@@ -1757,6 +1803,7 @@ class TaskEventsCompanion extends UpdateCompanion<TaskEvent> {
     this.id = const Value.absent(),
     this.taskId = const Value.absent(),
     this.kind = const Value.absent(),
+    this.idempotencyKey = const Value.absent(),
     this.occurredAt = const Value.absent(),
     this.minutes = const Value.absent(),
     this.estimatedMinutes = const Value.absent(),
@@ -1768,6 +1815,7 @@ class TaskEventsCompanion extends UpdateCompanion<TaskEvent> {
     this.id = const Value.absent(),
     required int taskId,
     required String kind,
+    this.idempotencyKey = const Value.absent(),
     required DateTime occurredAt,
     this.minutes = const Value.absent(),
     this.estimatedMinutes = const Value.absent(),
@@ -1781,6 +1829,7 @@ class TaskEventsCompanion extends UpdateCompanion<TaskEvent> {
     Expression<int>? id,
     Expression<int>? taskId,
     Expression<String>? kind,
+    Expression<String>? idempotencyKey,
     Expression<DateTime>? occurredAt,
     Expression<int>? minutes,
     Expression<int>? estimatedMinutes,
@@ -1792,6 +1841,7 @@ class TaskEventsCompanion extends UpdateCompanion<TaskEvent> {
       if (id != null) 'id': id,
       if (taskId != null) 'task_id': taskId,
       if (kind != null) 'kind': kind,
+      if (idempotencyKey != null) 'idempotency_key': idempotencyKey,
       if (occurredAt != null) 'occurred_at': occurredAt,
       if (minutes != null) 'minutes': minutes,
       if (estimatedMinutes != null) 'estimated_minutes': estimatedMinutes,
@@ -1805,6 +1855,7 @@ class TaskEventsCompanion extends UpdateCompanion<TaskEvent> {
     Value<int>? id,
     Value<int>? taskId,
     Value<String>? kind,
+    Value<String?>? idempotencyKey,
     Value<DateTime>? occurredAt,
     Value<int?>? minutes,
     Value<int?>? estimatedMinutes,
@@ -1816,6 +1867,7 @@ class TaskEventsCompanion extends UpdateCompanion<TaskEvent> {
       id: id ?? this.id,
       taskId: taskId ?? this.taskId,
       kind: kind ?? this.kind,
+      idempotencyKey: idempotencyKey ?? this.idempotencyKey,
       occurredAt: occurredAt ?? this.occurredAt,
       minutes: minutes ?? this.minutes,
       estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
@@ -1836,6 +1888,9 @@ class TaskEventsCompanion extends UpdateCompanion<TaskEvent> {
     }
     if (kind.present) {
       map['kind'] = Variable<String>(kind.value);
+    }
+    if (idempotencyKey.present) {
+      map['idempotency_key'] = Variable<String>(idempotencyKey.value);
     }
     if (occurredAt.present) {
       map['occurred_at'] = Variable<DateTime>(occurredAt.value);
@@ -1864,6 +1919,7 @@ class TaskEventsCompanion extends UpdateCompanion<TaskEvent> {
           ..write('id: $id, ')
           ..write('taskId: $taskId, ')
           ..write('kind: $kind, ')
+          ..write('idempotencyKey: $idempotencyKey, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('minutes: $minutes, ')
           ..write('estimatedMinutes: $estimatedMinutes, ')
@@ -3624,6 +3680,7 @@ typedef $$TaskEventsTableCreateCompanionBuilder =
       Value<int> id,
       required int taskId,
       required String kind,
+      Value<String?> idempotencyKey,
       required DateTime occurredAt,
       Value<int?> minutes,
       Value<int?> estimatedMinutes,
@@ -3636,6 +3693,7 @@ typedef $$TaskEventsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> taskId,
       Value<String> kind,
+      Value<String?> idempotencyKey,
       Value<DateTime> occurredAt,
       Value<int?> minutes,
       Value<int?> estimatedMinutes,
@@ -3682,6 +3740,11 @@ class $$TaskEventsTableFilterComposer
 
   ColumnFilters<String> get kind => $composableBuilder(
     column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get idempotencyKey => $composableBuilder(
+    column: $table.idempotencyKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3758,6 +3821,11 @@ class $$TaskEventsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get idempotencyKey => $composableBuilder(
+    column: $table.idempotencyKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get occurredAt => $composableBuilder(
     column: $table.occurredAt,
     builder: (column) => ColumnOrderings(column),
@@ -3826,6 +3894,11 @@ class $$TaskEventsTableAnnotationComposer
 
   GeneratedColumn<String> get kind =>
       $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get idempotencyKey => $composableBuilder(
+    column: $table.idempotencyKey,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get occurredAt => $composableBuilder(
     column: $table.occurredAt,
@@ -3908,6 +3981,7 @@ class $$TaskEventsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> taskId = const Value.absent(),
                 Value<String> kind = const Value.absent(),
+                Value<String?> idempotencyKey = const Value.absent(),
                 Value<DateTime> occurredAt = const Value.absent(),
                 Value<int?> minutes = const Value.absent(),
                 Value<int?> estimatedMinutes = const Value.absent(),
@@ -3918,6 +3992,7 @@ class $$TaskEventsTableTableManager
                 id: id,
                 taskId: taskId,
                 kind: kind,
+                idempotencyKey: idempotencyKey,
                 occurredAt: occurredAt,
                 minutes: minutes,
                 estimatedMinutes: estimatedMinutes,
@@ -3930,6 +4005,7 @@ class $$TaskEventsTableTableManager
                 Value<int> id = const Value.absent(),
                 required int taskId,
                 required String kind,
+                Value<String?> idempotencyKey = const Value.absent(),
                 required DateTime occurredAt,
                 Value<int?> minutes = const Value.absent(),
                 Value<int?> estimatedMinutes = const Value.absent(),
@@ -3940,6 +4016,7 @@ class $$TaskEventsTableTableManager
                 id: id,
                 taskId: taskId,
                 kind: kind,
+                idempotencyKey: idempotencyKey,
                 occurredAt: occurredAt,
                 minutes: minutes,
                 estimatedMinutes: estimatedMinutes,
