@@ -454,6 +454,53 @@ void main() {
       expect(container.read(appSettingsProvider).value!.aiPicToTask, true);
     });
 
+    test('setEndPoint accepts valid HTTPS endpoint', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      const validUrl = 'https://api.openai.com/v1';
+      await notifierOf(container).setEndPoint(validUrl);
+
+      expect(container.read(appSettingsProvider).value!.endPoint, validUrl);
+    });
+
+    test(
+      'setEndPoint accepts local HTTP endpoint on localhost or 127.0.0.1',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(() => container.dispose());
+        await waitForInit(container);
+
+        const localUrl = 'http://localhost:11434';
+        await notifierOf(container).setEndPoint(localUrl);
+
+        expect(container.read(appSettingsProvider).value!.endPoint, localUrl);
+      },
+    );
+
+    test('setEndPoint rejects non-HTTPS remote endpoint', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      const insecureUrl = 'http://api.insecure.com/v1';
+      expect(
+        () => notifierOf(container).setEndPoint(insecureUrl),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('setModelName updates model name', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      await notifierOf(container).setModelName('gpt-4o');
+
+      expect(container.read(appSettingsProvider).value!.modelName, 'gpt-4o');
+    });
+
     // 用户偏好
     test('setTaskCreationMode 更新任务创建模式', () async {
       final container = ProviderContainer();
