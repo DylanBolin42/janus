@@ -42,3 +42,11 @@ Insight 保留 AppShell 的导航和 CustomAppbar，只替换原 Placeholder 内
 单测覆盖周/月跨年、闰月、半开区间、冻结/空数据分母、排序与统计口径。
 Widget 测试覆盖真实内存 Drift 更新、周期往返、周/月切换、loading/error/retry 及深浅主题大字号。
 设备上的触摸体验和真实 Android/iOS 数据库文件未人工验证。
+
+## 重新生成渲染参考
+
+运行 `bash scripts/capture_insight.sh /tmp/janus-insight-reference`。脚本仅使用现有依赖，
+将临时测试放在被忽略的 `.dart_tool` 下，退出时清理；不会加入常规 analyze/build/test 发现路径。
+输出深浅两张 PNG，使用两项明确的测试夹具，不含用户真实数据。
+Headless 环境额外加载既有字体并为 TextTheme 提供 CJK 回退；个别控件仍可能与设备字体不同。
+这是一项人工复现工具，不是新增的黄金图断言或真机验证。
