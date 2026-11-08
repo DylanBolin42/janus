@@ -5,10 +5,14 @@ import 'package:janus/models/task.dart';
 
 import 'tag_tables.dart';
 import 'task_tables.dart';
+import 'priority_tables.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Tasks, Tags], daos: [TaskDao])
+@DriftDatabase(
+  tables: [Tasks, Tags, TaskDependencies, TaskEvents, TaskContexts],
+  daos: [TaskDao],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -17,11 +21,14 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
+    beforeOpen: (_) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+    },
     onUpgrade: (m, from, to) async {
       // v1 -> v2：新增 tags 表
       if (from < 2) {
@@ -31,11 +38,24 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         await m.addColumn(tasks, tasks.status);
       }
+      if (from < 4) {
+        // Leave historical observations null: status/id/EST cannot reconstruct them.
+        await m.addColumn(tasks, tasks.createdAt);
+        await m.addColumn(tasks, tasks.startedAt);
+        await m.addColumn(tasks, tasks.completedAt);
+        await m.addColumn(tasks, tasks.usedTime);
+        await m.addColumn(tasks, tasks.priorityExplicit);
+        await m.createTable(taskDependencies);
+        await m.createTable(taskEvents);
+        await m.createTable(taskContexts);
+      }
     },
   );
 }
 
-@DriftAccessor(tables: [Tasks, Tags])
+@DriftAccessor(
+  tables: [Tasks, Tags, TaskDependencies, TaskEvents, TaskContexts],
+)
 class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
   TaskDao(super.db);
 
@@ -47,6 +67,7 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     return into(tasks).insert(
       TasksCompanion.insert(
         //TODO: 给所有相关方法添加Status字段
+        createdAt: Value(DateTime.now().toUtc()),
         status: Value(draft.status),
         title: draft.title,
         ddl: draft.ddl!,
@@ -102,6 +123,7 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
   /// 输出： 受影响行数；未传任何字段时为 0（空操作）
   Future<int> editTask({
     required int id,
+    DateTime? occurredAt,
     Value<int> status = const Value.absent(),
     Value<String> title = const Value.absent(),
     Value<String?> description = const Value.absent(),
@@ -109,7 +131,7 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     Value<TimeOfDay?> est = const Value.absent(),
     Value<int> priority = const Value.absent(),
     Value<List<String>?> tags = const Value.absent(),
-  }) {
+  }) async {
     // 没有任何字段需要修改时直接返回 0，避免生成空 SET 的 UPDATE 语句
     if (!status.present &&
         !title.present &&
@@ -120,21 +142,78 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
         !tags.present) {
       return Future.value(0);
     }
-    return (update(tasks)..where((t) => t.id.equals(id))).write(
-      TasksCompanion(
-        status: status,
-        title: title,
-        description: description,
-        ddl: ddl,
-        // est 由「小时 + 分钟」两列组成，必须同时写入或同时保持原值
-        estHour: est.present ? Value(est.value?.hour) : const Value.absent(),
-        estMinute: est.present
-            ? Value(est.value?.minute)
-            : const Value.absent(),
-        priority: priority,
-        tags: tags,
-      ),
-    );
+    return transaction(() async {
+      final old = await (select(
+        tasks,
+      )..where((t) => t.id.equals(id))).getSingleOrNull();
+      if (old == null) return 0;
+      if (status.present && status.value == 1 && old.status != 1) {
+        final dependencies = await (select(
+          taskDependencies,
+        )..where((e) => e.successor.equals(id))).get();
+        for (final edge in dependencies) {
+          final prerequisite = await (select(
+            tasks,
+          )..where((t) => t.id.equals(edge.predecessor))).getSingle();
+          if (prerequisite.status != 1) {
+            throw StateError('Unfinished prerequisite');
+          }
+        }
+      }
+      final now = (occurredAt ?? DateTime.now()).toUtc();
+      if (status.present &&
+          status.value != old.status &&
+          (status.value == 1 || old.status == 1)) {
+        await into(taskEvents).insert(
+          TaskEventsCompanion.insert(
+            taskId: id,
+            kind: status.value == 1 ? 'completed' : 'reopened',
+            occurredAt: now,
+            estimatedMinutes: Value(
+              est.present
+                  ? (est.value == null
+                        ? null
+                        : est.value!.hour * 60 + est.value!.minute)
+                  : old.estHour != null && old.estMinute != null
+                  ? old.estHour! * 60 + old.estMinute!
+                  : null,
+            ),
+            minutes: Value(old.usedTime),
+          ),
+        );
+      }
+      if (priority.present && priority.value != old.priority) {
+        await into(taskEvents).insert(
+          TaskEventsCompanion.insert(
+            taskId: id,
+            kind: 'priority_changed',
+            occurredAt: now,
+            priorityValue: Value(priority.value),
+          ),
+        );
+      }
+      return (update(tasks)..where((t) => t.id.equals(id))).write(
+        TasksCompanion(
+          completedAt: status.present && status.value != old.status
+              ? Value(status.value == 1 ? now : null)
+              : const Value.absent(),
+          priorityExplicit: priority.present
+              ? const Value(true)
+              : const Value.absent(),
+          status: status,
+          title: title,
+          description: description,
+          ddl: ddl,
+          // est 由「小时 + 分钟」两列组成，必须同时写入或同时保持原值
+          estHour: est.present ? Value(est.value?.hour) : const Value.absent(),
+          estMinute: est.present
+              ? Value(est.value?.minute)
+              : const Value.absent(),
+          priority: priority,
+          tags: tags,
+        ),
+      );
+    });
   }
 
   // ---------------------------- Tag DB Operation Zone --------------------------

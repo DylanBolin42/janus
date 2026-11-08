@@ -1,4 +1,6 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
+import 'package:janus/providers/database_provider.dart';
+import 'cardo_config_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:janus/models/app_settings.dart';
@@ -30,6 +32,20 @@ class _PlanningSettingPageState extends ConsumerState<PlanningSettingPage> {
         context,
         SettingsList(
           sections: [
+            SettingsSection(
+              title: const Text('优先级算法'),
+              tiles: [
+                SettingsTile(
+                  title: const Text('当前配置'),
+                  onPressed: (context) => showDialog<void>(
+                    context: context,
+                    builder: (_) => CardoConfigDialog(
+                      service: ref.read(cardoConfigProvider),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             SettingsSection(
               title: Text('工作周期', style: tt.titleMedium),
               tiles: [

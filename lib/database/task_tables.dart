@@ -26,7 +26,15 @@ class Tasks extends Table {
   TextColumn get title => text().withLength(min: 1)();
   TextColumn get description => text().nullable()();
   DateTimeColumn get ddl => dateTime()();
-  // EST is divided to minute and hour
+  DateTimeColumn get createdAt => dateTime().nullable()();
+  DateTimeColumn get startedAt => dateTime().nullable()();
+  DateTimeColumn get completedAt => dateTime().nullable()();
+
+  /// Actual consumed whole minutes, independently of EST. Null means unknown.
+  IntColumn get usedTime =>
+      integer().nullable().customConstraint('CHECK (used_time >= 0)')();
+  BoolColumn get priorityExplicit => boolean().nullable()();
+  // EST is a duration: estHour * 60 + estMinute, in minutes.
   IntColumn get estHour => integer().nullable()();
   IntColumn get estMinute => integer().nullable()();
   // ---

@@ -1,6 +1,12 @@
+import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:janus/database/app_database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../services/cardo/cardo_config.dart';
+import '../services/cardo/cardo_data_service.dart';
+import '../services/cardo/cardo_scoring_service.dart';
 
 part 'database_provider.g.dart';
 
@@ -22,3 +28,29 @@ TaskDao taskDao(Ref ref) {
 final inboxTasksProvider = StreamProvider<List<Task>>((ref) {
   return ref.watch(taskDaoProvider).watchIncompleteTasks();
 });
+
+/// Shared scoring entry point for UI, scheduling and other callers.
+final cardoConfigProvider = Provider<CardoConfigService>((ref) {
+  final service = CardoConfigService();
+  ref.onDispose(service.dispose);
+  unawaited(
+    SharedPreferencesAsync().getString('cardo.configPath').then((path) async {
+      if (path != null && service.attemptedSource == null) {
+        await service.watchFile(path);
+      }
+    }),
+  );
+  return service;
+});
+final cardoScoringProvider = Provider<CardoScoringService>(
+  (ref) => CardoScoringService(ref.watch(cardoConfigProvider)),
+);
+final cardoDataProvider = Provider<CardoDataService>(
+  (ref) => CardoDataService(
+    ref.watch(appDatabaseProvider),
+    ref.watch(cardoScoringProvider),
+  ),
+);
+final cardoResultsProvider = StreamProvider<List<CardoResult>>(
+  (ref) => ref.watch(cardoDataProvider).watch(),
+);
