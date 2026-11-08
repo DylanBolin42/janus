@@ -1,0 +1,3 @@
+# Sentinel Security Journal
+
+## 2026-09-13 - AI Endpoint Transport Security Validation **Vulnerability:** Remote AI service endpoints permitted unencrypted HTTP, risking plaintext transmission of user credentials and sensitive AI prompt data over untrusted networks. **Learning:** User-configurable endpoints often mix remote API services with local development servers (e.g., Ollama), requiring explicit differentiation between loopback hosts and remote endpoints. **Prevention:** Enforce HTTPS scheme validation for remote endpoints while allowing HTTP strictly for local loopback hosts (`localhost`, `127.0.0.1`, `::1`).

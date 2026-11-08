@@ -414,6 +414,33 @@ void main() {
     });
 
     // AI
+    test('setEndPoint saves valid HTTPS and loopback endpoints', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      final success = await notifierOf(
+        container,
+      ).setEndPoint('https://api.openai.com/v1');
+      expect(success, isTrue);
+      expect(
+        container.read(appSettingsProvider).value!.endPoint,
+        'https://api.openai.com/v1',
+      );
+    });
+
+    test('setEndPoint rejects unencrypted remote HTTP endpoints', () async {
+      final container = ProviderContainer();
+      addTearDown(() => container.dispose());
+      await waitForInit(container);
+
+      final success = await notifierOf(
+        container,
+      ).setEndPoint('http://insecure.remote.com/api');
+      expect(success, isFalse);
+      expect(container.read(appSettingsProvider).value!.endPoint, '');
+    });
+
     test('setUseAiDailySummary 更新 AI 日报开关', () async {
       final container = ProviderContainer();
       addTearDown(() => container.dispose());
