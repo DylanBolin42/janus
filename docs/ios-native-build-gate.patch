@@ -1,0 +1,56 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 5631d35..73e31cc 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -123,10 +123,28 @@ jobs:
+         run: |
+           flutter build apk --debug # 用 debug 构建验证编译，速度极快
+ 
++  # Native compilation is required independently of Dart tests.
++  build_ios:
++    name: "Build iOS Check"
++    runs-on: macos-latest
++    timeout-minutes: 25
++    steps:
++      - name: Checkout
++        uses: actions/checkout@v7
++
++      - name: Setup Flutter
++        uses: ./.github/actions/setup-flutter
++        with:
++          channel: stable
++          cache-key-suffix: ci-build-ios
++
++      - name: Build iOS without code signing
++        run: flutter build ios --release --no-codesign
++
+   # ======================== PR Summary (waits for all) ========================
+   summary:
+     name: "PR Summary"
+-    needs: [check, test, build_android] # 👈 修正 3：让 summary 等待安卓编译任务
++    needs: [check, test, build_android, build_ios]
+     if: always() && github.event_name == 'pull_request'
+     runs-on: ubuntu-latest
+     timeout-minutes: 2
+@@ -145,10 +163,10 @@ jobs:
+           script: |
+             const checkResult = '${{ needs.check.result }}';
+             const testResult  = '${{ needs.test.result }}';
+-            const buildResult = '${{ needs.build_android.result }}'; // 👈 获取安卓构建状态
++            const buildResult = '${{ needs.build_android.result }}';
++            const iosResult = '${{ needs.build_ios.result }}';
+             
+-            // 只有三者全部成功才算通过
+-            const isAllSuccess = checkResult === 'success' && testResult === 'success' && buildResult === 'success';
++            const isAllSuccess = checkResult === 'success' && testResult === 'success' && buildResult === 'success' && iosResult === 'success';
+             const icon = isAllSuccess ? '✅' : '❌';
+ 
+             const fs = require('fs');
+@@ -168,6 +186,7 @@ jobs:
+             | Format & Analyze | ${checkResult === 'success' ? '✅' : '❌'} |
+             | Tests & Coverage | ${testResult === 'success' ? '✅' : '❌'} |
+             | Build Android Check | ${buildResult === 'success' ? '✅' : '❌'} |
++            | Build iOS Check | ${iosResult === 'success' ? '✅' : '❌'} |
+ 
+             [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+ 

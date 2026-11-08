@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:janus/database/app_database.dart';
 import 'package:janus/models/app_settings.dart';
@@ -9,16 +10,19 @@ class FakePlatform implements NotificationPlatform {
   final requests = <int, NotificationRequest>{};
   final cancelled = <int>[];
   int writes = 0;
+  final foreign = <int, String?>{};
   @override
   Future<bool> permission({bool request = false}) async => allowed;
   @override
   Future<Map<int, String?>> pending() async => {
+    ...foreign,
     for (final r in requests.values) r.id: r.fingerprint,
   };
   @override
   Future<void> cancel(int id) async {
     cancelled.add(id);
     requests.remove(id);
+    foreign.remove(id);
   }
 
   @override
@@ -57,6 +61,107 @@ void main() {
     expect(plan.map((r) => r.id).toSet().length, 2);
   });
 
+  test(
+    'private by default; task titles require explicit constructor opt-in',
+    () async {
+      final privatePlan = planNotifications([task()], enabled, now);
+      expect(privatePlan.every((r) => r.title == '有任务即将到期'), true);
+      expect(privatePlan.any((r) => r.fingerprint.contains('Test')), false);
+      final platform = FakePlatform();
+      final withTitles = NotificationService(
+        platform,
+        clock: () => now,
+        showTaskTitles: true,
+      );
+      await withTitles.reconcile([task()], enabled);
+      expect(
+        platform.requests.values.every((r) => r.title.contains('Test')),
+        true,
+      );
+      final privateService = NotificationService(platform, clock: () => now);
+      await privateService.reconcile([task()], enabled);
+      expect(platform.writes, 4);
+      expect(
+        platform.requests.values.any((r) => r.fingerprint.contains('Test')),
+        false,
+      );
+    },
+  );
+
+  test(
+    'namespace has distinct bounded task slots and reserved countdown ID',
+    () {
+      expect(NotificationIds.task(1), 0x4A000002);
+      expect(
+        NotificationIds.task(NotificationIds.maxTaskId, urgent: true),
+        0x4AFFFFFF,
+      );
+      expect(NotificationIds.countdown, 0x4B000001);
+      expect(NotificationIds.isTask(NotificationIds.countdown), false);
+      expect(() => NotificationIds.task(0), throwsRangeError);
+      expect(
+        () => NotificationIds.task(NotificationIds.maxTaskId + 1),
+        throwsRangeError,
+      );
+      expect(
+        planNotifications(
+          [task(id: NotificationIds.maxTaskId + 1)],
+          enabled,
+          now,
+        ),
+        isEmpty,
+      );
+    },
+  );
+
+  test(
+    'reconcile only cancels owned payloads and migrates old schedules',
+    () async {
+      final platform = FakePlatform();
+      final legacy = jsonEncode([
+        'janus.task',
+        2,
+        'Old sensitive title',
+        now.toIso8601String(),
+        'notifier',
+      ]);
+      platform.foreign.addAll({
+        2: legacy,
+        7: 'other.plugin',
+        -1: null,
+        NotificationIds.task(99): 'other.plugin',
+      });
+      final service = NotificationService(platform, clock: () => now);
+      await service.reconcile([task()], enabled);
+      expect(platform.cancelled, contains(2));
+      expect(
+        platform.foreign.keys,
+        containsAll([7, -1, NotificationIds.task(99)]),
+      );
+      await service.reconcile([], const AppSettings());
+      expect(platform.requests, isEmpty);
+      expect(platform.foreign, hasLength(3));
+    },
+  );
+
+  test(
+    'a foreign producer in our reserved slot is never overwritten or cancelled',
+    () async {
+      final platform = FakePlatform();
+      platform.foreign[NotificationIds.task(1)] = 'other.plugin';
+      final service = NotificationService(platform, clock: () => now);
+      await expectLater(service.reconcile([task()], enabled), throwsStateError);
+      expect(platform.writes, 0);
+      expect(platform.cancelled, isEmpty);
+      platform.foreign[NotificationIds.countdown] = 'other.plugin';
+      await expectLater(
+        service.scheduleCountdown(now.add(const Duration(minutes: 5)), enabled),
+        throwsStateError,
+      );
+      expect(platform.cancelled, isEmpty);
+    },
+  );
+
   test('no past, boundary, completed, frozen or disabled reminders', () {
     expect(
       planNotifications(
@@ -80,7 +185,7 @@ void main() {
       now,
     );
     expect(plan, hasLength(60));
-    expect(plan.first.id, 2);
+    expect(plan.first.id, NotificationIds.task(1));
     expect(plan.last.at.isBefore(plan.first.at), false);
   });
 
@@ -148,16 +253,19 @@ void main() {
       final service = NotificationService(platform, clock: () => now);
       final end = now.add(const Duration(minutes: 25));
       expect(await service.scheduleCountdown(end, enabled), true);
-      expect(platform.requests[-1]?.at, end);
+      expect(platform.requests[NotificationIds.countdown]?.at, end);
       await service.reconcile([task()], enabled);
-      expect(platform.requests.containsKey(-1), true);
+      expect(platform.requests.containsKey(NotificationIds.countdown), true);
       await service.scheduleCountdown(
         end.add(const Duration(minutes: 5)),
         enabled,
       );
-      expect(platform.requests[-1]?.at, end.add(const Duration(minutes: 5)));
+      expect(
+        platform.requests[NotificationIds.countdown]?.at,
+        end.add(const Duration(minutes: 5)),
+      );
       await service.cancelCountdown();
-      expect(platform.requests.containsKey(-1), false);
+      expect(platform.requests.containsKey(NotificationIds.countdown), false);
       expect(await service.scheduleCountdown(now, enabled), false);
       expect(await service.scheduleCountdown(end, const AppSettings()), false);
       platform.allowed = false;

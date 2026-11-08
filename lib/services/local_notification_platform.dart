@@ -104,6 +104,7 @@ class LocalNotificationPlatform implements NotificationPlatform {
           '任务提醒 (${request.style})',
           importance: Importance.high,
           priority: Priority.high,
+          visibility: NotificationVisibility.private,
           playSound: ring,
           enableVibration: vibrate,
         ),

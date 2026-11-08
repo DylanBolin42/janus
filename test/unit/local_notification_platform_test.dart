@@ -64,8 +64,8 @@ void main() {
     () async {
       final platform = LocalNotificationPlatform();
       final request = NotificationRequest(
-        2,
-        'Task',
+        NotificationIds.task(1),
+        '有任务即将到期',
         DateTime.now().add(const Duration(days: 2)),
         'notifierAndRing',
       );
@@ -79,6 +79,10 @@ void main() {
         'inexactAllowWhileIdle',
       );
       expect((args['platformSpecifics'] as Map)['playSound'], true);
+      expect(
+        (args['platformSpecifics'] as Map)['visibility'],
+        NotificationVisibility.private.index,
+      );
       exact = true;
       await platform.schedule(request);
       args = calls.last.arguments as Map;
@@ -86,7 +90,7 @@ void main() {
         (args['platformSpecifics'] as Map)['scheduleMode'],
         'exactAllowWhileIdle',
       );
-      await platform.cancel(2);
+      await platform.cancel(NotificationIds.task(1));
       expect(calls.last.method, 'cancel');
     },
   );
@@ -101,7 +105,7 @@ void main() {
       expect(await platform.permission(request: true), false);
       await platform.schedule(
         NotificationRequest(
-          -1,
+          NotificationIds.countdown,
           'Countdown',
           DateTime.now().add(const Duration(hours: 1)),
           'notifierAndRing',
