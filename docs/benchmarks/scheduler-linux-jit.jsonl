@@ -1,0 +1,5 @@
+{"runtime":"3.13.0 (stable) (Wed Aug 5 00:28:05 2026 -0700) on \"linux_x64\"","os":"linux","processors":2,"mode":"Dart JIT","samples":5}
+{"tasks":500,"scenario":"all fit","scheduled":500,"unscheduled":0,"microseconds":[10779,11304,14957,15923,16222],"median_ms":14.957,"max_ms":16.222}
+{"tasks":500,"scenario":"overloaded 8h window","scheduled":32,"unscheduled":468,"microseconds":[3577,4032,4221,4352,4403],"median_ms":4.221,"max_ms":4.403}
+{"tasks":2000,"scenario":"all fit","scheduled":2000,"unscheduled":0,"microseconds":[141524,141574,141702,142034,144445],"median_ms":141.702,"max_ms":144.445}
+{"tasks":2000,"scenario":"overloaded 8h window","scheduled":32,"unscheduled":1968,"microseconds":[10344,11337,11512,12694,22908],"median_ms":11.512,"max_ms":22.908}
