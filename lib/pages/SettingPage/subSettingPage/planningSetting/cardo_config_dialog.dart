@@ -25,14 +25,17 @@ class _CardoConfigDialogState extends State<CardoConfigDialog> {
 
   @override
   void dispose() {
-    refreshTimer?.cancel();
-    super.dispose();
-  }
-
   Future<void> reload() async {
+    if (path.text.trim().isEmpty) return;
     setState(() => busy = true);
-    await widget.service.watchFile(CardoConfigService.configName);
-    if (mounted) setState(() => busy = false);
+    try {
+      final selected = path_util.absolute(path.text.trim());
+      path.text = selected;
+      await SharedPreferencesAsync().setString('cardo.configPath', selected);
+      await widget.service.watchFile(selected);
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
   }
 
   @override
