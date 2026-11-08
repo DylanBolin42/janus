@@ -89,7 +89,7 @@ S = 100 × (0.625 × B + 0.375 × U)
 
 ### 3.4 排序、重算与稳定性
 
-候选任务按以下键排序：未舍入 S 降序、有效 ddl 升序（缺失 / 无效置最后）、id 数值升序。草稿没有 id 时用调用方提供的稳定输入序号补齐最终平局。相同输入、now、算法版本应产生相同结果；不按列表内最大最小值归一化，新增任务不改变旧任务分数。
+候选任务按以下键排序：未舍入 S 降序、有效 ddl 升序（缺失 / 无效置最后）、id 数值升序。草稿没有 id 时用调用方提供的稳定输入序号补齐最终平局。相同输入、now、算法版本及生效配置修订号应产生相同结果；不按列表内最大最小值归一化，新增任务不改变旧任务分数。
 
 在创建 / 修改 priority、ddl、status，完成 / 冻结 / 恢复，打开或恢复应用时重算；应用前台可每 60 秒刷新一次，实际接入时以调度器为准，恢复时立即补算，不要求后台常驻。时间推进只更新 U，不冒充从历史学习；同一次刷新批量替换排序快照。专注会话中可更新建议，但不自动抢占用户当前任务（[R] §1.3.1 的切换成本、§4.1 的承诺与心流；[E] §2.1 Liminal）。
 
@@ -99,22 +99,23 @@ S = 100 × (0.625 × B + 0.375 × U)
 
 ```text
 algorithm_version: cardo-v1
+config_revision: 本批捕获的生效配置修订号（见第 7 节）
 calculated_at: 本批 now 的 UTC 时间
 eligibility: eligible | excluded | invalid_input
 score: 未舍入 S，或 null
 level: A | B | C，或 null
-factors: { B, U, base_contribution, urgency_contribution }
+factors: 默认 { B, U, base_contribution, urgency_contribution }，关闭因子时仅输出启用项
 reasons: 手动档位、剩余/逾期小时、两项贡献、等级解释
 warnings: 未设置重要性、截止时间缺失/异常、旧时间解释时区等
 ```
 
-只对 eligible 产生 factors；其他情况返回排除 / 校验原因。贡献以分为单位，二者之和等于 S。理由不能写“因为历史效率高”或“阻塞下游任务”，因为当前未计算这些因子。
+只对 eligible 产生 factors；其他情况返回排除 / 校验原因。贡献以分为单位，所有启用项的贡献之和等于 S。理由不能写“因为历史效率高”或“阻塞下游任务”，因为当前未计算这些因子。
 
 Prospect 可按分数排序、按等级分组；卡片显示等级与一条关键理由，详情显示贡献分解。手动 priority 保持用户意图输入，算法分数作为派生建议；用户调整输入后重算，不静默覆盖。Review 后续收集推荐接受与修正记录，为校准提供证据。v1 不执行任务、不承诺可行排程、不根据分数自动完成或冻结任务。
 
 ## 5. 带具体数字的算例与边界
 
-以下同批 `now=2026-11-08T12:00:00Z`，任务均为 status=0（除明确注明外）。
+以下使用第 7 节完整默认配置，同批 `now=2026-11-08T12:00:00Z`，任务均为 status=0（除明确注明外）。
 
 | 例 | 输入 priority / ddl | 归一化 B / U | 基础贡献 + 时间贡献 = S | 输出 |
 | --- | --- | --- | --- | --- |
@@ -128,18 +129,202 @@ Prospect 可按分数排序、按等级分组；卡片显示等级与一条关�
 
 ## 6. 数据缺口与后续扩展
 
-以下因子应在完整模型中考虑，当前不能据此评分。未知数据不应伪造成零效率、零成本或“无依赖”；也不能新增一个因子却沿用旧版本权重和阈值。
+“暂不可实现”指当前数据或采集能力尚未到位，并非数学算法做不到。仅有 priority、status、ddl 的快照，无法唯一还原任务何时创建、依赖谁、实际投入多少时间或用户为何改变选择；猜测这些值会产生无法解释的排序。以下逐项列出所需信号、具体缺口与接入工作，当前不能据此评分。未知数据不应伪造成零效率、零成本或“无依赖”；也不能新增一个因子却沿用旧版本权重和阈值。
 
-| 理论因子 / 来源 | 当前不足 | 需要补齐的数据与后续计算方向 |
-| --- | --- | --- |
-| 等待老化、防饥饿、任务衰减；[E] §2.1–2.2 | 无创建时间与衰减参数，不能用 id 推断年龄 | `created_at`、价值复核时间、任务类型 / 衰减参数。可用 `A=min(age_days/30,1)` 表示等待提升；价值衰减可用 `V(t)=V0×exp(-λt)`。两者方向相反，须按任务类型验证，30 天与 λ 都待校准，不能统称时间紧急度。 |
-| DAG、关键前置、阻塞传播；[R] §2.1.2、§3.1、§4.3.4；[E] §2.1 | 无依赖边、前置完成关系 | `predecessor_ids` 或依赖边表、边类型；校验环路。先过滤前置未完成任务，再评价解锁下游收益；缺图不能声称已满足依赖。 |
-| 耗时、价值密度、可用时间匹配；[R] 摘要、§1.1.2、§4.3.1 | 有可空 EST，但时间对象与时长语义未统一，无剩余工作量及日历时间块 | 统一 `estimated_duration_minutes`、已投入时长 / 剩余估计、`available_minutes`。候选短任务因子可为 `Q=1/(1+estimated_minutes/60)`；须限制短任务偏好并保护长程任务，60 分钟只是待验证尺度。 |
-| 历史专注效率、完成转化与预测误差；[E] §2.1–2.2；[R] §4.3.2 | 无实际耗时、专注区间、完成时间；status 快照无法推导速率 | `focus_sessions(task_id,start,end,interruptions)`、`completed_at`（对应蓝图 crossed_at）、实际有效分钟与估计历史。才能比较预计 / 实际耗时及分时段效率；冷启动保持禁用。 |
-| 稳定性、失败退避；[R] §4.3.1–4.3.2 | 无尝试次数、成功 / 失败与原因历史 | `attempts`、`outcome`、`failure_reason`、事件时间。可用 `(successes+1)/(attempts+2)` 平滑成功率，但须区分人工作业与工具失败，不能因困难自动贬低重要任务。 |
-| 环境、资源、用户状态；[R] §1.1.1、§2.2、§3.1 | 无工具就绪、精力 / 压力、可用连续时间等输入；tags 不等于这些标签 | 先以可选简明问题收集 `resources_ready`、时间块、用户自述精力及任务需求；资源不可用应作为执行门槛。传感器推断与多智能体负载属于后续场景，不能套用机器人或 CPU 指标代替个人状态。 |
-| 目标影响、偏好与反馈校准；[R] §1.3、§3.1、§4.3.3 | priority 混合主观判断，0 还可能为默认值；无目标关联与推荐反馈 | 目标关联 / 影响度、是否显式设置 priority、推荐曝光 / 接受 / 改档 / 忽略及时间、算法版本。先用简明问答区分重要性、紧急性与资源，再学习个人权重。 |
+| 理论因子 / 来源 | 当前模型具体缺口 | 理论所需数据与计算方向 | 补齐后的接入点与难度 |
+| --- | --- | --- | --- |
+| 等待老化、防饥饿、任务衰减；[E] §2.1–2.2 | 无创建时间与衰减参数，不能用 id 推断年龄 | `created_at`、价值复核时间、任务类型 / 衰减参数。可用 `A=min(age_days/30,1)` 表示等待提升；价值衰减可用 `V(t)=V0×exp(-λt)`。两者方向相反，须按任务类型验证，30 天与 λ 都待校准，不能统称时间紧急度。 | **接入：中等**；任务表加字段、迁移及创建/复核时写入；旧任务创建时间不可凭空回填，需标记未知。读取层生成老化/衰减特征后接入评分归一化层。 |
+| DAG、关键前置、阻塞传播；[R] §2.1.2、§3.1、§4.3.4；[E] §2.1 | 无依赖边、前置完成关系 | `predecessor_ids` 或依赖边表、边类型；校验环路。先过滤前置未完成任务，再评价解锁下游收益；缺图不能声称已满足依赖。 | **接入：较高**；新增依赖边表及编辑/完成传播流程、环检测；先接入候选过滤层，再接入解锁收益因子，不能只加一个整数权重。 |
+| 耗时、价值密度、可用时间匹配；[R] 摘要、§1.1.2、§4.3.1 | 有可空 EST，但时间对象与时长语义未统一，无剩余工作量及日历时间块 | 统一 `estimated_duration_minutes`、已投入时长 / 剩余估计、`available_minutes`。候选短任务因子可为 `Q=1/(1+estimated_minutes/60)`；须限制短任务偏好并保护长程任务，60 分钟只是待验证尺度。 | **接入：中等至较高**；任务表增加规范时长字段并迁移可解释的 EST，表单增加校验；时间块匹配还需日历/可用时段采集。规范 EST 先接归一化层，资源时间匹配接候选过滤层。默认 EST 只代表估计，不能补出实际耗时。 |
+| 历史专注效率、完成转化与预测误差；[E] §2.1–2.2；[R] §4.3.2 | 无实际耗时、专注区间、完成时间；status 快照无法推导速率 | `focus_sessions(task_id,start,end,interruptions)`、`completed_at`（对应蓝图 crossed_at）、实际有效分钟与估计历史。才能比较预计 / 实际耗时及分时段效率；冷启动保持禁用。 | **接入：较高**；新增专注会话与估计变更历史表，任务表加完成时间，并在开始/暂停/恢复/结束及完成时采集事件；聚合层积累分时段样本后向评分层提供效率特征。仅增加 completed_at 不足以还原有效专注时长。 |
+| 稳定性、失败退避；[R] §4.3.1–4.3.2 | 无尝试次数、成功 / 失败与原因历史 | `attempts`、`outcome`、`failure_reason`、事件时间。可用 `(successes+1)/(attempts+2)` 平滑成功率，但须区分人工作业与工具失败，不能因困难自动贬低重要任务。 | **接入：较高**；新增尝试/结果事件表及失败分类采集流程；聚合层计算成功率，在评分层接稳定性，在提示调度层接退避。当前 status=1 只是完成快照，没有尝试分母。 |
+| 环境、资源、用户状态；[R] §1.1.1、§2.2、§3.1 | 无工具就绪、精力 / 压力、可用连续时间等输入；tags 不等于这些标签 | 先以可选简明问题收集 `resources_ready`、时间块、用户自述精力及任务需求；资源不可用应作为执行门槛。传感器推断与多智能体负载属于后续场景，不能套用机器人或 CPU 指标代替个人状态。 | **接入：较高**；任务需求字段配合带有效期的用户上下文/可用时段表，新增问答或授权的数据采集流程；资源门槛先接候选过滤层，精力匹配再接评分层。状态会过期，不能仅永久加一个布尔字段。 |
+| 目标影响、偏好与反馈校准；[R] §1.3、§3.1、§4.3.3 | priority 混合主观判断，0 还可能为默认值；无目标关联与推荐反馈 | 目标关联 / 影响度、是否显式设置 priority、推荐曝光 / 接受 / 改档 / 忽略及时间、算法版本。先用简明问答区分重要性、紧急性与资源，再学习个人权重。 | **接入：较高**；任务表增加显式设置标记，新增目标关联表与推荐曝光/反馈事件表及采集界面；聚合/离线校准流程生成参数候选，经验证后由第 7 节配置加载器接入。仅凭手动 priority 不能区分“默认未填”和“有意选无”。 |
 
-扩展评分框架为 `S=100×Σ(w_j×f_j)`，要求各 `f_j∈[0,1]`、`w_j≥0`、`Σw_j=1`；每个新因子必须声明单位、方向、缺失策略与理由。硬门槛（完成、冻结、依赖未满足、资源不可用）先处理，不靠加减分代替。v1 固定只启用 B、U，不预留有分值却无数据的“环境 20%”。新增模型应提升版本号并重新校准分档，不能把上表示例函数直接当作 v1 已启用规则。
+扩展评分框架为 `S=100×Σ(w_j×f_j)`，要求各 `f_j∈[0,1]`、`w_j≥0`、`Σw_j=1`；每个新因子必须声明单位、方向、缺失策略与理由。硬门槛（完成、冻结、依赖未满足、资源不可用）先处理，不靠加减分代替。v1 默认只启用 B、U，允许按第 7 节关闭其中一个已支持因子，不预留有分值却无数据的“环境 20%”。新增模型应提升版本号并重新校准分档，不能把上表示例函数直接当作 v1 已启用规则。
 
 校准顺序：先采集版本化推荐与真实执行反馈，按时间分割离线评估，再小范围验证。比较手动排序、仅截止时间排序与 v1 的逾期率、重要任务完成率、用户改档 / 接受率和排序变动频率，避免只优化短任务吞吐。没有完成时间目前无法计算逾期完成率，没有曝光记录也无法计算接受率。对权重比例、24h 常数、40/70 阈值逐项做敏感性分析；样本不足时维持默认值，不假装已经个性化。记录参数变更、允许恢复默认，并监控无截止、低重要性和长任务是否长期被忽略。强化学习、模糊控制与多目标优化（[R] §5.1）作为数据充分后的选项，当前无训练反馈与可观测环境，不作为首版实现前提。
+
+## 7. 参数配置与热插拔
+
+本节是后续实现必须遵循的配置契约，本次仍只修改文档。第 3–5 节数值均基于下列默认配置；修改参数后，权重解释、阈值理由与结果必须显示实际配置，不能继续引用默认数值。配置可在运行时替换，不重启、不重新编译；热插拔只替换已实现算法的参数，不能凭配置创建新算法、数据表或采集能力。
+
+### 7.1 外部 JSON、字段说明与完整默认示例
+
+外部文件由应用设置指定，例如 `cardo-config.json`；先支持 UTF-8 严格 JSON 对象，不接受注释、重复键、NaN、Infinity 或字符串形式的数字。YAML 留待未来独立解析器与格式版本，不在 v1 接受。为保持文件可直接解析，下面 JSON 不含注释；紧随其后的表格逐项充当注释。
+
+```json
+{
+  "version": 1,
+  "factors": {
+    "base": {
+      "enabled": true,
+      "weight": 0.625,
+      "normalization": {
+        "priority_values": [0, 0.3333333333333333, 0.6666666666666666, 1]
+      },
+      "params": {}
+    },
+    "urgency": {
+      "enabled": true,
+      "weight": 0.375,
+      "normalization": {
+        "half_life_hours": 24,
+        "missing_value": 0
+      },
+      "params": {}
+    },
+    "estimated_duration": {
+      "enabled": false,
+      "weight": 0,
+      "normalization": {
+        "scale_minutes": 60
+      },
+      "params": {
+        "default_minutes": 30
+      }
+    }
+  },
+  "thresholds": {
+    "b_min": 40,
+    "a_min": 70
+  }
+}
+```
+
+| 字段路径 | 含义、默认值与约束 |
+| --- | --- |
+| `version` | 配置格式版本，整数 1；与算法版本 `cardo-v1`、每次成功加载递增的配置修订号不同。缺失按 1 回退并警告；显式提供其他版本必须拒绝。 |
+| `factors.base.enabled` / `.weight` | 是否启用基础因子、原始权重；默认 true / 0.625。开关必须为 JSON 布尔。 |
+| `factors.base.normalization.priority_values` | priority=0、1、2、3 对应的四个归一化值；默认如示例，等价于 `priority/3` 的双精度表示。必须长度 4、单调不减、首项 0、末项 1。数组是原子字段，缺失整个回退，缺项不逐元素填补。 |
+| `factors.base.params`、`factors.urgency.params` | 可选参数容器，v1 无额外已识别参数，默认空对象；未知子字段忽略并警告，不能通过它选择任意函数。 |
+| `factors.urgency.enabled` / `.weight` | 是否启用紧急度、原始权重；默认 true / 0.375。 |
+| `factors.urgency.normalization.half_life_hours` | 双曲函数的半值时间 H，默认 24，范围 [0.25,8760] 小时；此处“半衰期”指剩余 H 小时时 U=0.5，不是指数衰减。计算改写为 `U=1/(1+max(h,0)/H)`。 |
+| `factors.urgency.normalization.missing_value` | 缺失/异常 ddl 的降级值，v1 固定 0；禁止配置为虚构紧急度。 |
+| `factors.estimated_duration.enabled` / `.weight` | 为未来 EST 因子预留完整形状，v1 **只允许 false / 0**。显式启用或分配正权重返回 `unsupported_factor`，不能静默忽略并声称生效。其他缺数据因子尚未注册，属于未知字段，忽略并警告。 |
+| `factors.estimated_duration.normalization.scale_minutes` | 未来 `Q=1/(1+estimated_minutes/T)` 的 T，默认 60，范围 [1,10080] 分钟；v1 校验并保留但不参与计算。 |
+| `factors.estimated_duration.params.default_minutes` | 未来缺 EST 时的估计时长，默认 30，整数 [1,10080] 分钟；这是可选参数，v1 保留但不启用，不能替代实际耗时。 |
+| `thresholds.b_min` / `.a_min` | B 与 A 的包含下界，默认 40 / 70；要求 `0 < b_min < a_min < 100`。C 为 `[0,b_min)`，B 为 `[b_min,a_min)`，A 为 `[a_min,100]`，0 与 100 是固定端点，无需第三个切点。 |
+
+所有原始权重范围为 [0,10]。禁用因子的权重不参与求和；base、urgency 至少一个启用，启用因子的原始权重之和 W 必须 ≥0.000001。先按 `w_j=raw_weight_j/W` 归一化，再计算 `S=100×Σ(w_j×f_j)`，所以不会因配置权重总和不是 1 而改变分数范围。启用但权重为 0 合法，只要整体满足上述条件；禁用因子不生成贡献理由，但截止/逾期警告独立于 urgency 开关。缺 ddl 不等于关闭该因子，不逐任务重新分配权重。关闭基础因子可能削弱长程重要性保护，应在诊断中警告 `base_disabled`；关闭 urgency 则警告 `urgency_disabled`。这类合法配置改变策略，默认阈值理由仅在默认参数下成立。
+
+### 7.2 完整 schema 与校验次序
+
+以下为 JSON Schema Draft 2020-12。schema 描述**应用默认值之后的规范配置**；原始文件可省略任意已知字段，由加载器按示例值补全，不能依赖 JSON Schema 的 `default` 自动填值。所有对象的 `additionalProperties:true` 专用于兼容未知字段；加载器须先报告并移除未知字段，不能将其带入评分器。除 schema 外，还必须执行后述跨字段约束。
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["version", "factors", "thresholds"],
+  "additionalProperties": true,
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "factors": {
+      "type": "object",
+      "required": ["base", "urgency", "estimated_duration"],
+      "additionalProperties": true,
+      "properties": {
+        "base": {
+          "type": "object",
+          "required": ["enabled", "weight", "normalization", "params"],
+          "additionalProperties": true,
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "weight": {"type": "number", "minimum": 0, "maximum": 10},
+            "normalization": {
+              "type": "object",
+              "required": ["priority_values"],
+              "additionalProperties": true,
+              "properties": {
+                "priority_values": {
+                  "type": "array", "minItems": 4, "maxItems": 4,
+                  "items": {"type": "number", "minimum": 0, "maximum": 1}
+                }
+              }
+            },
+            "params": {"type": "object", "properties": {}, "additionalProperties": true}
+          }
+        },
+        "urgency": {
+          "type": "object",
+          "required": ["enabled", "weight", "normalization", "params"],
+          "additionalProperties": true,
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "weight": {"type": "number", "minimum": 0, "maximum": 10},
+            "normalization": {
+              "type": "object",
+              "required": ["half_life_hours", "missing_value"],
+              "additionalProperties": true,
+              "properties": {
+                "half_life_hours": {"type": "number", "minimum": 0.25, "maximum": 8760},
+                "missing_value": {"type": "number", "const": 0}
+              }
+            },
+            "params": {"type": "object", "properties": {}, "additionalProperties": true}
+          }
+        },
+        "estimated_duration": {
+          "type": "object",
+          "required": ["enabled", "weight", "normalization", "params"],
+          "additionalProperties": true,
+          "properties": {
+            "enabled": {"type": "boolean", "const": false},
+            "weight": {"type": "number", "const": 0},
+            "normalization": {
+              "type": "object",
+              "required": ["scale_minutes"],
+              "additionalProperties": true,
+              "properties": {
+                "scale_minutes": {"type": "number", "minimum": 1, "maximum": 10080}
+              }
+            },
+            "params": {
+              "type": "object", "required": ["default_minutes"],
+              "additionalProperties": true,
+              "properties": {
+                "default_minutes": {"type": "integer", "minimum": 1, "maximum": 10080}
+              }
+            }
+          }
+        }
+      }
+    },
+    "thresholds": {
+      "type": "object", "required": ["b_min", "a_min"],
+      "additionalProperties": true,
+      "properties": {
+        "b_min": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 100},
+        "a_min": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 100}
+      }
+    }
+  }
+}
+```
+
+加载按以下顺序进行，任何错误都不得发布半份配置：
+
+1. 限制读取最多 **64 KiB（65536 字节）**、嵌套深度最多 16 层；读取后验证 UTF-8 和严格 JSON。大小超限、重复键、根非对象、解析或权限错误均拒绝，报告错误码与位置；不是字段缺失。
+2. 检查显式 version 的类型与兼容性；版本不兼容直接拒绝。只识别 schema 中注册的字段路径；未知字段（包括未知因子、params 下未知键）逐个记录 `unknown_field` 警告后忽略。已知父字段显式为 null、数组或其他错误类型时拒绝，不能当作缺失。
+3. 为缺失字段按内置默认逐字段递归补全，并记录 `defaulted_field` 警告；整个对象缺失则补其默认子树。补全来源永远是内置默认，**不是当前内存配置或上一次外部文件**。例如上次 H=48，本次文件省略 H，则恢复 24。
+4. 对补全后的配置运行 schema、有限数检查及跨字段校验：`priority_values[0]=0`、`priority_values[3]=1` 且单调不减；`b_min<a_min`；至少一个支持的因子启用，W≥0.000001。所有已知字段即使所属因子禁用也要校验，不允许把坏值藏在禁用项中。
+5. 构造只包含已知字段的不可变配置快照，记录归一化权重与诊断；原子发布成功后才更新生效元数据。相同规范配置可不递增修订号，但要记录本次加载结果与时间。
+
+错误必须指出具体路径和期望，例如 `factors.base.weight: expected finite number in [0,10], got -1`、`thresholds.a_min: expected > thresholds.b_min (40), got 30`、`factors.urgency.enabled: expected boolean, got "true"`。权重全零报 `factors: expected enabled weight sum >= 0.000001`。不能将非法类型隐式转换后接受。
+
+### 7.3 运行时替换、回退与并发
+
+启动时总是先建立内置默认快照。文件不存在时成功回退内置默认，来源为 `builtin`，记录 `file_missing`；文件可读但非法或版本不兼容则拒绝该次加载，保留已建立的默认快照。运行期间文件缺失（包括删除）同样按明确的缺失规则回退内置默认；这与“存在但内容错误”的替换失败不同。读取/权限/解析/校验失败均保留旧快照继续服务，不能导致任务列表不可用。
+
+未来配置加载服务负责监听指定路径的变更，并提供“重新加载配置”操作作为手动入口。推荐写入方先写同目录临时文件，再原子重命名到目标路径，避免半写文件。加载服务在工作线程读取并校验完整候选快照；单次变更触发一次加载，可合并连续通知，最后一次文件状态仍须被处理。不同加载请求串行执行，防止较早、较慢的读取覆盖较新的配置。
+
+替换是**全量快照替换**：当前文件的已知字段加内置缺省值构成完整配置，既不对旧内存做增量合并，也不沿用旧文件缺省。成功后通过锁或原子引用一次性切换配置及其来源/时间/修订号。每批计算开始只捕获一个配置快照和一个 now，整批始终使用该快照；正在计算的批次不受替换影响。发布后立即安排新配置重算；若旧批次晚于新配置发布才完成，其结果不得覆盖当前展示，检查 `config_revision` 后丢弃并用新配置重算。专注会话不自动切换的约束保持有效。
+
+### 7.4 可观测性、安全边界与验收
+
+未来实现须提供只读 `CardoConfigDiagnostics` 查询入口，并在应用设置中的“优先级算法 → 当前配置”显示：生效 `source`（`builtin` 或外部文件绝对路径）、配置格式版本、算法版本、`config_revision`、UTC `loaded_at`、规范化参数/有效权重、当前配置的校验警告列表。另显示 `last_attempt_at`、尝试路径、成功/回退/拒绝状态及具体错误/警告；失败时不能把失败候选的来源与时间误记为当前生效配置。评分输出携带修订号，方便重现排序。此处定义接入要求，本次不新增设置页或查询代码。
+
+配置文件只读解析，不执行脚本、表达式、模板、动态库、类名、网络请求或文件 include；路径由应用设置指定，内容不能跳转读取其他路径。因子名、算法与状态枚举由实现注册，未知名字忽略并警告，不能动态注册任意枚举或绕过 completed/frozen 门槛。64 KiB、16 层与数值上下限由加载器固定，不允许配置文件自己放宽。后续支持 YAML 时也必须禁止对象实例化、标签执行与别名膨胀，遵守同样的规范配置校验。
+
+文档验收场景：完整默认 JSON 重现第 5 节五例，分数分别为 92.5、51.041666…、37.5、62.5、null；只改 H=48 时例 1 的 U=8/9、S=95.833333…，下一批无需重启即可采用；随后加载 `{}` 应完整恢复默认并报告缺省警告。未知键只产生警告且不影响分数；负权重、全零有效权重、逆序阈值、字符串开关、超限文件、错误版本均拒绝并保留旧快照。文件删除按规则回退默认。并发时旧批次保持原快照，显示层只接纳当前修订的结果。这些是未来实现的验收条件，本次没有声称热插拔能力已落地。
