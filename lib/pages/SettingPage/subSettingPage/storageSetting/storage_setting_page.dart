@@ -3,6 +3,7 @@ import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:janus/providers/database_provider.dart';
 import 'package:janus/services/storage_service.dart';
+import 'package:janus/services/storage_file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
@@ -13,7 +14,9 @@ import 'package:janus/shared/custom_app_settings_tile.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 
 class StorageSettingPage extends ConsumerStatefulWidget {
-  const StorageSettingPage({super.key});
+  const StorageSettingPage({super.key, this.filePicker});
+
+  final StorageFilePicker? filePicker;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -28,9 +31,9 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
 
   void _feedback(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _operate(Future<void> Function() action) async {
@@ -39,6 +42,8 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
     try {
       await action();
       if (mounted) setState(() => _statistics = null);
+    } on StorageFileException catch (error) {
+      _feedback(error.message);
     } on FormatException catch (error) {
       _feedback(error.message);
     } on FileSystemException {
@@ -51,15 +56,17 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
   }
 
   Future<void> _export() => _operate(() async {
-    final file = await _service.exportSnapshot();
+    final destination = await _transfer.exportToPicker();
+    if (destination == null) {
+      _feedback('已取消保存到所选位置；应用内快照已保留');
+      return;
+    }
     if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('快照已导出'),
-        content: SelectableText(
-          '任务和标签已保存至：\n${file.path}\n可从导入入口选择此快照。应用设置不包含在内。',
-        ),
+        content: SelectableText('已保存至：\n$destination\n应用内也保留了快照，应用设置不包含在内。'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -70,7 +77,19 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
     );
   });
 
+  StorageTransfer get _transfer =>
+      StorageTransfer(_service, widget.filePicker ?? NativeStorageFilePicker());
+
   Future<void> _import() => _operate(() async {
+    final snapshot = await _transfer.selectSnapshot();
+    if (snapshot == null) {
+      _feedback('已取消选择文件，现有数据未修改');
+      return;
+    }
+    await _confirmImport(snapshot);
+  });
+
+  Future<void> _importLocal() => _operate(() async {
     final files = await _service.snapshots();
     if (!mounted) return;
     final selected = await showDialog<File>(
@@ -80,7 +99,7 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
         children: [
           const Padding(
             padding: EdgeInsets.all(16),
-            child: Text('从应用文档目录 janus_snapshots 导入；外部快照需先放入该目录。'),
+            child: Text('选择应用内保留的快照；外部文件可使用“导入数据库”的系统文件选择器。'),
           ),
           if (files.isEmpty)
             const Padding(
@@ -101,6 +120,10 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
     );
     if (selected == null) return;
     final snapshot = await _service.readSnapshot(selected);
+    await _confirmImport(snapshot);
+  });
+
+  Future<void> _confirmImport(StorageSnapshot snapshot) async {
     if (!mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -124,7 +147,7 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
     if (confirmed != true || !mounted) return;
     await _service.restore(snapshot);
     _feedback('快照已导入');
-  });
+  }
 
   Future<void> _clear() async {
     final confirmed = await showDialog<bool>(
@@ -216,15 +239,21 @@ class _StorageSettingPageState extends ConsumerState<StorageSettingPage> {
                     title: Text('导入数据库'),
                     leading: Icon(MdiIcons.import),
                     trailing: Icon(Icons.navigate_next_rounded),
-                    description: Text('从应用快照目录选择 JSON，确认后替换数据'),
+                    description: Text('选择任意位置的 JSON 文件，校验并确认后导入'),
                     onPressed: _busy ? null : (_) => _import(),
                   ),
                   SettingsTile.navigation(
                     title: Text('导出数据库'),
                     leading: Icon(MdiIcons.export),
                     trailing: Icon(Icons.navigate_next_rounded),
-                    description: Text('导出任务与标签到应用文档目录'),
+                    description: Text('选择保存位置，并保留应用内快照'),
                     onPressed: _busy ? null : (_) => _export(),
+                  ),
+                  SettingsTile.navigation(
+                    title: Text('应用内快照'),
+                    leading: Icon(Icons.history),
+                    description: Text('从本应用保留的快照恢复'),
+                    onPressed: _busy ? null : (_) => _importLocal(),
                   ),
                   CustomAppSettingsTile(
                     backgroundColor: Theme.of(

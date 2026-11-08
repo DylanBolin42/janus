@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:drift/drift.dart';
 import 'package:janus/database/app_database.dart';
@@ -232,9 +233,35 @@ class StorageService implements StorageRepository {
     }
   }
 
+  static const maxSnapshotBytes = 20 * 1024 * 1024;
+
+  /// Enforce both declared and actual length, including unknown provider sizes.
+  Future<StorageSnapshot> readSnapshotStream(
+    Stream<List<int>> Function() open, {
+    int? size,
+  }) async {
+    if (size != null && size > maxSnapshotBytes) {
+      throw const FormatException('快照超过 20 MiB，请选择较小的 JSON 文件');
+    }
+    final bytes = BytesBuilder(copy: false);
+    await for (final chunk in open()) {
+      if (bytes.length + chunk.length > maxSnapshotBytes) {
+        throw const FormatException('快照超过 20 MiB，请选择较小的 JSON 文件');
+      }
+      bytes.add(chunk);
+    }
+    String source;
+    try {
+      source = utf8.decode(bytes.takeBytes());
+    } on FormatException {
+      throw const FormatException('文件编码无效，请选择 UTF-8 JSON 快照');
+    }
+    return StorageSnapshot.parse(source, database.schemaVersion);
+  }
+
   @override
   Future<StorageSnapshot> readSnapshot(File file) async =>
-      StorageSnapshot.parse(await file.readAsString(), database.schemaVersion);
+      readSnapshotStream(file.openRead, size: await file.length());
 
   @override
   Future<void> restore(StorageSnapshot snapshot) =>
