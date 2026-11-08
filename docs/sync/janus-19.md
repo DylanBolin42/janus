@@ -31,6 +31,13 @@ JSON v1 顶层为 `version: 1`、`createdAt`（UTC ISO-8601）、`tasks`、`tags
 
 ## 验证与限制
 
+Flutter 3.47.0 / Dart 3.13.0（与 `.fvmrc` 一致），本分支最终验证：
+
+- `fvm flutter test --no-pub`：224 项全过（含新增 19 项同步测试）。
+- `fvm flutter analyze --no-pub`：6 项已有诊断，退出码 1；独立检出基线 d5f33fa 也为相同的 2 warning / 4 info，没有新增诊断。
+- `fvm dart format --output=none --set-exit-if-changed`：10 个变更 Dart 文件无格式差异；`git diff --check` 通过。
+- 没有 Android SDK/JDK、Xcode；原生桥接尚未编译，不将 mock 通道测试视为真机验证。
+
 同步单元测试使用内存 Drift 数据库及注入的 FakeBackend，覆盖失败→重试、状态转换、并发拒绝、时间持久化、快照往返（含标签）、损坏快照/重复 ID 不修改本地数据、设置写入失败回滚、安全存储通道及失败时不明文回退。
 
 协议测试启动本地 HTTPS HttpServer，测试专用自签名证书显式注入测试客户端信任；覆盖真实 PROPFIND/PUT/GET 路径与认证、401 重试、404/500、重定向拒绝、默认客户端拒绝不可信证书及 10 MiB 大小限制。`test/fixtures/sync` 中的密钥和证书仅用于本地测试，无生产用途，生产客户端没有关闭证书验证的代码。
