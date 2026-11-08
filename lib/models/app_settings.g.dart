@@ -32,6 +32,19 @@ _AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => _AppSettings(
         json['approachingNotificationStyle'],
       ) ??
       ApproachingNotificationStyle.notifier,
+  morningBriefingTime: json['morningBriefingTime'] == null
+      ? const TimeOfDay(hour: 8, minute: 0)
+      : const TimeOfDayConverter().fromJson(
+          json['morningBriefingTime'] as String,
+        ),
+  eveningBriefingTime: json['eveningBriefingTime'] == null
+      ? const TimeOfDay(hour: 20, minute: 0)
+      : const TimeOfDayConverter().fromJson(
+          json['eveningBriefingTime'] as String,
+        ),
+  focusTimerMode:
+      $enumDecodeNullable(_$FocusTimerModeEnumMap, json['focusTimerMode']) ??
+      FocusTimerMode.countdown,
   tempLeaveDuration:
       $enumDecodeNullable(
         _$TempLeaveDurationEnumMap,
@@ -111,6 +124,13 @@ Map<String, dynamic> _$AppSettingsToJson(
   'approachingNotificationStyle':
       _$ApproachingNotificationStyleEnumMap[instance
           .approachingNotificationStyle]!,
+  'morningBriefingTime': const TimeOfDayConverter().toJson(
+    instance.morningBriefingTime,
+  ),
+  'eveningBriefingTime': const TimeOfDayConverter().toJson(
+    instance.eveningBriefingTime,
+  ),
+  'focusTimerMode': _$FocusTimerModeEnumMap[instance.focusTimerMode]!,
   'tempLeaveDuration': _$TempLeaveDurationEnumMap[instance.tempLeaveDuration]!,
   'tempLeaveTimes': _$TempLeaveTimesEnumMap[instance.tempLeaveTimes]!,
   'focusSceneRenderMode':
@@ -174,6 +194,12 @@ const _$ApproachingNotificationStyleEnumMap = {
   ApproachingNotificationStyle.notifierAndShake: 'notifierAndShake',
   ApproachingNotificationStyle.notifierAndRing: 'notifierAndRing',
   ApproachingNotificationStyle.fullScreenNotifier: 'FullScreenNotifier',
+};
+
+const _$FocusTimerModeEnumMap = {
+  FocusTimerMode.countdown: 'countdown',
+  FocusTimerMode.stopwatch: 'stopwatch',
+  FocusTimerMode.pomodoro: 'pomodoro',
 };
 
 const _$TempLeaveDurationEnumMap = {
