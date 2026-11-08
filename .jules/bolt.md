@@ -1,0 +1,3 @@
+# Bolt Performance Journal
+
+## 2026-03-31 - Isolate Dynamic Stream Subtree in Composite Pages **经验心得：** In composite pages with large static header decorations and complex layout controllers (such as `GlassScaffold` with 300px banner and `ReelText` animation controller inside `InboxPage`), invoking `ref.watch` on high-frequency stream providers (e.g. `inboxTasksProvider`) directly in the parent widget causes the entire page tree to re-evaluate on every database stream update. Extracting the reactive portion into a dedicated `ConsumerWidget` (e.g. `_InboxTaskList`) scopes rebuilds exclusively to the list subtree. **后续行动：** Always isolate stream-based or dynamic Riverpod providers into leaf/dedicated `ConsumerWidget`s rather than watching them at the page container level.

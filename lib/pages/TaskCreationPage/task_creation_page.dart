@@ -66,8 +66,11 @@ class TaskCreationPage {
         ),
         child: Consumer(
           builder: (context, ref, _) {
-            final settings =
-                ref.watch(appSettingsProvider).value ?? const AppSettings();
+            final taskCreationMode = ref.watch(
+              appSettingsProvider.select(
+                (s) => s.value?.taskCreationMode ?? TaskCreationMode.classic,
+              ),
+            );
             return Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: AppSpacing.marginMobile,
@@ -75,7 +78,7 @@ class TaskCreationPage {
               child: Column(
                 children: [
                   const SizedBox(height: AppSpacing.base),
-                  switch (settings.taskCreationMode) {
+                  switch (taskCreationMode) {
                     TaskCreationMode.classic => const ClassicPage(),
                     TaskCreationMode.fillInBlanks => const Column(),
                     TaskCreationMode.naturalLanguage => const Column(),
