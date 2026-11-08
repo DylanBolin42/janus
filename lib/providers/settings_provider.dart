@@ -192,6 +192,14 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
+  Future<bool> setEndPoint(String url) async {
+    if (!isValidEndpointUrl(url)) return false;
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(endPoint: url.trim()),
+    );
+    return true;
+  }
+
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.value ?? const AppSettings()).copyWith(aiDailySummary: enabled),
@@ -223,6 +231,22 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
     );
   }
 }
+
+/// Validates AI endpoint URLs to enforce HTTPS for remote endpoints (preventing MITM attacks),
+/// while permitting HTTP for local development tools running on loopback hosts (localhost / 127.0.0.1).
+bool isValidEndpointUrl(String url) {
+  final trimmed = url.trim();
+  if (trimmed.isEmpty) return true;
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null || !uri.hasScheme || uri.host.isEmpty) return false;
+  if (uri.scheme == 'https') return true;
+  if (uri.scheme == 'http') {
+    final host = uri.host.toLowerCase();
+    return host == 'localhost' || host == '127.0.0.1';
+  }
+  return false;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Theme-mode-only provider (convenience for MyApp)
 // ─────────────────────────────────────────────────────────────────────────────
