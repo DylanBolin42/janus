@@ -1,7 +1,6 @@
 import 'package:card_settings_ui/card_settings_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:janus/models/app_settings.dart';
 import 'package:janus/providers/settings_provider.dart';
 import 'package:janus/shared/custom_app_settings_tile.dart';
 import 'package:janus/shared/custom_appbar.dart';
@@ -18,8 +17,21 @@ class AiSettingPage extends ConsumerStatefulWidget {
 class _AiSettingPageState extends ConsumerState<AiSettingPage> {
   @override
   Widget build(BuildContext context) {
-    final settings =
-        ref.watch(appSettingsProvider).value ?? const AppSettings();
+    // Performance optimization: watch specific fields via granular .select()
+    // instead of watching the entire appSettingsProvider. This prevents
+    // unnecessary full-page rebuilds when unrelated settings change.
+    final aiDailySummary = ref.watch(
+      appSettingsProvider.select((s) => s.value?.aiDailySummary ?? false),
+    );
+    final aiAnalyseReport = ref.watch(
+      appSettingsProvider.select((s) => s.value?.aiAnalyseReport ?? false),
+    );
+    final aiTextToTask = ref.watch(
+      appSettingsProvider.select((s) => s.value?.aiTextToTask ?? false),
+    );
+    final aiPicToTask = ref.watch(
+      appSettingsProvider.select((s) => s.value?.aiPicToTask ?? false),
+    );
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
@@ -103,7 +115,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                 SettingsTile(
                   title: Text('每日日报总结'),
                   trailing: GlassSwitch(
-                    value: settings.aiDailySummary,
+                    value: aiDailySummary,
                     onChanged: (val) {
                       ref
                           .read(appSettingsProvider.notifier)
@@ -114,7 +126,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                 SettingsTile(
                   title: Text('更完善的分析报告'),
                   trailing: GlassSwitch(
-                    value: settings.aiAnalyseReport,
+                    value: aiAnalyseReport,
                     onChanged: (val) {
                       ref
                           .read(appSettingsProvider.notifier)
@@ -126,7 +138,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                   title: Text('智慧文本日程提取'),
                   description: Text('指拥有更强的上下文理解能力和联想推理能力'),
                   trailing: GlassSwitch(
-                    value: settings.aiTextToTask,
+                    value: aiTextToTask,
                     onChanged: (val) {
                       ref
                           .read(appSettingsProvider.notifier)
@@ -138,7 +150,7 @@ class _AiSettingPageState extends ConsumerState<AiSettingPage> {
                   title: Text('图片日程提取'),
                   description: Text('需要对应模型支持图片输入和图像理解'),
                   trailing: GlassSwitch(
-                    value: settings.aiPicToTask,
+                    value: aiPicToTask,
                     onChanged: (val) {
                       ref
                           .read(appSettingsProvider.notifier)

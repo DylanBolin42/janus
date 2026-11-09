@@ -36,8 +36,31 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final settings =
-        ref.watch(appSettingsProvider).value ?? const AppSettings();
+    // Performance optimization: watch specific fields via granular .select()
+    // instead of watching the entire appSettingsProvider. This prevents
+    // unnecessary full-page rebuilds when unrelated settings change.
+    final syncEnabled = ref.watch(
+      appSettingsProvider.select((s) => s.value?.syncEnabled ?? false),
+    );
+    final syncMode = ref.watch(
+      appSettingsProvider.select((s) => s.value?.syncMode ?? SyncMode.auto),
+    );
+    final syncTrigger = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.syncTrigger ?? SyncTrigger.onTime,
+      ),
+    );
+    final syncDurationOnInterval = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.syncDurationOnInterval ?? const Duration(hours: 3),
+      ),
+    );
+    final rsaType = ref.watch(
+      appSettingsProvider.select((s) => s.value?.rsaType ?? RsaType.rsa2048),
+    );
+    final useAppLock = ref.watch(
+      appSettingsProvider.select((s) => s.value?.useAppLock ?? false),
+    );
     final tt = Theme.of(context).textTheme;
     return GlassScaffold(
       topEdgeFade: false,
@@ -61,7 +84,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                   title: Text('是否同步'),
                   leading: Icon(Icons.upload_rounded),
                   trailing: GlassSwitch(
-                    value: settings.syncEnabled,
+                    value: syncEnabled,
                     onChanged: (val) {
                       ref
                           .read(appSettingsProvider.notifier)
@@ -119,13 +142,13 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                   title: Text('同步模式'),
                   trailing: Builder(
                     builder: (ctx) => GlassPullDownButton(
-                      label: settings.syncMode.label,
+                      label: syncMode.label,
                       buttonWidth: 120,
                       buttonShape: const LiquidRoundedRectangle(
                         borderRadius: 64,
                       ),
                       items: SyncMode.values.map((mode) {
-                        final isSelected = settings.syncMode == mode;
+                        final isSelected = syncMode == mode;
                         return GlassMenuItem(
                           title: mode.label,
                           icon: Icon(
@@ -185,14 +208,14 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                   title: Text('触发间隔'),
                   trailing: Builder(
                     builder: (ctx) => GlassPullDownButton(
-                      icon: Icon(settings.syncTrigger.icon),
-                      label: settings.syncTrigger.label,
+                      icon: Icon(syncTrigger.icon),
+                      label: syncTrigger.label,
                       buttonWidth: 120,
                       buttonShape: const LiquidRoundedRectangle(
                         borderRadius: 64,
                       ),
                       items: SyncTrigger.values.map((trigger) {
-                        final isSelected = settings.syncTrigger == trigger;
+                        final isSelected = syncTrigger == trigger;
                         return GlassMenuItem(
                           title: trigger.label,
                           icon: Icon(
@@ -210,7 +233,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                     ),
                   ),
                 ),
-                switch (settings.syncTrigger) {
+                switch (syncTrigger) {
                   SyncTrigger.onChanged => InteractiveTile(
                     leading: Icon(Icons.save_rounded),
                     title: Text('自动保存'),
@@ -249,7 +272,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                           DateTime.now()
                               .day, //INFO: Wasted data, won't be stored into the [DataBase] or [SharedPreference]. Only to meet the need of a [DateTime] type data.
                           //WARNING: Unsure whether it will cause vulnerability.
-                        ).add(settings.syncDurationOnInterval),
+                        ).add(syncDurationOnInterval),
                       ),
                       onCompleted: (timeOfDay) {
                         if (timeOfDay == null) return;
@@ -301,13 +324,13 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                   trailing: Builder(
                     builder: (ctx) => GlassPullDownButton(
                       icon: null,
-                      label: settings.rsaType.label,
+                      label: rsaType.label,
                       buttonWidth: 170,
                       buttonShape: const LiquidRoundedRectangle(
                         borderRadius: 64,
                       ),
                       items: RsaType.values.map((type) {
-                        final isSelected = settings.rsaType == type;
+                        final isSelected = rsaType == type;
                         return GlassMenuItem(
                           title: type.label,
                           icon: Icon(
@@ -351,7 +374,7 @@ class _SyncSettingPageState extends ConsumerState<SyncSettingPage> {
                 InteractiveTile(
                   title: Text('应用锁'),
                   trailing: GlassSwitch(
-                    value: settings.useAppLock,
+                    value: useAppLock,
                     onChanged: (status) {
                       ref
                           .read(appSettingsProvider.notifier)

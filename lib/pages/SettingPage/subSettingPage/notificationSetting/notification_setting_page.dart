@@ -19,8 +19,28 @@ class _NotificationSettingPageState
     extends ConsumerState<NotificationSettingPage> {
   @override
   Widget build(BuildContext context) {
-    final settings =
-        ref.watch(appSettingsProvider).value ?? const AppSettings();
+    // Performance optimization: watch specific fields via granular .select()
+    // instead of watching the entire appSettingsProvider. This prevents
+    // unnecessary full-page rebuilds when unrelated settings change.
+    final isNotificationEnabled = ref.watch(
+      appSettingsProvider.select(
+        (s) => s.value?.isNotificationEnabled ?? false,
+      ),
+    );
+    final urgentNotificationStyle = ref.watch(
+      appSettingsProvider.select(
+        (s) =>
+            s.value?.urgentNotificationStyle ??
+            UrgentNotificationStyle.notifier,
+      ),
+    );
+    final approachingNotificationStyle = ref.watch(
+      appSettingsProvider.select(
+        (s) =>
+            s.value?.approachingNotificationStyle ??
+            ApproachingNotificationStyle.notifier,
+      ),
+    );
     final tt = Theme.of(context).textTheme;
 
     return GlassScaffold(
@@ -36,7 +56,7 @@ class _NotificationSettingPageState
                   title: Text('是否通知'),
                   leading: Icon(Icons.notifications_rounded),
                   trailing: GlassSwitch(
-                    value: settings.isNotificationEnabled,
+                    value: isNotificationEnabled,
                     onChanged: (status) {
                       ref
                           .read(appSettingsProvider.notifier)
@@ -52,13 +72,12 @@ class _NotificationSettingPageState
                 SettingsTile(
                   title: Text('紧迫通知方式'),
                   trailing: GlassPullDownButton(
-                    icon: Icon(settings.urgentNotificationStyle.icon),
-                    label: settings.urgentNotificationStyle.label,
+                    icon: Icon(urgentNotificationStyle.icon),
+                    label: urgentNotificationStyle.label,
                     buttonWidth: 160,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: UrgentNotificationStyle.values.map((mode) {
-                      final isSelected =
-                          settings.urgentNotificationStyle == mode;
+                      final isSelected = urgentNotificationStyle == mode;
                       return GlassMenuItem(
                         title: mode.label,
                         icon: Icon(
@@ -78,13 +97,12 @@ class _NotificationSettingPageState
                 SettingsTile(
                   title: Text('临近通知方式'),
                   trailing: GlassPullDownButton(
-                    icon: Icon(settings.approachingNotificationStyle.icon),
-                    label: settings.approachingNotificationStyle.label,
+                    icon: Icon(approachingNotificationStyle.icon),
+                    label: approachingNotificationStyle.label,
                     buttonWidth: 160,
                     buttonShape: const LiquidRoundedRectangle(borderRadius: 64),
                     items: ApproachingNotificationStyle.values.map((mode) {
-                      final isSelected =
-                          settings.approachingNotificationStyle == mode;
+                      final isSelected = approachingNotificationStyle == mode;
                       return GlassMenuItem(
                         title: mode.label,
                         icon: Icon(
