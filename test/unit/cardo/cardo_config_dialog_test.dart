@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +11,67 @@ import 'package:janus/pages/SettingPage/subSettingPage/planningSetting/cardo_con
 import 'package:janus/services/cardo/cardo_config.dart';
 
 void main() {
+  testWidgets('reload failure stays retryable and uses sandbox file', (
+    tester,
+  ) async {
+    final service = _ReloadService();
+    addTearDown(service.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: CardoConfigDialog(service: service)),
+      ),
+    );
+    await tester.tap(find.text('重新加载配置'));
+    await tester.pump();
+    expect(service.paths, [CardoConfigService.configName]);
+    expect(
+      tester
+          .widget<TextButton>(find.widgetWithText(TextButton, '重新加载配置'))
+          .onPressed,
+      isNull,
+    );
+    service.pending.completeError(StateError('/private/sensitive/path'));
+    await tester.pump();
+    expect(find.text('重新加载失败，请重试'), findsOneWidget);
+    expect(find.textContaining('/private/sensitive/path'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('重新加载配置'));
+    await tester.pump();
+    expect(service.paths.length, 2);
+    service.pending.complete();
+    await tester.pump();
+    expect(find.text('重新加载失败，请重试'), findsNothing);
+    expect(
+      tester
+          .widget<TextButton>(find.widgetWithText(TextButton, '重新加载配置'))
+          .onPressed,
+      isNotNull,
+    );
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'closing during reload cancels refresh and avoids setState after dispose',
+    (tester) async {
+      final service = _ReloadService();
+      addTearDown(service.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: CardoConfigDialog(service: service)),
+        ),
+      );
+      await tester.tap(find.text('重新加载配置'));
+      await tester.pump();
+      await tester.pumpWidget(const SizedBox());
+      service.pending.completeError(StateError('failed'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 3));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets(
     'settings distinguishes rejected candidate from effective configuration',
     (tester) async {
@@ -59,4 +122,19 @@ void main() {
       }
     },
   );
+}
+
+class _ReloadService extends CardoConfigService {
+  final paths = <String>[];
+  Completer<void> pending = Completer<void>();
+
+  @override
+  Future<void> watchFile(
+    String path, {
+    Duration interval = const Duration(seconds: 2),
+  }) {
+    paths.add(path);
+    pending = Completer<void>();
+    return pending.future;
+  }
 }

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'cardo_config.dart';
 
 /// Shared input for database, scheduler and draft callers. All durations are minutes.
@@ -136,12 +137,13 @@ class CardoScoringService {
                 86400000000,
           );
     final f = <String, double>{}, weights = <String, double>{};
-    final registered = (c.parameters['factors'] as Map<String, dynamic>).keys;
+    final factorSpecs = c.parameters['factors'] as Map<String, dynamic>;
     double? positive(double? value) =>
         value != null && value.isFinite && value > 0 ? value : null;
     final estimate = positive(task.estimatedMinutes);
-    for (final name in registered) {
-      final spec = c.factor(name);
+    for (final entry in factorSpecs.entries) {
+      final name = entry.key;
+      final spec = entry.value as Map<String, dynamic>;
       if (spec['enabled'] != true) continue;
       final n = spec['normalization'] as Map<String, dynamic>;
       double? value;

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
+
 import '../../../../services/cardo/cardo_config.dart';
 
 /// Current policy and last load result are separate, so a rejected file never
@@ -25,14 +27,23 @@ class _CardoConfigDialogState extends State<CardoConfigDialog> {
 
   @override
   void dispose() {
+    refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  String? reloadError;
+
   Future<void> reload() async {
-    if (path.text.trim().isEmpty) return;
-    setState(() => busy = true);
+    setState(() {
+      busy = true;
+      reloadError = null;
+    });
     try {
-      final selected = path_util.absolute(path.text.trim());
-      path.text = selected;
-      await SharedPreferencesAsync().setString('cardo.configPath', selected);
-      await widget.service.watchFile(selected);
+      await widget.service.watchFile(CardoConfigService.configName);
+    } catch (_) {
+      if (mounted) {
+        setState(() => reloadError = '重新加载失败，请重试');
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -60,6 +71,7 @@ class _CardoConfigDialogState extends State<CardoConfigDialog> {
               Text(
                 '最近尝试：${s.lastAttemptAt?.toIso8601String() ?? "无"}\n${s.attemptedSource ?? ""}\n${s.lastStatus}\n${s.lastError ?? ""}',
               ),
+              if (reloadError != null) Text(reloadError!),
               Text('警告：${c.warnings.join("\n")}'),
               const SizedBox(height: 16),
               SelectableText(
