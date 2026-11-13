@@ -192,6 +192,37 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
+  /// Validates AI endpoint URL to enforce HTTPS on remote hosts (MITM prevention)
+  /// while permitting HTTP for local loopback hosts (e.g. localhost, 127.0.0.1).
+  static bool isValidEndpoint(String url) {
+    if (url.trim().isEmpty) return true;
+    final uri = Uri.tryParse(url.trim());
+    if (uri == null || !uri.hasScheme) return false;
+    if (uri.scheme == 'https') return true;
+    if (uri.scheme == 'http') {
+      final host = uri.host.toLowerCase();
+      return host == 'localhost' || host == '127.0.0.1' || host == '::1';
+    }
+    return false;
+  }
+
+  Future<bool> setEndPoint(String endpoint) async {
+    final trimmed = endpoint.trim();
+    if (!isValidEndpoint(trimmed)) return false;
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(endPoint: trimmed),
+    );
+    return true;
+  }
+
+  Future<void> setModelName(String modelName) async {
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(
+        modelName: modelName.trim(),
+      ),
+    );
+  }
+
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.value ?? const AppSettings()).copyWith(aiDailySummary: enabled),
