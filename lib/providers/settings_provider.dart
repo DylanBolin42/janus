@@ -192,6 +192,17 @@ class AppSettingsNotifier extends _$AppSettingsNotifier {
   }
 
   // AI settings
+  Future<void> setEndPoint(String endPoint) async {
+    if (!SettingsService.isValidEndpointUrl(endPoint)) {
+      throw ArgumentError(
+        'Invalid endpoint URL: remote endpoints must use HTTPS',
+      );
+    }
+    await _persist(
+      (state.value ?? const AppSettings()).copyWith(endPoint: endPoint),
+    );
+  }
+
   Future<void> setUseAiDailySummary(bool enabled) async {
     await _persist(
       (state.value ?? const AppSettings()).copyWith(aiDailySummary: enabled),
